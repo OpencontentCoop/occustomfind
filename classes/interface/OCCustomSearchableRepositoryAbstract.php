@@ -45,19 +45,19 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
         $docList[$languageCode] = $doc;
 
         $softCommit = false;
-        if (ezfeZPSolrQueryBuilder::$FindINI->variable('IndexOptions', 'EnableSoftCommits') === 'true') {
+        if (ezfeZPSolrQueryBuilder::$FindINI->hasVariable('IndexOptions', 'EnableSoftCommits') && ezfeZPSolrQueryBuilder::$FindINI->variable('IndexOptions', 'EnableSoftCommits') === 'true') {
             $softCommit = true;
         }
-        if (ezfeZPSolrQueryBuilder::$FindINI->variable('IndexOptions', 'DisableDirectCommits') === 'true') {
+        if (ezfeZPSolrQueryBuilder::$FindINI->hasVariable('IndexOptions', 'DisableDirectCommits') && ezfeZPSolrQueryBuilder::$FindINI->variable('IndexOptions', 'DisableDirectCommits') === 'true') {
             $commit = false;
         }
         $commitWithin = 0;
-        if (ezfeZPSolrQueryBuilder::$FindINI->variable('IndexOptions', 'CommitWithin') > 0) {
+        if (ezfeZPSolrQueryBuilder::$FindINI->hasVariable('IndexOptions', 'CommitWithin') && ezfeZPSolrQueryBuilder::$FindINI->variable('IndexOptions', 'CommitWithin') > 0) {
             $commitWithin = ezfeZPSolrQueryBuilder::$FindINI->variable('IndexOptions', 'CommitWithin');
         }
         $optimize = false;
         if ($commit
-            && ( ezfeZPSolrQueryBuilder::$FindINI->variable('IndexOptions', 'OptimizeOnCommit') === 'enabled' )
+            && ( ezfeZPSolrQueryBuilder::$FindINI->hasVariable('IndexOptions', 'OptimizeOnCommit') &&  ezfeZPSolrQueryBuilder::$FindINI->variable('IndexOptions', 'OptimizeOnCommit') === 'enabled' )
         ) {
             $optimize = true;
         }
@@ -72,11 +72,11 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
         $docList = array();
 
         $optimize = false;
-        if (ezfeZPSolrQueryBuilder::$FindINI->variable('IndexOptions', 'OptimizeOnCommit') === 'enabled') {
+        if ( ezfeZPSolrQueryBuilder::$FindINI->hasVariable('IndexOptions', 'OptimizeOnCommit') && ezfeZPSolrQueryBuilder::$FindINI->variable('IndexOptions', 'OptimizeOnCommit') === 'enabled') {
             $optimize = true;
         }
         $commitWithin = 0;
-        if (ezfeZPSolrQueryBuilder::$FindINI->variable('IndexOptions', 'CommitWithin') > 0) {
+        if (ezfeZPSolrQueryBuilder::$FindINI->hasVariable('IndexOptions', 'CommitWithin') && ezfeZPSolrQueryBuilder::$FindINI->variable('IndexOptions', 'CommitWithin') > 0) {
             $commitWithin = ezfeZPSolrQueryBuilder::$FindINI->variable('IndexOptions', 'CommitWithin');
         }
 
