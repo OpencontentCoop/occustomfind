@@ -162,12 +162,20 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
     {
         if (!empty( $filterArray )) {
             $booleanOperator = $this->getBooleanOperatorFromFilter($filterArray);
-
             $filterQueryList = array();
             foreach ($filterArray as $name => $value) {
 
-                if (is_array($value)) {
-                    $filterQueryList[] = '( ' . $this->buildFilters($value) . ' )';
+                if (is_array($value))
+                {
+                    switch ($value[0])
+                    {
+                        case 'range':
+                            $filterQueryList[] = $this->generateRangeFilter($this->getFieldSolrName($name, 'filter'), $value);
+                            break;
+                        default:
+                            $filterQueryList[] = '( ' . $this->buildFilters($value) . ' )';
+                            break;
+                    }
                 } else {
                     if ($value !== null) {
                         $filterQueryList[] = $this->getFieldSolrName($name, 'filter') . ':' . $value;
@@ -181,6 +189,17 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
         }
 
         return null;
+    }
+
+    protected function generateRangeFilter( $fieldName, $value, $negative = false )
+    {
+        if ( !is_array( $value ) )
+            throw new Exception( "Range require an array value" );
+
+        if ( $negative ) $negative = '!';
+
+        $filter = $negative . $fieldName . ':[' . $value[1] . ' TO ' . $value[2] . ']';
+        return $filter;
     }
 
     private function getBooleanOperatorFromFilter(&$filter)
