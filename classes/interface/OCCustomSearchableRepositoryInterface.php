@@ -30,6 +30,13 @@ interface OCCustomSearchableRepositoryInterface
     public function fetchSearchableObjectList($limit, $offset);
 
     /**
+     * @param $objectID
+     *
+     * @return OCCustomSearchableObjectInterface
+     */
+    public function fetchSearchableObject($objectID);
+
+    /**
      * @param OCCustomSearchParameters $parameters
      *
      * @return OCCustomSearchResult
