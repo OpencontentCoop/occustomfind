@@ -169,6 +169,11 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
                 {
                     switch ($value[0])
                     {
+                        case 'in':
+                        case '!in':
+                            $filterQueryList[] = $this->generateInFilter($this->getFieldSolrName($name, 'filter'), $value[1], $value[0] == '!in');
+                            break;
+
                         case 'range':
                             $filterQueryList[] = $this->generateRangeFilter($this->getFieldSolrName($name, 'filter'), $value);
                             break;
@@ -200,6 +205,42 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
 
         $filter = $negative . $fieldName . ':[' . $value[1] . ' TO ' . $value[2] . ']';
         return $filter;
+    }
+
+
+    protected function generateInFilter( $fieldName, $value, $negative )
+    {
+        if ( $negative ) $negative = '!';
+        $filter = array();
+        if ( is_array( $value ) )
+        {
+            if ( count( $value ) > 1 )
+            {
+                //$data = array( 'or' );
+                foreach ( $value as $item )
+                {
+                    $filter[] = $negative . $fieldName . ':' . $item;
+                }
+            }
+            else
+            {
+                $filter = $negative . $fieldName . ':' . $value;
+            }
+        }
+        else
+        {
+            $filter = $negative . $fieldName . ':' . $value;
+        }
+
+        if ( count( $filter ) == 1 )
+        {
+            return '( ' . $filter[0] . ' )';
+        }
+
+        elseif ( count( $filter ) > 1 )
+        {
+            return implode(" OR ", $filter);
+        }
     }
 
     private function getBooleanOperatorFromFilter(&$filter)
