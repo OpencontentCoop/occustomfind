@@ -10,7 +10,7 @@ class DummySearchableRepository extends OCCustomSearchableRepositoryAbstract
 
     public function availableForClass()
     {
-        return DummySearchableObject::class;
+        return 'DummySearchableObject';
     }
 
     public function countSearchableObjects()
@@ -43,4 +43,12 @@ class DummySearchableRepository extends OCCustomSearchableRepositoryAbstract
 
         return $data;
     }
+
+    public function fetchSearchableObject($objectID)
+    {
+        $className = $this->availableForClass();
+        return new $className();
+    }
+
+
 }

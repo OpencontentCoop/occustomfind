@@ -10,6 +10,6 @@ class DummyAltSearchableRepository extends DummySearchableRepository
 
     public function availableForClass()
     {
-        return DummyAltSearchableObject::class;
+        return 'DummyAltSearchableObject';
     }
 }

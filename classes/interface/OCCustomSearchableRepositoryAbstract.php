@@ -25,12 +25,14 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
 
         foreach ($this->getFields() as $field) {
             $value = $object->getFieldValue($field);
-            if ($field->isMultiValued()) {
-                foreach ((array)$value as $item) {
-                    $doc->addField($field->getSolrName(), (string)$item);
+            if ($value !== null) {
+                if ($field->isMultiValued()) {
+                    foreach ((array)$value as $item) {
+                        $doc->addField($field->getSolrName(), (string)$item);
+                    }
+                } else {
+                    $doc->addField($field->getSolrName(), $value);
                 }
-            } else {
-                $doc->addField($field->getSolrName(), $value);
             }
         }
 
@@ -124,7 +126,6 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
     {
         $filterQuery = array();
 
-        $filterQuery[] = ezfSolrDocumentFieldBase::generateMetaFieldName('installation_id') . ':' . eZSolr::installationID();
         $filterQuery[] = ezfSolrDocumentFieldBase::generateMetaFieldName('installation_id') . ':' . eZSolr::installationID();
         $filterQuery[] = self::META_REPOSITORY_PREFIX . ':' . $this->getIdentifier();
         $filterQuery[] = self::META_CUSTOM_PREFIX . ':' . eZSolr::installationID();

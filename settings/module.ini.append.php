@@ -3,5 +3,6 @@
 [ModuleSettings]
 ExtensionRepositories[]=occustomfind
 ModuleList[]=customfind
+ModuleList[]=customindex
 
 */ ?>

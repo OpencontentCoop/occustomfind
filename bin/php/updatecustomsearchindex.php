@@ -40,7 +40,7 @@ try {
         }
     }else {
         $selectedRepository = $options['repository'] ? explode(',', $options['repository']) : array();
-
+        $errors = array();
         foreach ($allRepository as $repositoryName) {
 
             if (!class_exists($repositoryName)) {
@@ -83,7 +83,9 @@ try {
 
                     foreach ($items as $item) {
                         $progressBar->advance();
-                        $repository->index($item);
+                        if (!$repository->index($item)){
+                            $errors[$repository->getIdentifier()][] = $item;
+                        }
                     }
 
                     $offset += $length;
@@ -93,6 +95,15 @@ try {
                 $cli->notice();
             }
         }
+    }
+
+    foreach($errors as $identifier => $items){
+        $cli->error("Errors indexing $identifier:");
+        /** @var OCCustomSearchableObjectInterface $item */
+        foreach($items as $item){
+            $cli->error("  " . $item->getGuid());
+        }
+
     }
 
     $script->shutdown();
