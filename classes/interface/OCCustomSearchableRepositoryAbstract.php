@@ -6,6 +6,18 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
     const META_CUSTOM_PREFIX = 'meta_custom_search_ms';
     const META_REPOSITORY_PREFIX = 'meta_custom_search_repository_ms';
 
+    const DEFAULT_BOOLEAN_OPERATOR = 'AND';
+    const FACET_LIMIT = 20;
+    const FACET_OFFSET = 0;
+    const FACET_MINCOUNT = 1;
+
+    protected static $allowedBooleanOperators = array(
+        'AND',
+        'and',
+        'OR',
+        'or'
+    );
+
     public function index(OCCustomSearchableObjectInterface $object, $commit = true)
     {
         $docList = array();
@@ -47,19 +59,19 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
         $docList[$languageCode] = $doc;
 
         $softCommit = false;
-        if (ezfeZPSolrQueryBuilder::$FindINI->hasVariable('IndexOptions', 'EnableSoftCommits') && ezfeZPSolrQueryBuilder::$FindINI->variable('IndexOptions', 'EnableSoftCommits') === 'true') {
+        if (eZINI::instance( 'ezfind.ini' )->hasVariable('IndexOptions', 'EnableSoftCommits') && eZINI::instance( 'ezfind.ini' )->variable('IndexOptions', 'EnableSoftCommits') === 'true') {
             $softCommit = true;
         }
-        if (ezfeZPSolrQueryBuilder::$FindINI->hasVariable('IndexOptions', 'DisableDirectCommits') && ezfeZPSolrQueryBuilder::$FindINI->variable('IndexOptions', 'DisableDirectCommits') === 'true') {
+        if (eZINI::instance( 'ezfind.ini' )->hasVariable('IndexOptions', 'DisableDirectCommits') && eZINI::instance( 'ezfind.ini' )->variable('IndexOptions', 'DisableDirectCommits') === 'true') {
             $commit = false;
         }
         $commitWithin = 0;
-        if (ezfeZPSolrQueryBuilder::$FindINI->hasVariable('IndexOptions', 'CommitWithin') && ezfeZPSolrQueryBuilder::$FindINI->variable('IndexOptions', 'CommitWithin') > 0) {
-            $commitWithin = ezfeZPSolrQueryBuilder::$FindINI->variable('IndexOptions', 'CommitWithin');
+        if (eZINI::instance( 'ezfind.ini' )->hasVariable('IndexOptions', 'CommitWithin') && eZINI::instance( 'ezfind.ini' )->variable('IndexOptions', 'CommitWithin') > 0) {
+            $commitWithin = eZINI::instance( 'ezfind.ini' )->variable('IndexOptions', 'CommitWithin');
         }
         $optimize = false;
         if ($commit
-            && ( ezfeZPSolrQueryBuilder::$FindINI->hasVariable('IndexOptions', 'OptimizeOnCommit') &&  ezfeZPSolrQueryBuilder::$FindINI->variable('IndexOptions', 'OptimizeOnCommit') === 'enabled' )
+            && ( eZINI::instance( 'ezfind.ini' )->hasVariable('IndexOptions', 'OptimizeOnCommit') &&  eZINI::instance( 'ezfind.ini' )->variable('IndexOptions', 'OptimizeOnCommit') === 'enabled' )
         ) {
             $optimize = true;
         }
@@ -74,12 +86,12 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
         $docList = array();
 
         $optimize = false;
-        if ( ezfeZPSolrQueryBuilder::$FindINI->hasVariable('IndexOptions', 'OptimizeOnCommit') && ezfeZPSolrQueryBuilder::$FindINI->variable('IndexOptions', 'OptimizeOnCommit') === 'enabled') {
+        if ( eZINI::instance( 'ezfind.ini' )->hasVariable('IndexOptions', 'OptimizeOnCommit') && eZINI::instance( 'ezfind.ini' )->variable('IndexOptions', 'OptimizeOnCommit') === 'enabled') {
             $optimize = true;
         }
         $commitWithin = 0;
-        if (ezfeZPSolrQueryBuilder::$FindINI->hasVariable('IndexOptions', 'CommitWithin') && ezfeZPSolrQueryBuilder::$FindINI->variable('IndexOptions', 'CommitWithin') > 0) {
-            $commitWithin = ezfeZPSolrQueryBuilder::$FindINI->variable('IndexOptions', 'CommitWithin');
+        if (eZINI::instance( 'ezfind.ini' )->hasVariable('IndexOptions', 'CommitWithin') && eZINI::instance( 'ezfind.ini' )->variable('IndexOptions', 'CommitWithin') > 0) {
+            $commitWithin = eZINI::instance( 'ezfind.ini' )->variable('IndexOptions', 'CommitWithin');
         }
 
         $languageCode = eZLocale::currentLocaleCode();
@@ -118,8 +130,8 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
 
     private function getInstallationUrl()
     {
-        return ezfeZPSolrQueryBuilder::$FindINI->variable('SiteSettings',
-            'URLProtocol') . ezfeZPSolrQueryBuilder::$SiteINI->variable('SiteSettings', 'SiteURL') . '/';
+        return eZINI::instance( 'ezfind.ini' )->variable('SiteSettings',
+            'URLProtocol') . eZINI::instance( 'site.ini' )->variable('SiteSettings', 'SiteURL') . '/';
     }
 
     protected function buildQuery(OCCustomSearchParameters $parameters)
@@ -247,14 +259,14 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
     private function getBooleanOperatorFromFilter(&$filter)
     {
         if (isset( $filter[0] ) and is_string($filter[0]) and in_array($filter[0],
-                ezfeZPSolrQueryBuilder::$allowedBooleanOperators)
+                self::$allowedBooleanOperators)
         ) {
             $retVal = strtoupper($filter[0]);
             unset( $filter[0] );
 
             return $retVal;
         } else {
-            return ezfeZPSolrQueryBuilder::DEFAULT_BOOLEAN_OPERATOR;
+            return self::DEFAULT_BOOLEAN_OPERATOR;
         }
     }
 
@@ -343,21 +355,21 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
             if (!empty( $facetDefinition['limit'] )) {
                 $queryPart['limit'] = $facetDefinition['limit'];
             } else {
-                $queryPart['limit'] = ezfeZPSolrQueryBuilder::FACET_LIMIT;
+                $queryPart['limit'] = self::FACET_LIMIT;
             }
 
             // Get offset
             if (!empty( $facetDefinition['offset'] )) {
                 $queryPart['offset'] = $facetDefinition['offset'];
             } else {
-                $queryPart['offset'] = ezfeZPSolrQueryBuilder::FACET_OFFSET;
+                $queryPart['offset'] = self::FACET_OFFSET;
             }
 
             // Get mincount
             if (!empty( $facetDefinition['mincount'] )) {
                 $queryPart['mincount'] = $facetDefinition['mincount'];
             } else {
-                $queryPart['mincount'] = ezfeZPSolrQueryBuilder::FACET_MINCOUNT;
+                $queryPart['mincount'] = self::FACET_MINCOUNT;
             }
 
             // Get missing option.
@@ -431,5 +443,4 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
     {
         return self::STORAGE_ATTR_FIELD_PREFIX . $this->getIdentifier() . self::STORAGE_ATTR_FIELD_SUFFIX;
     }
-
 }
