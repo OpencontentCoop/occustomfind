@@ -69,4 +69,16 @@ interface OCCustomSearchableRepositoryInterface
      * @return string
      */
     public function getStorageObjectFieldName();
+
+    /**
+     * @return OCCustomSearchableFieldInterface[]
+     */
+    public function getFields();
+
+    /**
+     * @param string $fieldName
+     *
+     * @return OCCustomSearchableFieldInterface|null
+     */
+    public function getFieldByName($fieldName);
 }

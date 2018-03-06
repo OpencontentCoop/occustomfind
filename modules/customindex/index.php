@@ -2,6 +2,7 @@
 
 $Module = $Params['Module'];
 $http = eZHTTPTool::instance();
+$Debug = isset( $_GET['debug'] );
 $repositoryIdentifier = $Params['Repository'];
 $id = $Params['Id'];
 $item = null;

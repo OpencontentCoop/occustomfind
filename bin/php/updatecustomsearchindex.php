@@ -28,7 +28,8 @@ $output = new ezcConsoleOutput();
 try {
 
     $allRepository = eZINI::instance('occustomfind.ini')->variable('Settings', 'AvailableRepositories');
-
+    $errors = array();
+    
     if ($options['list']) {
         foreach ($allRepository as $repositoryIdentifier => $repositoryName) {
             $cli->notice($repositoryIdentifier . ' ', false);
@@ -39,8 +40,7 @@ try {
             }
         }
     }else {
-        $selectedRepository = $options['repository'] ? explode(',', $options['repository']) : array();
-        $errors = array();
+        $selectedRepository = $options['repository'] ? explode(',', $options['repository']) : array();        
         foreach ($allRepository as $repositoryName) {
 
             if (!class_exists($repositoryName)) {
