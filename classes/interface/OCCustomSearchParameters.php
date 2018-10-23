@@ -1,7 +1,7 @@
 <?php
 
 
-class OCCustomSearchParameters
+class OCCustomSearchParameters implements JsonSerializable
 {
     /**
      * @var string
@@ -33,9 +33,19 @@ class OCCustomSearchParameters
      */
     private $sort = array();
 
-    public static function instance()
+    public static function instance(array $data = null)
     {
-        return new OCCustomSearchParameters;
+        $instance = new OCCustomSearchParameters;
+        
+        if (is_array($data)){
+            foreach ($data as $key => $value) {
+                if (property_exists($instance, $key)){
+                    $instance->{$key} = $value;
+                }
+            }
+        }
+
+        return $instance;
     }
 
     /**
@@ -158,5 +168,11 @@ class OCCustomSearchParameters
         return $this;
     }
 
+    public function jsonSerialize()
+    {
+        $vars = get_object_vars($this);
+
+        return $vars;
+    }
 
 }

@@ -20,4 +20,9 @@ interface OCCustomSearchableFieldInterface
      */
     public function isMultiValued();
 
+    /**
+     * @return string
+     */
+    public function getType();
+
 }

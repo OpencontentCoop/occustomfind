@@ -31,7 +31,8 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
 
         $doc->addField(ezfSolrDocumentFieldBase::generateMetaFieldName('guid'), $object->getGuid());
         $doc->addField(ezfSolrDocumentFieldBase::generateMetaFieldName('installation_id'), eZSolr::installationID());
-        $doc->addField(ezfSolrDocumentFieldBase::generateMetaFieldName('installation_url'), $this->getInstallationUrl());
+        $doc->addField(ezfSolrDocumentFieldBase::generateMetaFieldName('installation_url'),
+            $this->getInstallationUrl());
         $doc->addField(self::META_REPOSITORY_PREFIX, $this->getIdentifier());
         $doc->addField(self::META_CUSTOM_PREFIX, eZSolr::installationID());
 
@@ -59,19 +60,23 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
         $docList[$languageCode] = $doc;
 
         $softCommit = false;
-        if (eZINI::instance( 'ezfind.ini' )->hasVariable('IndexOptions', 'EnableSoftCommits') && eZINI::instance( 'ezfind.ini' )->variable('IndexOptions', 'EnableSoftCommits') === 'true') {
+        if (eZINI::instance('ezfind.ini')->hasVariable('IndexOptions', 'EnableSoftCommits')
+            && eZINI::instance('ezfind.ini')->variable('IndexOptions', 'EnableSoftCommits') === 'true') {
             $softCommit = true;
         }
-        if (eZINI::instance( 'ezfind.ini' )->hasVariable('IndexOptions', 'DisableDirectCommits') && eZINI::instance( 'ezfind.ini' )->variable('IndexOptions', 'DisableDirectCommits') === 'true') {
+        if (eZINI::instance('ezfind.ini')->hasVariable('IndexOptions', 'DisableDirectCommits')
+            && eZINI::instance('ezfind.ini')->variable('IndexOptions', 'DisableDirectCommits') === 'true') {
             $commit = false;
         }
         $commitWithin = 0;
-        if (eZINI::instance( 'ezfind.ini' )->hasVariable('IndexOptions', 'CommitWithin') && eZINI::instance( 'ezfind.ini' )->variable('IndexOptions', 'CommitWithin') > 0) {
-            $commitWithin = eZINI::instance( 'ezfind.ini' )->variable('IndexOptions', 'CommitWithin');
+        if (eZINI::instance('ezfind.ini')->hasVariable('IndexOptions', 'CommitWithin')
+            && eZINI::instance('ezfind.ini')->variable('IndexOptions', 'CommitWithin') > 0) {
+            $commitWithin = eZINI::instance('ezfind.ini')->variable('IndexOptions', 'CommitWithin');
         }
         $optimize = false;
         if ($commit
-            && ( eZINI::instance( 'ezfind.ini' )->hasVariable('IndexOptions', 'OptimizeOnCommit') &&  eZINI::instance( 'ezfind.ini' )->variable('IndexOptions', 'OptimizeOnCommit') === 'enabled' )
+            && ( eZINI::instance('ezfind.ini')->hasVariable('IndexOptions', 'OptimizeOnCommit')
+                 && eZINI::instance('ezfind.ini')->variable('IndexOptions', 'OptimizeOnCommit') === 'enabled' )
         ) {
             $optimize = true;
         }
@@ -86,12 +91,14 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
         $docList = array();
 
         $optimize = false;
-        if ( eZINI::instance( 'ezfind.ini' )->hasVariable('IndexOptions', 'OptimizeOnCommit') && eZINI::instance( 'ezfind.ini' )->variable('IndexOptions', 'OptimizeOnCommit') === 'enabled') {
+        if (eZINI::instance('ezfind.ini')->hasVariable('IndexOptions', 'OptimizeOnCommit')
+            && eZINI::instance('ezfind.ini')->variable('IndexOptions', 'OptimizeOnCommit') === 'enabled') {
             $optimize = true;
         }
         $commitWithin = 0;
-        if (eZINI::instance( 'ezfind.ini' )->hasVariable('IndexOptions', 'CommitWithin') && eZINI::instance( 'ezfind.ini' )->variable('IndexOptions', 'CommitWithin') > 0) {
-            $commitWithin = eZINI::instance( 'ezfind.ini' )->variable('IndexOptions', 'CommitWithin');
+        if (eZINI::instance('ezfind.ini')->hasVariable('IndexOptions', 'CommitWithin')
+            && eZINI::instance('ezfind.ini')->variable('IndexOptions', 'CommitWithin') > 0) {
+            $commitWithin = eZINI::instance('ezfind.ini')->variable('IndexOptions', 'CommitWithin');
         }
 
         $languageCode = eZLocale::currentLocaleCode();
@@ -128,10 +135,29 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
         return $result->fromArrayResult($resultArray);
     }
 
+    public function getFields()
+    {
+        /** @var OCCustomSearchableObjectInterface $class */
+        $class = $this->availableForClass();
+
+        return $class::getFields();
+    }
+
+    public function getFieldByName($fieldName)
+    {
+        foreach ($this->getFields() as $field) {
+            if ($field->getName() == $fieldName) {
+                return $field;
+            }
+        }
+
+        return null;
+    }
+
     private function getInstallationUrl()
     {
-        return eZINI::instance( 'ezfind.ini' )->variable('SiteSettings',
-            'URLProtocol') . eZINI::instance( 'site.ini' )->variable('SiteSettings', 'SiteURL') . '/';
+        return eZINI::instance('ezfind.ini')->variable('SiteSettings',
+                'URLProtocol') . eZINI::instance('site.ini')->variable('SiteSettings', 'SiteURL') . '/';
     }
 
     protected function buildQuery(OCCustomSearchParameters $parameters)
@@ -143,6 +169,7 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
         $filterQuery[] = self::META_CUSTOM_PREFIX . ':' . eZSolr::installationID();
 
         $filter = $this->buildFilters($parameters->getFilters());
+      
         if ($filter !== null) {
             $filterQuery[] = $filter;
         }
@@ -172,36 +199,49 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
     }
 
     protected function buildFilters(array $filterArray)
-    {
-        if (!empty( $filterArray )) {
-            $booleanOperator = $this->getBooleanOperatorFromFilter($filterArray);
+    {      
+        if (!empty($filterArray)) {
+            $booleanOperator = $this->getBooleanOperatorFromFilter($filterArray);           
             $filterQueryList = array();
             foreach ($filterArray as $name => $value) {
+                if (is_array($value)) {
+                    if (is_numeric($name)){
+                        $filterQueryList[] = '( ' . $this->buildFilters($value) . ' )';
+                    }else{
+                        
+                        $field = $this->getFieldByName($name);
+                        
+                        reset($value);
+                        $firstValue = current($value);
+                        $firstKey = key($value);
 
-                if (is_array($value))
-                {
-                    switch ($value[0])
-                    {
-                        case 'in':
-                        case '!in':
-                            $filterQueryList[] = $this->generateInFilter($this->getFieldSolrName($name, 'filter'), $value[1], $value[0] == '!in');
-                            break;
+                        if($firstKey == 0){
+                            switch ($firstValue) {
+                                case 'in':
+                                case '!in':
+                                    $filterQueryList[] = $this->generateInFilter($field, $value[1], $value[0] == '!in');
+                                    break;
 
-                        case 'range':
-                            $filterQueryList[] = $this->generateRangeFilter($this->getFieldSolrName($name, 'filter'), $value);
-                            break;
-                        default:
-                            $filterQueryList[] = '( ' . $this->buildFilters($value) . ' )';
-                            break;
+                                case 'range':
+                                case '!range':
+                                    $filterQueryList[] = $this->generateRangeFilter($field, $value[1], $value[0] == '!range');
+                                    break;
+
+                                default:
+                                    throw new Exception("Operator $firstValue not handled", 1);                                    
+                                    break;
+                            }
+                        }
                     }
                 } else {
                     if ($value !== null) {
-                        $filterQueryList[] = $this->getFieldSolrName($name, 'filter') . ':' . $value;
+                        $field = $this->getFieldByName($name);
+                        $filterQueryList[] = $this->generateFilter($field, $value);
                     }
                 }
             }
-
-            if (!empty( $filterQueryList )) {
+            
+            if (!empty($filterQueryList)) {                
                 return implode(" $booleanOperator ", $filterQueryList);
             }
         }
@@ -209,60 +249,11 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
         return null;
     }
 
-    protected function generateRangeFilter( $fieldName, $value, $negative = false )
-    {
-        if ( !is_array( $value ) )
-            throw new Exception( "Range require an array value" );
-
-        if ( $negative ) $negative = '!';
-
-        $filter = $negative . $fieldName . ':[' . $value[1] . ' TO ' . $value[2] . ']';
-        return $filter;
-    }
-
-
-    protected function generateInFilter( $fieldName, $value, $negative )
-    {
-        if ( $negative ) $negative = '!';
-        $filter = array();
-        if ( is_array( $value ) )
-        {
-            if ( count( $value ) > 1 )
-            {
-                //$data = array( 'or' );
-                foreach ( $value as $item )
-                {
-                    $filter[] = $negative . $fieldName . ':' . $item;
-                }
-            }
-            else
-            {
-                $filter = $negative . $fieldName . ':' . $value;
-            }
-        }
-        else
-        {
-            $filter = $negative . $fieldName . ':' . $value;
-        }
-
-        if ( count( $filter ) == 1 )
-        {
-            return '( ' . $filter[0] . ' )';
-        }
-
-        elseif ( count( $filter ) > 1 )
-        {
-            return implode(" OR ", $filter);
-        }
-    }
-
     private function getBooleanOperatorFromFilter(&$filter)
     {
-        if (isset( $filter[0] ) and is_string($filter[0]) and in_array($filter[0],
-                self::$allowedBooleanOperators)
-        ) {
+        if (isset($filter[0]) and is_string($filter[0]) and in_array($filter[0], self::$allowedBooleanOperators)) {
             $retVal = strtoupper($filter[0]);
-            unset( $filter[0] );
+            unset($filter[0]);
 
             return $retVal;
         } else {
@@ -270,11 +261,65 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
         }
     }
 
+    protected function generateRangeFilter($field, $value, $negative = false)
+    {
+        if (!is_array($value)) {
+            throw new Exception("Range require an array value");
+        }
+        
+        $fieldName =  $field->getSolrName('filter');
+        
+        if ($negative) {
+            $negative = '!';
+        }
+
+        $filter = $negative . $fieldName . ':[' . $value[1] . ' TO ' . $value[2] . ']';
+
+        return $filter;
+    }
+
+    protected function generateInFilter($field, $value, $negative = false)
+    {        
+        $fieldName =  $field->getSolrName('filter');
+
+        if ($negative) {
+            $negative = '!';
+        }
+        $filter = array();
+        if (!is_array($value)) {
+            $value = array($value);
+        }
+        
+        foreach ($value as $item) {
+            if ($field->getType() == 'string'){
+                $item = '"' . $item . '"';
+            }
+            $filter[] = $negative . $fieldName . ':' . $item;
+        }
+
+        if (count($filter) == 1) {
+            return $filter[0];
+        } elseif (count($filter) > 1) {
+            return implode(" OR ", $filter);
+        }
+    }
+
+    protected function generateFilter($field, $value, $negative = false)
+    {
+        if ($negative) {
+            $negative = '!';
+        }
+        if ($field->getType() == 'string'){
+            $value = '"' . $value . '"';
+        }
+        return $negative . $field->getSolrName('filter') . ':' . $value;
+    }
+
     protected function buildSort(array $sortArray)
     {
         $sortString = array('score desc');
 
-        if (!empty( $sortArray )) {
+        if (!empty($sortArray)) {
             $sortString = '';
             foreach ($sortArray as $field => $order) {
                 // If array, set key and order from array values
@@ -286,35 +331,39 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
                 // Fixup field name
                 switch ($field) {
                     case 'score':
-                    case 'relevance': {
-                        $field = 'score';
-                    }
+                    case 'relevance':
+                        {
+                            $field = 'score';
+                        }
                         break;
 
 
-                    default: {
-                        $field = $this->getFieldSolrName($field, 'sort');
-                        if (!$field) {
-                            eZDebug::writeNotice("Sort field $field not found", __METHOD__);
-                            continue;
+                    default:
+                        {
+                            $field = $this->getFieldSolrName($field, 'sort');
+                            if (!$field) {
+                                eZDebug::writeNotice("Sort field $field not found", __METHOD__);
+                                continue;
+                            }
                         }
-                    }
                         break;
                 }
 
                 // Fixup order name.
                 switch (strtolower($order)) {
                     case 'desc':
-                    case 'asc': {
-                        $order = strtolower($order);
-                    }
+                    case 'asc':
+                        {
+                            $order = strtolower($order);
+                        }
                         break;
 
-                    default: {
-                        eZDebug::writeDebug('Unrecognized sort order. Setting for order for default: "desc"',
-                            __METHOD__);
-                        $order = 'desc';
-                    }
+                    default:
+                        {
+                            eZDebug::writeDebug('Unrecognized sort order. Setting for order for default: "desc"',
+                                __METHOD__);
+                            $order = 'desc';
+                        }
                         break;
                 }
 
@@ -333,54 +382,58 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
             $queryPart = array();
 
             $queryPart['field'] = $this->getFieldSolrName($facetDefinition['field'], 'facet');
-            if (!empty( $facetDefinition['sort'] )) {
+            if (!empty($facetDefinition['sort'])) {
                 switch (strtolower($facetDefinition['sort'])) {
-                    case 'count': {
-                        $queryPart['sort'] = 'true';
-                    }
+                    case 'count':
+                        {
+                            $queryPart['sort'] = 'true';
+                        }
                         break;
 
-                    case 'alpha': {
-                        $queryPart['sort'] = 'false';
-                    }
+                    case 'alpha':
+                        {
+                            $queryPart['sort'] = 'false';
+                        }
                         break;
 
-                    default: {
-                        eZDebug::writeWarning('Invalid sort option provided: ' . $facetDefinition['sort'], __METHOD__);
-                    }
+                    default:
+                        {
+                            eZDebug::writeWarning('Invalid sort option provided: ' . $facetDefinition['sort'],
+                                __METHOD__);
+                        }
                         break;
                 }
             }
             // Get limit option
-            if (!empty( $facetDefinition['limit'] )) {
+            if (!empty($facetDefinition['limit'])) {
                 $queryPart['limit'] = $facetDefinition['limit'];
             } else {
                 $queryPart['limit'] = self::FACET_LIMIT;
             }
 
             // Get offset
-            if (!empty( $facetDefinition['offset'] )) {
+            if (!empty($facetDefinition['offset'])) {
                 $queryPart['offset'] = $facetDefinition['offset'];
             } else {
                 $queryPart['offset'] = self::FACET_OFFSET;
             }
 
             // Get mincount
-            if (!empty( $facetDefinition['mincount'] )) {
+            if (!empty($facetDefinition['mincount'])) {
                 $queryPart['mincount'] = $facetDefinition['mincount'];
             } else {
                 $queryPart['mincount'] = self::FACET_MINCOUNT;
             }
 
             // Get missing option.
-            if (!empty( $facetDefinition['missing'] )) {
+            if (!empty($facetDefinition['missing'])) {
                 $queryPart['missing'] = 'true';
             }
 
-            if (!empty( $queryPart )) {
+            if (!empty($queryPart)) {
                 foreach ($queryPart as $key => $value) {
                     // check for fully prepared parameter names, like the per field options
-                    if ($key !== 'field' && !empty( $queryParamList['facet.' . $key] ) && isset( $queryPart['field'] )) {
+                    if ($key !== 'field' && !empty($queryParamList['facet.' . $key]) && isset($queryPart['field'])) {
                         // local override for one given facet
                         $queryParamList['f.' . $queryPart['field'] . '.facet.' . $key][] = $value;
                     } else {
@@ -391,19 +444,11 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
             }
 
         }
-        if (!empty( $queryParamList )) {
+        if (!empty($queryParamList)) {
             $queryParamList['facet'] = 'true';
         }
 
         return $queryParamList;
-    }
-
-    protected function getFields()
-    {
-        /** @var OCCustomSearchableObjectInterface $class */
-        $class = $this->availableForClass();
-
-        return $class::getFields();
     }
 
     protected function buildMultiFieldQuery($searchText)
