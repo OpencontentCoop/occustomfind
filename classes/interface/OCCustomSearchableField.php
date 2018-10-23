@@ -30,7 +30,8 @@ class OCCustomSearchableField implements OCCustomSearchableFieldInterface
         'geohash' => 'gh',
         'mstring' => 'ms',
         'mtext' => 'mt',
-        'texticu' => 'tu'
+        'texticu' => 'tu',
+        'binary' => 'bst,
     );
 
     public static function create($name, $type)
