@@ -38,7 +38,12 @@ try {
 
 echo '<pre>';
 var_dump($data);
-print_r($item);
+if ($item instanceof OCCustomSearchableObjectInterface) {
+    echo $item->getGuid() . "\n";
+    print_r($item->toArray());
+}else{
+    print_r($item);
+}
 echo '</pre>';
 eZDisplayDebug();
 eZExecution::cleanExit();

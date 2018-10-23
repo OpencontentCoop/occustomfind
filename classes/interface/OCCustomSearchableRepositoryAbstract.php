@@ -273,7 +273,7 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
             $negative = '!';
         }
 
-        $filter = $negative . $fieldName . ':[' . $value[1] . ' TO ' . $value[2] . ']';
+        $filter = $negative . $fieldName . ':[' . $value[0] . ' TO ' . $value[1] . ']';
 
         return $filter;
     }
