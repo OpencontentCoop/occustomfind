@@ -31,7 +31,7 @@ class OCCustomSearchableField implements OCCustomSearchableFieldInterface
         'mstring' => 'ms',
         'mtext' => 'mt',
         'texticu' => 'tu',
-        'binary' => 'bst,
+        'binary' => 'bst',
     );
 
     public static function create($name, $type)
