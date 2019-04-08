@@ -52,11 +52,26 @@ interface OCCustomSearchableRepositoryInterface
     public function index(OCCustomSearchableObjectInterface $object, $commit = true);
 
     /**
+     * @param OCCustomSearchableObjectInterface[] $objects
+     * @param bool $commit
+     *
+     * @return boolean
+     */
+    public function bulkIndex($objects, $commit = true);
+
+    /**
      * @param OCCustomSearchableObjectInterface $object
      *
      * @return boolean
      */
     public function remove(OCCustomSearchableObjectInterface $object);
+
+    /**
+     * @param OCCustomSearchableObjectInterface[] $objects
+     *
+     * @return boolean
+     */
+    public function bulkRemove($objects);
 
     /**
      * @return void

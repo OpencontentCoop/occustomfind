@@ -21,6 +21,25 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
     public function index(OCCustomSearchableObjectInterface $object, $commit = true)
     {
         $docList = array();
+        $docList[] = $this->getSolrDocFromCustomSearchableObject($object);
+
+        return $this->addDocsToSolr($docList, $commit);
+    }
+
+    public function bulkIndex($objects, $commit = true)
+    {
+        $docList = array();
+        foreach ($objects as $object) {
+            if ($object instanceof OCCustomSearchableObjectInterface) {
+                $docList[] = $this->getSolrDocFromCustomSearchableObject($object);
+            }
+        }
+
+        return $this->addDocsToSolr($docList, $commit);
+    }
+
+    private function getSolrDocFromCustomSearchableObject(OCCustomSearchableObjectInterface $object)
+    {
         $docBoost = 1.0;
 
         $doc = new eZSolrDoc($docBoost);
@@ -51,14 +70,18 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
 
         $doc->addField($this->getStorageObjectFieldName(), base64_encode(json_encode($object->toArray())));
 
-        $debugDom = new DOMDocument('1.0', 'utf-8');
-        $debugDom->formatOutput = true;
-        $debugDom->loadXML($doc->docToXML());
-        eZDebug::writeDebug($debugDom->saveXML(), __METHOD__);
+        if (eZINI::instance()->variable('DebugSettings', 'DebugOutput') == 'enabled') {
+            $debugDom = new DOMDocument('1.0', 'utf-8');
+            $debugDom->formatOutput = true;
+            $debugDom->loadXML($doc->docToXML());
+            eZDebug::writeDebug($debugDom->saveXML(), __METHOD__);
+        }
 
-        $languageCode = eZLocale::currentLocaleCode();
-        $docList[$languageCode] = $doc;
+        return $doc;
+    }
 
+    private function addDocsToSolr(array $docList, $commit = true)
+    {
         $softCommit = false;
         if (eZINI::instance('ezfind.ini')->hasVariable('IndexOptions', 'EnableSoftCommits')
             && eZINI::instance('ezfind.ini')->variable('IndexOptions', 'EnableSoftCommits') === 'true') {
@@ -76,7 +99,7 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
         $optimize = false;
         if ($commit
             && ( eZINI::instance('ezfind.ini')->hasVariable('IndexOptions', 'OptimizeOnCommit')
-                 && eZINI::instance('ezfind.ini')->variable('IndexOptions', 'OptimizeOnCommit') === 'enabled' )
+                && eZINI::instance('ezfind.ini')->variable('IndexOptions', 'OptimizeOnCommit') === 'enabled' )
         ) {
             $optimize = true;
         }
@@ -89,7 +112,25 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
     public function remove(OCCustomSearchableObjectInterface $object)
     {
         $docList = array();
+        $docList[] = $object->getGuid();
 
+        return $this->deleteDocsFromSolr($docList);
+    }
+
+    public function bulkRemove($objects)
+    {
+        $docList = array();
+        foreach ($objects as $object) {
+            if ($object instanceof OCCustomSearchableObjectInterface) {
+                $docList[] = $object->getGuid();
+            }
+        }
+
+        return $this->deleteDocsFromSolr($docList);
+    }
+
+    private function deleteDocsFromSolr(array $docList)
+    {
         $optimize = false;
         if (eZINI::instance('ezfind.ini')->hasVariable('IndexOptions', 'OptimizeOnCommit')
             && eZINI::instance('ezfind.ini')->variable('IndexOptions', 'OptimizeOnCommit') === 'enabled') {
@@ -100,9 +141,6 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
             && eZINI::instance('ezfind.ini')->variable('IndexOptions', 'CommitWithin') > 0) {
             $commitWithin = eZINI::instance('ezfind.ini')->variable('IndexOptions', 'CommitWithin');
         }
-
-        $languageCode = eZLocale::currentLocaleCode();
-        $docList[$languageCode] = $object->getGuid();
 
         $solr = new eZSolrBase();
 
