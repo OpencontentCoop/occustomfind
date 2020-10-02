@@ -88,6 +88,13 @@ class OCCustomSearchParameters implements JsonSerializable
         return $this;
     }
 
+    public function addFilter($name, $value)
+    {
+        $this->filters[$name] = $value;
+
+        return $this;
+    }
+
     /**
      * @return int
      */

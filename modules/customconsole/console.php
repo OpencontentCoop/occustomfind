@@ -9,16 +9,7 @@ $error = false;
 $fields = array();
 
 try {
-    $allRepository = eZINI::instance('occustomfind.ini')->variable('Settings', 'AvailableRepositories');
-    if (isset( $allRepository[$repositoryIdentifier] )) {
-        $repositoryClass = $allRepository[$repositoryIdentifier];
-        /** @var OCCustomSearchableRepositoryInterface $repository */
-        $repository = new $repositoryClass;
-
-
-    } else {
-        throw new Exception("Repository $repositoryIdentifier non found");
-    }
+    $repository = OCCustomSearchableRepositoryProvider::instance()->provideRepository($repositoryIdentifier);
 } catch (Exception $e) {
     $error = $e->getMessage();
 }

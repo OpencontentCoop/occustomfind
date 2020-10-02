@@ -135,6 +135,33 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
         return $result->fromArrayResult($resultArray);
     }
 
+    /**
+     * @param $guid
+     * @return OCCustomSearchableObjectInterface|false
+     */
+    public function findOneByGuid($guid)
+    {
+        eZDebug::createAccumulator('Query build', 'eZ Find');
+        eZDebug::accumulatorStart('Query build');
+        $queryParams = $this->buildQuery(new OCCustomSearchParameters(), $guid);
+        eZDebug::accumulatorStop('Query build');
+
+        eZDebug::createAccumulator('Engine time', 'eZ Find');
+        eZDebug::accumulatorStart('Engine time');
+        $solr = new eZSolrBase();
+        $resultArray = $solr->rawSearch($queryParams);
+        eZDebug::accumulatorStop('Engine time');
+
+        $searchResult = new OCCustomSearchResult($this);
+        $result = $searchResult->fromArrayResult($resultArray);
+
+        if ($result['totalCount'] > 0){
+            return $result['searchHits'][0];
+        }
+
+        return false;
+    }
+
     public function getFields()
     {
         /** @var OCCustomSearchableObjectInterface $class */
@@ -160,7 +187,7 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
                 'URLProtocol') . eZINI::instance('site.ini')->variable('SiteSettings', 'SiteURL') . '/';
     }
 
-    protected function buildQuery(OCCustomSearchParameters $parameters)
+    protected function buildQuery(OCCustomSearchParameters $parameters, $guid = null)
     {
         $filterQuery = array();
 
@@ -168,10 +195,14 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
         $filterQuery[] = self::META_REPOSITORY_PREFIX . ':' . $this->getIdentifier();
         $filterQuery[] = self::META_CUSTOM_PREFIX . ':' . eZSolr::installationID();
 
-        $filter = $this->buildFilters($parameters->getFilters());
-      
-        if ($filter !== null) {
-            $filterQuery[] = $filter;
+        if ($guid === null) {
+            $filter = $this->buildFilters($parameters->getFilters());
+
+            if ($filter !== null) {
+                $filterQuery[] = $filter;
+            }
+        }else{
+            $filterQuery[] = ezfSolrDocumentFieldBase::generateMetaFieldName('guid') . ':' . $guid;
         }
 
         $fieldsToReturnString = 'score, *';
@@ -320,7 +351,7 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
         $sortString = array('score desc');
 
         if (!empty($sortArray)) {
-            $sortString = '';
+            $sortString = [];
             foreach ($sortArray as $field => $order) {
                 // If array, set key and order from array values
                 if (is_array($order)) {

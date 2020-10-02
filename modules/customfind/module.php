@@ -14,10 +14,10 @@ $ViewList = array();
 $FunctionList = array();
 $FunctionList['find'] = array();
 
-$allRepository = eZINI::instance('occustomfind.ini')->variable('Settings', 'AvailableRepositories');
+$allRepository = OCCustomSearchableRepositoryProvider::instance()->provideRepositories();
 $repositoryList = array();
-foreach ($allRepository as $repositoryIdentifier => $repositoryName) {
-    $presetList[$repositoryIdentifier] = array('Name' => $repositoryName, 'value' => $repositoryIdentifier);
+foreach ($allRepository as $repository) {
+    $presetList[$repository->getIdentifier()] = array('Name' => get_class($repository), 'value' => $repository->getIdentifier());
 }
 $FunctionList['find'] = array(
     'RepositoryList' => array(

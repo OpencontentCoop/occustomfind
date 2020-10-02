@@ -27,29 +27,17 @@ $output = new ezcConsoleOutput();
 
 try {
 
-    $allRepository = eZINI::instance('occustomfind.ini')->variable('Settings', 'AvailableRepositories');
+    $allRepository = OCCustomSearchableRepositoryProvider::instance()->provideRepositories();
     $errors = array();
     
     if ($options['list']) {
-        foreach ($allRepository as $repositoryIdentifier => $repositoryName) {
-            $cli->notice($repositoryIdentifier . ' ', false);
-            if (!class_exists($repositoryName)) {
-                $cli->error("Class $repositoryName not found");
-            }else{
-                $cli->notice($repositoryName);
-            }
+        foreach ($allRepository as $repository) {
+            $cli->notice($repository->getIdentifier() . ' ' . get_class($repository));
         }
     }else {
         $selectedRepository = $options['repository'] ? explode(',', $options['repository']) : array();        
-        foreach ($allRepository as $repositoryName) {
+        foreach ($allRepository as $repository) {
 
-            if (!class_exists($repositoryName)) {
-                $cli->error("Class $repositoryName not found");
-                continue;
-            }
-
-            /** @var OCCustomSearchableRepositoryInterface $repository */
-            $repository = new $repositoryName;
             $reindex = true;
             if (!empty( $selectedRepository ) && !in_array($repository->getIdentifier(), $selectedRepository)) {
                 $reindex = false;

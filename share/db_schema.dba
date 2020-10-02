@@ -1,0 +1,66 @@
+<?php
+// This array contains the database schema
+$schema = array (
+  'ocopendatadataset' =>
+  array (
+    'name' => 'ocopendatadataset',
+    'fields' =>
+    array (
+      'created_at' =>
+      array (
+        'length' => 20,
+        'type' => 'bigint',
+        'default' => '0',
+      ),
+      'creator' =>
+      array (
+        'length' => 11,
+        'type' => 'int',
+        'default' => 0,
+      ),
+      'data' =>
+      array (
+        'type' => 'longtext',
+        'default' => false,
+      ),
+      'guid' =>
+      array (
+        'length' => 255,
+        'type' => 'varchar',
+        'not_null' => '1',
+        'default' => '0',
+      ),
+      'modified_at' =>
+      array (
+        'length' => 20,
+        'type' => 'bigint',
+        'default' => '0',
+      ),
+      'repository' =>
+      array (
+        'length' => 255,
+        'type' => 'varchar',
+        'not_null' => '1',
+        'default' => '0',
+      ),
+    ),
+    'indexes' =>
+    array (
+      'PRIMARY' =>
+      array (
+        'type' => 'primary',
+        'fields' =>
+        array (
+          0 => 'repository',
+          1 => 'guid',
+        ),
+      ),
+    ),
+  ),
+  '_info' =>
+  array (
+    'format' => 'generic',
+  ),
+);
+
+?>

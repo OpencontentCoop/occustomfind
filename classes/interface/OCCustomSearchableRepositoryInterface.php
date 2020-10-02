@@ -12,6 +12,7 @@ interface OCCustomSearchableRepositoryInterface
     public function getIdentifier();
 
     /**
+     * @deprecated Use OCCustomSearchableRepositoryObjectCreatorInterface feature instead
      * @return string FQCN of OCCustomSearchableObjectInterface class
      */
     public function availableForClass();

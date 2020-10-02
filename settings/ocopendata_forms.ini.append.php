@@ -1,0 +1,33 @@
+<?php /* #?ini charset="utf-8"?
+
+[ConnectorSettings]
+AvailableConnectors[]=opendatadatasetfielddefinition
+AvailableConnectors[]=opendatadatasetviewdefinition
+AvailableConnectors[]=opendatadatasetimportfielddefinition
+AvailableConnectors[]=opendatadataset
+AvailableConnectors[]=opendatadatasetdelete
+AvailableConnectors[]=opendatadatasetimport
+AvailableConnectors[]=opendatadatasetdeleteitem
+
+[opendatadatasetfielddefinition_ConnectorSettings]
+PHPClass=OpendataDatasetFieldDefinitionConnector
+
+[opendatadatasetviewdefinition_ConnectorSettings]
+PHPClass=OpendataDatasetViewDefinitionConnector
+
+[opendatadatasetimportfielddefinition_ConnectorSettings]
+PHPClass=OpendataDatasetImportFieldDefinitionConnector
+
+[opendatadataset_ConnectorSettings]
+PHPClass=OpendataDatasetConnector
+
+[opendatadatasetdelete_ConnectorSettings]
+PHPClass=OpendataDatasetDeleteDataConnector
+
+[opendatadatasetimport_ConnectorSettings]
+PHPClass=OpendataDatasetImportCsvConnector
+
+[opendatadatasetdeleteitem_ConnectorSettings]
+PHPClass=OpendataDatasetDeleteItemConnector
+
+*/ ?>

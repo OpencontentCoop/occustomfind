@@ -6,11 +6,6 @@ interface OCCustomSearchableObjectInterface
     public function getGuid();
 
     /**
-     * @return OCCustomSearchableFieldInterface[]
-     */
-    public static function getFields();
-
-    /**
      * @param OCCustomSearchableFieldInterface $field
      *
      * @return mixed
@@ -23,6 +18,13 @@ interface OCCustomSearchableObjectInterface
     public function toArray();
 
     /**
+     * @deprecated Use OCCustomSearchableRepositoryObjectCreatorInterface feature instead
+     * @return OCCustomSearchableFieldInterface[]
+     */
+    public static function getFields();
+
+    /**
+     * @deprecated Use OCCustomSearchableRepositoryObjectCreatorInterface feature instead
      * @param $array
      *
      * @return OCCustomSearchableObjectInterface

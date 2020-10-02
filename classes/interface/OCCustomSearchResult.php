@@ -17,9 +17,7 @@ class OCCustomSearchResult
     {
         eZDebug::writeDebug($resultArray['responseHeader'], __METHOD__);
 
-        /** @var OCCustomSearchableObjectInterface $searchableClass */
-        $searchableClass = $this->repository->availableForClass();
-        $fields = $searchableClass::getFields();
+        $fields = $this->repository->getFields();
 
         $result = $this->getEmptyResult();
         if (isset( $resultArray['response'] )) {
@@ -31,7 +29,7 @@ class OCCustomSearchResult
                 }
                 if (isset( $doc[$this->repository->getStorageObjectFieldName()] )) {
                     $data = ezfSolrStorage::unserializeData($doc[$this->repository->getStorageObjectFieldName()]);
-                    $result['searchHits'][] = $searchableClass::fromArray($data);
+                    $result['searchHits'][] = $this->instanceObject($data, $doc[ezfSolrDocumentFieldBase::generateMetaFieldName('guid')]);
                 }
             }
             if (isset($resultArray['facet_counts']['facet_fields'])){
@@ -46,6 +44,23 @@ class OCCustomSearchResult
         }
 
         return $result;
+    }
+
+    /**
+     * @param $data
+     * @param $guid
+     * @return OCCustomSearchableObjectInterface
+     */
+    private function instanceObject($data, $guid)
+    {
+        if ($this->repository instanceof OCCustomSearchableRepositoryObjectCreatorInterface){
+            return $this->repository->instanceObject($data, $guid);
+        }
+
+        /** @var OCCustomSearchableObjectInterface $searchableClass */
+        $searchableClass = $this->repository->availableForClass();
+
+        return $searchableClass::fromArray($data);
     }
 
     private function getEmptyResult()
