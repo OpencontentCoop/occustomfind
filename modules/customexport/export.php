@@ -76,7 +76,7 @@ try {
             }
         }
         $parameters->setOffset($parameters->getOffset()+$length);
-    } while ($items['totalCount'] == $length);
+    } while (count($items['searchHits']) == $length);
 
     $stat = fstat($output);
     ftruncate($output, $stat['size']-1);
