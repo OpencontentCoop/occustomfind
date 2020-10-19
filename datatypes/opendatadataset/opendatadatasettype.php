@@ -21,11 +21,17 @@ class OpendataDatasetType extends eZDataType
                 'schema' => [
                     'type' => 'string',
                 ],
+                'openapi_schema' => [
+                    'type' => 'string',
+                ],
             ],
             [
                 'label' => ezpI18n::tr('opendatadataset', 'String', "CSV Dataset"),
                 'identifier' => 'string',
                 'schema' => [
+                    'type' => 'string',
+                ],
+                'openapi_schema' => [
                     'type' => 'string',
                 ],
             ],
@@ -35,12 +41,19 @@ class OpendataDatasetType extends eZDataType
                 'schema' => [
                     'type' => 'integer',
                 ],
+                'openapi_schema' => [
+                    'type' => 'integer',
+                ],
             ],
             [
                 'label' => ezpI18n::tr('opendatadataset', 'Number', "CSV Dataset"),
                 'identifier' => 'number',
                 'schema' => [
                     'type' => 'number',
+                ],
+                'openapi_schema' => [
+                    'type' => 'number',
+                    'format' => 'float'
                 ],
             ],
             [
@@ -52,6 +65,9 @@ class OpendataDatasetType extends eZDataType
                 'options' => [
                     'type' => 'textarea',
                 ],
+                'openapi_schema' => [
+                    'type' => 'string',
+                ],
             ],
             [
                 'label' => ezpI18n::tr('opendatadataset', 'Select', "CSV Dataset"),
@@ -62,6 +78,9 @@ class OpendataDatasetType extends eZDataType
                 'options' => [
                     'hideInitValidationError' => true,
                 ],
+                'openapi_schema' => [
+                    'type' => 'string',
+                ],
             ],
             [
                 'label' => ezpI18n::tr('opendatadataset', 'Checkbox', "CSV Dataset"),
@@ -71,6 +90,9 @@ class OpendataDatasetType extends eZDataType
                 ],
                 'options' => [
                     'type' => 'checkbox',
+                ],
+                'openapi_schema' => [
+                    'type' => 'string',
                 ],
             ],
             [
@@ -84,6 +106,10 @@ class OpendataDatasetType extends eZDataType
                     'type' => 'date',
                     'dateFormat' => 'DD/MM/YYYY',
                     'locale' => 'it',
+                ],
+                'openapi_schema' => [
+                    'type' => 'string',
+                    'format' => 'date',
                 ],
             ],
             [
@@ -102,6 +128,10 @@ class OpendataDatasetType extends eZDataType
                         'locale' => 'it',
                     ),
                     'locale' => 'it',
+                ],
+                'openapi_schema' => [
+                    'type' => 'string',
+                    'format' => 'date-time',
                 ],
             ],
 //            [
@@ -259,6 +289,16 @@ class OpendataDatasetType extends eZDataType
             }
         }
     }
+
+    function onPublish($contentObjectAttribute, $contentObject, $publishedNodes)
+    {
+        if (class_exists('\Opencontent\OpenApi\Loader')) {
+            \Opencontent\OpenApi\Loader::instance()->getSchemaBuilder()->clearCache();
+            eZCache::clearByID(['rest']);
+        }
+    }
+
+
 }
 
 eZDataType::register(OpendataDatasetType::DATA_TYPE_STRING, "OpendataDatasetType");

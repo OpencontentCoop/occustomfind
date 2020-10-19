@@ -165,11 +165,7 @@ class OpendataDatasetDefinition implements JsonSerializable
 
     public function deleteDataset(OpendataDataset $dataset)
     {
-        if (!$this->canEdit()) {
-            throw new ForbiddenException($this->getItemName(), 'edit');
-        }
-
-        if (!$this->canTruncate() && $dataset->getCreator() != eZUser::currentUserID()){
+        if (!$this->canDeleteDataset($dataset)) {
             throw new ForbiddenException($this->getItemName(), 'edit');
         }
 
@@ -342,6 +338,32 @@ class OpendataDatasetDefinition implements JsonSerializable
     public function canRead()
     {
         return $this->canRead;
+    }
+
+    public function canDeleteDataset(OpendataDataset $dataset)
+    {
+        if (!$this->canEdit()) {
+            return false;
+        }
+
+        if (!$this->canTruncate() && $dataset->getCreator() != eZUser::currentUserID()){
+            return false;
+        }
+
+        return true;
+    }
+
+    public function canEditDataset(OpendataDataset $dataset)
+    {
+        if (!$this->canEdit()) {
+            return false;
+        }
+
+        if (!$this->canTruncate() && $dataset->getCreator() != eZUser::currentUserID()){
+            return false;
+        }
+
+        return true;
     }
 
     /**
