@@ -86,7 +86,7 @@
         <a href="#" data-action="import" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-arrow-up"></i> {'Import from CSV'|i18n('opendatadataset')}</a>
     {/if}
     {if $attribute.content.can_truncate}
-        <a href="#" data-action="delete" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-times"></i> {'Delete data'|i18n('opendatadataset')}</a>
+        <a href="#" data-action="delete-all" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-times"></i> {'Delete data'|i18n('opendatadataset')}</a>
     {/if}
 
     {if $attribute.content.views|count()|gt(1)}

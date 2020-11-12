@@ -153,7 +153,7 @@
             });
         };
 
-        datasetContainer.find('[data-action="delete"]').on('click', function (e) {
+        datasetContainer.find('[data-action="delete-all"]').on('click', function (e) {
             e.preventDefault();
             datasetContainer.find('.dataset-form').opendataForm({
                 'id': settings.id,
