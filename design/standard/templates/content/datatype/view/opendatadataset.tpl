@@ -77,17 +77,23 @@
 {def $custom_repository = concat('dataset-', $attribute.contentclass_attribute_identifier, '-',$attribute.contentobject_id)}
 
 <div id="dataset-{$attribute.id}" class="my-5 w-100">
-    <a href="{concat('/customexport/',$custom_repository)|ezurl(no)}" data-action="export" class="btn btn-primary btn-xs mb-1 mr-1"><i class="fa fa-download"></i> {'Download CSV'|i18n('opendatadataset')}</a>
-    {if and($attribute.content.can_edit, $attribute.content.is_api_enabled)}
-        <a href="#" data-action="add" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-plus"></i> {'Create new %name'|i18n('opendatadataset',,hash('%name', $attribute.content.item_name|wash()))}</a>
-        {*<a href="#" data-action="apidoc" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-external-link"></i> {'API Doc'|i18n('opendatadataset')}</a>*}
-    {/if}
-    {if $attribute.content.can_edit}
-        <a href="#" data-action="import" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-arrow-up"></i> {'Import from CSV'|i18n('opendatadataset')}</a>
-    {/if}
-    {if $attribute.content.can_truncate}
-        <a href="#" data-action="delete-all" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-times"></i> {'Delete data'|i18n('opendatadataset')}</a>
-    {/if}
+    <div class="data_actions">
+        <a href="{concat('/customexport/',$custom_repository)|ezurl(no)}" data-action="export" class="btn btn-primary btn-xs mb-1 mr-1"><i class="fa fa-download"></i> {'Download CSV'|i18n('opendatadataset')}</a>
+        {if and($attribute.content.can_edit, $attribute.content.is_api_enabled)}
+            <a href="#" data-action="add" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-plus"></i> {'Create new %name'|i18n('opendatadataset',,hash('%name', $attribute.content.item_name|wash()))}</a>
+            {*<a href="#" data-action="apidoc" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-external-link"></i> {'API Doc'|i18n('opendatadataset')}</a>*}
+        {/if}
+        {if $attribute.content.can_edit}
+            <a href="#" data-action="import" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-arrow-up"></i> {'Import from CSV'|i18n('opendatadataset')}</a>
+        {/if}
+        {if $attribute.content.can_truncate}
+            <a href="#" data-action="delete-all" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-times"></i> {'Delete data'|i18n('opendatadataset')}</a>
+        {/if}
+    </div>
+
+    <div class="alert alert-warning my-2 has_pending_action_alert" style="display: none">
+        <i class="fa fa-circle-o-notch fa-spin"></i> {'There are data being updated'|i18n('opendatadataset')}
+    </div>
 
     {if $attribute.content.views|count()|gt(1)}
     <ul class="nav nav-tabs nav-fill overflow-hidden mt-3">
@@ -196,6 +202,9 @@
             {rdelim},
             datatable: {ldelim}
                 columns: JSON.parse('{$columns|json_encode()}')
+            {rdelim},
+            i18n: {ldelim}
+                filter_by: "{'Filter by'|i18n('opendatadataset')}"
             {rdelim}
         {rdelim});
     {rdelim})

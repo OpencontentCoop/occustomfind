@@ -32,6 +32,9 @@
             },
             datatable: {
                 columns: []
+            },
+            i18n: {
+                filter_by: 'Filter by'
             }
         };
 
@@ -45,6 +48,20 @@
         let calendar;
         if (settings.facets.length > 0) {
             settings.mainQuery += ' facets [' + tools.buildFacetsString(settings.facets) + ']';
+        }
+
+        function checkPending(){
+            $.get('/opendatadataset/has_pending_action/'+settings.id, function (response) {
+                if (response > 0){
+                    datasetContainer.find('.has_pending_action_alert').show();
+                    datasetContainer.find('.data_actions').hide();
+                    datasetContainer.trigger('dataset:add');
+                    setTimeout(checkPending, 10000);
+                }else{
+                    datasetContainer.find('.has_pending_action_alert').hide();
+                    datasetContainer.find('.data_actions').show();
+                }
+            });
         }
 
         datasetContainer.find('[data-action="add"]').on('click', function (e) {
@@ -205,6 +222,7 @@
                 'onSuccess': function () {
                     datasetContainer.find('.dataset-modal').modal('hide');
                     datasetContainer.trigger('dataset:add');
+                    checkPending();
                 },
                 'onError': function(data) {
                     datasetContainer.find('.dataset-modal').modal('hide');
@@ -463,7 +481,7 @@
                             labelText = this.name;
                         }
                     });
-                    let select = $('<select data-placeholder="Filter by ' + labelText + '" id="' + field + '" data-field="' + field + '"">');
+                    let select = $('<select data-placeholder="' + settings.i18n.filter_by + ' ' + labelText + '" id="' + field + '" data-field="' + field + '"">');
                     select.append($('<option value=""></option>'));
                     $.each(data, function (value, count) {
                         let quotedValue = value.toString()
@@ -523,6 +541,8 @@
             setActiveView($(this).data('active_view'));
         });
         setActiveView(datasetContainer.find('a[data-toggle="tab"].active').data('active_view'));
+
+        checkPending();
     }
 
     $.fn[pluginName] = function (options) {

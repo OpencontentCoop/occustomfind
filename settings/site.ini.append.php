@@ -3,4 +3,7 @@
 [RegionalSettings]
 TranslationExtensions[]=occustomfind
 
+[RoleSettings]
+PolicyOmitList[]=opendatadataset/has_pending_action
+
 */ ?>

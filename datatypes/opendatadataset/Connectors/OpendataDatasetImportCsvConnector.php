@@ -3,6 +3,8 @@
 
 class OpendataDatasetImportCsvConnector extends OpendataDatasetConnector
 {
+    const DELAY_IMPORT_MIN_ITEMS = 200;
+
     protected function getData()
     {
         return null;
@@ -62,12 +64,16 @@ class OpendataDatasetImportCsvConnector extends OpendataDatasetConnector
             if ($data['delete'] === 'true') {
                 try {
                     $this->datasetDefinition->truncateByCreator(eZUser::currentUserID(), $this->attribute);
-                }catch (Exception $e){
+                } catch (Exception $e) {
 
                 }
             }
-            $importer->import($this->datasetDefinition, $this->attribute);
-            $importer->cleanup();
+            if ($importer->countValues() > self::DELAY_IMPORT_MIN_ITEMS) {
+                $importer->delayImport($this->attribute);
+            } else {
+                $importer->import($this->datasetDefinition, $this->attribute);
+                $importer->cleanup();
+            }
         }
 
         return true;
@@ -77,13 +83,7 @@ class OpendataDatasetImportCsvConnector extends OpendataDatasetConnector
     {
         $directory = md5(\eZUser::currentUserID() . $this->attribute->attribute('id'));
 
-        $uploadDir = eZSys::cacheDirectory() . '/fileupload/' . $directory . '/';
-        $fileHandler = \eZClusterFileHandler::instance();
-        if ($fileHandler instanceof \eZDFSFileHandler) {
-            $mountPointPath = \eZINI::instance('file.ini')->variable('eZDFSClusteringSettings', 'MountPointPath');
-            $uploadDir = rtrim($mountPointPath, '/') . '/' . $uploadDir;
-        }
-
+        $uploadDir = eZSys::storageDirectory() . '/fileupload/' . $directory . '/';
         \eZDir::mkdir($uploadDir, false, true);
 
         return $uploadDir;
@@ -104,6 +104,8 @@ class OpendataDatasetImportCsvConnector extends OpendataDatasetConnector
         foreach ($data[$options['param_name']] as $file) {
 
             $tempFileCheck = file_exists($this->getUploadDir() . $file->name);
+            \eZClusterFileHandler::instance()->fileStore($this->getUploadDir() . $file->name, 'binaryfile', true, 'application/csv');
+
             $files[] = [
                 'id' => uniqid($file->name),
                 'name' => $file->name,

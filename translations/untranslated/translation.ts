@@ -239,5 +239,13 @@
       <source>Delete data</source>
       <translation type="unfinished"/>
     </message>
+    <message>
+      <source>There are data being updated</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Filter by</source>
+      <translation type="unfinished"/>
+    </message>
   </context>
 </TS>

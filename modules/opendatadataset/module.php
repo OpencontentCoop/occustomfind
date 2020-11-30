@@ -8,7 +8,13 @@ $ViewList['addrole'] = array(
     'script' => 'addrole.php',
     'params' => array()
 );
+$ViewList['has_pending_action'] = array(
+    'functions' => array('has_pending_action'),
+    'script' => 'has_pending_action.php',
+    'params' => array('Attribute')
+);
 $FunctionList = [
     'addrole' => [],
-    'edit' => []
+    'edit' => [],
+    'has_pending_action' => [],
 ];

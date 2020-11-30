@@ -239,5 +239,13 @@
       <source>Delete data</source>
       <translation>Rimuovi dati</translation>
     </message>
+    <message>
+      <source>There are data being updated</source>
+      <translation>Dati in aggiornamento...</translation>
+    </message>
+    <message>
+      <source>Filter by</source>
+      <translation>Filtra per</translation>
+    </message>
   </context>
 </TS>
