@@ -48,15 +48,13 @@ class OpendataDatasetCsvImporter
         if ($attributeId) {
             $andWhere = "AND param LIKE '%\"attribute_id\":\"{$attributeId}\"%'";
         }
-        while (true) {
-            $entries = $db->arrayQuery(
-                "SELECT * FROM ezpending_actions WHERE action = '{$actionPending}' $andWhere ORDER BY created",
-                ['limit' => $limit, 'offset' => $offset]
-            );
-            if (is_array($entries) && count($entries) > 0) {
-                foreach ($entries as $entry) {
-                    self::executePendingAction($entry);
-                }
+        $entries = $db->arrayQuery(
+            "SELECT * FROM ezpending_actions WHERE action = '{$actionPending}' $andWhere ORDER BY created",
+            ['limit' => $limit, 'offset' => $offset]
+        );
+        if (is_array($entries) && count($entries) > 0) {
+            foreach ($entries as $entry) {
+                self::executePendingAction($entry);
             }
         }
     }
