@@ -25,6 +25,9 @@ $script->setUseDebugAccumulators(true);
 $cli = eZCLI::instance();
 $output = new ezcConsoleOutput();
 
+$user = eZUser::fetchByName('admin');
+eZUser::setCurrentlyLoggedInUser($user, $user->attribute('contentobject_id'));
+
 try {
 
     $allRepository = OCCustomSearchableRepositoryProvider::instance()->provideRepositories();

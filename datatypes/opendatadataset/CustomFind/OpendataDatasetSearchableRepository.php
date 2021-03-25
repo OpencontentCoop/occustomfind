@@ -1,6 +1,5 @@
 <?php
 
-
 class OpendataDatasetSearchableRepository extends OCCustomSearchableRepositoryAbstract implements OCCustomSearchableRepositoryObjectCreatorInterface, OCCustomSearchableRepositoryCSVExportCapable
 {
     private $attribute;
@@ -17,17 +16,48 @@ class OpendataDatasetSearchableRepository extends OCCustomSearchableRepositoryAb
 
     public function countSearchableObjects()
     {
-        // TODO: Implement countSearchableObjects() method.
+        return (int)OcOpendataDataset::count(OcOpendataDataset::definition(), ['repository' => $this->getIdentifier()]);
     }
 
     public function fetchSearchableObjectList($limit, $offset)
     {
-        // TODO: Implement fetchSearchableObjectList() method.
+        $list = OcOpendataDataset::fetchObjectList(
+            OcOpendataDataset::definition(),
+            null,
+            ['repository' => $this->getIdentifier()],
+            null,
+            ['offset' => $offset, 'length' => $limit]
+        );
+        $objects = [];
+        foreach ($list as $row) {
+            $data = json_decode($row->attribute('data'), true);
+            $dataset = new OpendataDataset($data, $this->attribute, $this->attribute->content());
+            $dataset->setGuid($row->attribute('guid'));
+            $dataset->setCreatedAt($row->attribute('created_at'));
+            $dataset->setModifiedAt($row->attribute('modified_at'));
+            $dataset->setCreator($row->attribute('creator'));
+            $objects[] = new OpendataDatasetSearchableObject($dataset);
+        }
+
+        return $objects;
     }
 
     public function fetchSearchableObject($objectID)
     {
-        // TODO: Implement fetchSearchableObject() method.
+        $row = OcOpendataDataset::fetchObject(OcOpendataDataset::definition(), null, [
+            'repository' => $this->getIdentifier(),
+            'guid' => $objectID
+        ]);
+        if ($row instanceof OcOpendataDataset) {
+            $data = json_decode($row->attribute('data'), true);
+            $dataset = new OpendataDataset($data, $context, $context->content());
+            $dataset->setGuid($row->attribute('guid'));
+            $dataset->setCreatedAt($row->attribute('created_at'));
+            $dataset->setModifiedAt($row->attribute('modified_at'));
+            $dataset->setCreator($row->attribute('creator'));
+
+            return new OpendataDatasetSearchableObject($dataset);
+        }
     }
 
     public function instanceObject($dataset, $guid)
@@ -36,13 +66,13 @@ class OpendataDatasetSearchableRepository extends OCCustomSearchableRepositoryAb
             $datasetArray = $dataset;
             $dataset = new OpendataDataset($datasetArray, $this->attribute, $this->attribute->content());
             $dataset->setGuid($guid);
-            if (isset($datasetArray['_createdAt'])){
+            if (isset($datasetArray['_createdAt'])) {
                 $dataset->setCreatedAt($datasetArray['_createdAt']);
             }
-            if (isset($datasetArray['_modifiedAt'])){
+            if (isset($datasetArray['_modifiedAt'])) {
                 $dataset->setModifiedAt($datasetArray['_modifiedAt']);
             }
-            if (isset($datasetArray['_creator'])){
+            if (isset($datasetArray['_creator'])) {
                 $dataset->setCreator((int)$datasetArray['_creator']);
             }
         }
@@ -60,7 +90,7 @@ class OpendataDatasetSearchableRepository extends OCCustomSearchableRepositoryAb
         $fields[] = OCCustomSearchableField::create('_creator', 'int');
 
         foreach ($definition->getFields() as $field) {
-            $types =  $this->mapType($field);
+            $types = $this->mapType($field);
             $fields[] = OCCustomSearchableField::create($field['identifier'], $this->mapType($field), $field['label']);
         }
 
@@ -115,6 +145,4 @@ class OpendataDatasetSearchableRepository extends OCCustomSearchableRepositoryAb
 
         return $headers;
     }
-
-
 }
