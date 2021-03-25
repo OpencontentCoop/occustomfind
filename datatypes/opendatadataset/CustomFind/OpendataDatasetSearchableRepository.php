@@ -31,6 +31,7 @@ class OpendataDatasetSearchableRepository extends OCCustomSearchableRepositoryAb
         $objects = [];
         foreach ($list as $row) {
             $data = json_decode($row->attribute('data'), true);
+            if (!$data) continue;
             $dataset = new OpendataDataset($data, $this->attribute, $this->attribute->content());
             $dataset->setGuid($row->attribute('guid'));
             $dataset->setCreatedAt($row->attribute('created_at'));
@@ -49,7 +50,7 @@ class OpendataDatasetSearchableRepository extends OCCustomSearchableRepositoryAb
             'guid' => $objectID
         ]);
         if ($row instanceof OcOpendataDataset) {
-            $data = json_decode($row->attribute('data'), true);
+            $data = (array)json_decode($row->attribute('data'), true);
             $dataset = new OpendataDataset($data, $context, $context->content());
             $dataset->setGuid($row->attribute('guid'));
             $dataset->setCreatedAt($row->attribute('created_at'));
