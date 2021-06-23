@@ -4,71 +4,57 @@ use Opencontent\Opendata\Api\Exception\ForbiddenException;
 
 class OpendataDatasetDefinition implements JsonSerializable
 {
+    private static $role;
     private $properties;
-
     /**
      * @var string
      */
     private $itemName;
-
     /**
      * @var array
      */
     private $fields;
-
     /**
      * @var string[]
      */
     private $views;
-
     /**
      * @var bool
      */
     private $apiEnabled;
-
     /**
      * @var array
      */
     private $facetsSettings;
-
     /**
      * @var array
      */
     private $calendarSettings;
-
     /**
      * @var array
      */
     private $tableSettings;
-
     /**
      * @var array
      */
     private $chartSettings;
-
     /**
      * @var OpendataDatasetStorageInterface
      */
     private $storage;
-
     /**
      * @var bool
      */
     private $canEdit;
-
     /**
      * @var bool
      */
     private $canRead;
-
     /**
      * @var bool
      */
     private $canTruncate;
-
     private $extraUsers;
-
-    private static $role;
 
     public function __construct(array $properties = null)
     {
@@ -80,6 +66,26 @@ class OpendataDatasetDefinition implements JsonSerializable
                 }
             }
         }
+    }
+
+    public static function getReadRole()
+    {
+        return self::initRole('Dataset read', [[
+            'ModuleName' => 'customcalendar',
+            'FunctionName' => 'calendar'
+        ], [
+            'ModuleName' => 'customdatatable',
+            'FunctionName' => 'datatable'
+        ], [
+            'ModuleName' => 'customexport',
+            'FunctionName' => 'export'
+        ], [
+            'ModuleName' => 'customfind',
+            'FunctionName' => 'find'
+        ], [
+            'ModuleName' => 'forms',
+            'FunctionName' => 'use'
+        ]]);
     }
 
     public function grantPermissions($userLists, $datasetNodeId)
@@ -105,22 +111,44 @@ class OpendataDatasetDefinition implements JsonSerializable
         $limitIdent = 'Subtree';
         $limitValue = $node['path_string'];
         $query = "DELETE FROM ezuser_role WHERE role_id='$role->ID' AND limit_identifier='$limitIdent' AND limit_value='$limitValue'";
-        $db->query( $query );
+        $db->query($query);
     }
 
     /**
-     * @return OpendataDatasetStorageInterface
+     * @return eZRole
      */
-    private function getStorage()
+    public static function getRole()
     {
-        if ($this->storage === null || !$this->storage instanceof OpendataDatasetStorageInterface){
-            $this->storage = new OpendataDatasetChainStorage([
-                new OpendataDatasetDBStorage(),
-                new OpendataDatasetSolrStorage()
-            ]);
+        if (self::$role === null) {
+            self::$role = self::initRole('Dataset edit', [[
+                'ModuleName' => 'opendatadataset',
+                'FunctionName' => 'edit'
+            ], [
+                'ModuleName' => 'forms',
+                'FunctionName' => 'use'
+            ]]);
         }
 
-        return $this->storage;
+        return self::$role;
+    }
+
+    private static function initRole($name, $policies, $reset = false)
+    {
+        $role = eZRole::fetchByName($name);
+        if ($role instanceof eZRole && $reset) {
+            $role->removeThis();
+            $role = false;
+        }
+        if (!$role instanceof eZRole) {
+            $role = eZRole::create($name);
+            $role->store();
+
+            foreach ($policies as $policy) {
+                $role->appendPolicy($policy['ModuleName'], $policy['FunctionName'], isset($policy['Limitation']) ? $policy['Limitation'] : array());
+            }
+        }
+        eZCache::clearByID(array('user_info_cache'));
+        return $role;
     }
 
     public function createDataset(OpendataDataset $dataset)
@@ -147,13 +175,52 @@ class OpendataDatasetDefinition implements JsonSerializable
         return $this->getStorage()->createDataset($dataset);
     }
 
+    /**
+     * @return bool
+     */
+    public function canEdit()
+    {
+        return $this->canEdit;
+    }
+
+    /**
+     * @return string
+     */
+    public function getItemName()
+    {
+        return $this->itemName;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFields()
+    {
+        return $this->fields;
+    }
+
+    /**
+     * @return OpendataDatasetStorageInterface
+     */
+    private function getStorage()
+    {
+        if ($this->storage === null || !$this->storage instanceof OpendataDatasetStorageInterface) {
+            $this->storage = new OpendataDatasetChainStorage([
+                new OpendataDatasetDBStorage(),
+                new OpendataDatasetSolrStorage()
+            ]);
+        }
+
+        return $this->storage;
+    }
+
     public function updateDataset(OpendataDataset $dataset)
     {
         if (!$this->canEdit()) {
             throw new ForbiddenException($this->getItemName(), 'edit');
         }
 
-        if (!$this->canTruncate() && $dataset->getCreator() != eZUser::currentUserID()){
+        if (!$this->canTruncate() && $dataset->getCreator() != eZUser::currentUserID()) {
             throw new ForbiddenException($this->getItemName(), 'edit');
         }
 
@@ -163,6 +230,14 @@ class OpendataDatasetDefinition implements JsonSerializable
         return $this->getStorage()->updateDataset($dataset);
     }
 
+    /**
+     * @return bool
+     */
+    public function canTruncate()
+    {
+        return $this->canTruncate;
+    }
+
     public function deleteDataset(OpendataDataset $dataset)
     {
         if (!$this->canDeleteDataset($dataset)) {
@@ -170,6 +245,19 @@ class OpendataDatasetDefinition implements JsonSerializable
         }
 
         return $this->getStorage()->deleteDataset($dataset);
+    }
+
+    public function canDeleteDataset(OpendataDataset $dataset)
+    {
+        if (!$this->canEdit()) {
+            return false;
+        }
+
+        if (!$this->canTruncate() && $dataset->getCreator() != eZUser::currentUserID()) {
+            return false;
+        }
+
+        return true;
     }
 
     public function truncate($context)
@@ -197,6 +285,14 @@ class OpendataDatasetDefinition implements JsonSerializable
         }
 
         return $this->getStorage()->getDataset($guid, $context);
+    }
+
+    /**
+     * @return bool
+     */
+    public function canRead()
+    {
+        return $this->canRead;
     }
 
     public function hasAttribute($key)
@@ -261,27 +357,11 @@ class OpendataDatasetDefinition implements JsonSerializable
     }
 
     /**
-     * @return string
-     */
-    public function getItemName()
-    {
-        return $this->itemName;
-    }
-
-    /**
      * @return string[]
      */
     public function getViews()
     {
         return $this->views;
-    }
-
-    /**
-     * @return array
-     */
-    public function getFields()
-    {
-        return $this->fields;
     }
 
     /**
@@ -317,40 +397,11 @@ class OpendataDatasetDefinition implements JsonSerializable
     }
 
     /**
-     * @return bool
-     */
-    public function canEdit()
-    {
-        return $this->canEdit;
-    }
-
-    /**
      * @param bool $canEdit
      */
     public function setCanEdit($canEdit)
     {
         $this->canEdit = $canEdit;
-    }
-
-    /**
-     * @return bool
-     */
-    public function canRead()
-    {
-        return $this->canRead;
-    }
-
-    public function canDeleteDataset(OpendataDataset $dataset)
-    {
-        if (!$this->canEdit()) {
-            return false;
-        }
-
-        if (!$this->canTruncate() && $dataset->getCreator() != eZUser::currentUserID()){
-            return false;
-        }
-
-        return true;
     }
 
     public function canEditDataset(OpendataDataset $dataset)
@@ -359,7 +410,7 @@ class OpendataDatasetDefinition implements JsonSerializable
             return false;
         }
 
-        if (!$this->canTruncate() && $dataset->getCreator() != eZUser::currentUserID()){
+        if (!$this->canTruncate() && $dataset->getCreator() != eZUser::currentUserID()) {
             return false;
         }
 
@@ -372,14 +423,6 @@ class OpendataDatasetDefinition implements JsonSerializable
     public function setCanRead($canRead)
     {
         $this->canRead = $canRead;
-    }
-
-    /**
-     * @return bool
-     */
-    public function canTruncate()
-    {
-        return $this->canTruncate;
     }
 
     /**
@@ -403,6 +446,26 @@ class OpendataDatasetDefinition implements JsonSerializable
             'tableSettings' => $this->getTableSettings(),
             'chartSettings' => $this->getChartSettings(),
         ];
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getExtraUsers()
+    {
+        if (is_array($this->extraUsers)) {
+            foreach ($this->extraUsers as $index => $extraUser) {
+                $user = eZUser::fetch((int)$extraUser['id']);
+                if ($user instanceof eZUser) {
+                    if (!isset($extraUser['name'])) {
+                        $this->extraUsers[$index]['name'] = $user->attribute('login');
+                    }
+                } else {
+                    unset($this->extraUsers[$index]);
+                }
+            }
+        }
+        return $this->extraUsers;
     }
 
     /**
@@ -431,7 +494,7 @@ class OpendataDatasetDefinition implements JsonSerializable
                 $data[$field['identifier']] = explode(",", $data[$field['identifier']]);
             }
             if (!empty($field['enum'])) {
-                $enum = explode("\n", $field['enum']);
+                $enum = OpendataDatasetDefinition::parseEnumConfiguration($field['enum']);
                 if (!empty(array_diff($data[$field['identifier']], $enum))) {
                     throw new InvalidArgumentException("Invalid data in field {$field['identifier']}");
                 }
@@ -440,68 +503,8 @@ class OpendataDatasetDefinition implements JsonSerializable
         return new OpendataDataset($data, $context, $this);
     }
 
-    /**
-     * @return eZRole
-     */
-    public static function getRole()
+    public static function parseEnumConfiguration($enum)
     {
-        if (self::$role === null) {
-            self::$role = self::initRole('Dataset edit', [[
-                'ModuleName' => 'opendatadataset',
-                'FunctionName' => 'edit'
-            ],[
-                'ModuleName' => 'forms',
-                'FunctionName' => 'use'
-            ]]);
-        }
-
-        return self::$role;
-    }
-
-    public static function getReadRole()
-    {
-        return self::initRole('Dataset read', [[
-            'ModuleName' => 'customcalendar',
-            'FunctionName' => 'calendar'
-        ], [
-            'ModuleName' => 'customdatatable',
-            'FunctionName' => 'datatable'
-        ], [
-            'ModuleName' => 'customexport',
-            'FunctionName' => 'export'
-        ], [
-            'ModuleName' => 'customfind',
-            'FunctionName' => 'find'
-        ], [
-            'ModuleName' => 'forms',
-            'FunctionName' => 'use'
-        ]]);
-    }
-
-    private static function initRole($name, $policies, $reset = false)
-    {
-        $role = eZRole::fetchByName($name);
-        if ($role instanceof eZRole && $reset) {
-            $role->removeThis();
-            $role = false;
-        }
-        if (!$role instanceof eZRole) {
-            $role = eZRole::create($name);
-            $role->store();
-
-            foreach ($policies as $policy) {
-                $role->appendPolicy($policy['ModuleName'], $policy['FunctionName'], isset($policy['Limitation']) ? $policy['Limitation'] : array());
-            }
-        }
-        eZCache::clearByID(array('user_info_cache'));
-        return $role;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getExtraUsers()
-    {
-        return $this->extraUsers;
+        return explode("\n", $enum);
     }
 }

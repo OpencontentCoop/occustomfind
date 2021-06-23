@@ -3,4 +3,7 @@
 [EndpointFactoryProvider]
 ProviderList[]=OpendataDatasetEndpointFactoryDiscover
 
+[ClassAttributeSettings]
+ClassAttributePropertyFactories[opendatadataset]=OpendataDatasetFactoryProvider
+
 */ ?>

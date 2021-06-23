@@ -95,7 +95,7 @@ class OpendataDatasetConnector extends AbstractBaseConnector
                 unset($property['required']);
             }
             if (!empty($field['enum']) && $this->view === null) {
-                $property['enum'] = explode("\n", $field['enum']);
+                $property['enum'] = OpendataDatasetDefinition::parseEnumConfiguration($field['enum']);
                 if ($property['required'] && empty($property['default'])) {
                     $property['default'] = $property['enum'][0];
                 }

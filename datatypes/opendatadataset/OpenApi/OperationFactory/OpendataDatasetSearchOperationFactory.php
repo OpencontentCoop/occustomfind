@@ -115,7 +115,7 @@ class OpendataDatasetSearchOperationFactory extends OperationFactory\SearchOpera
                 if (in_array($field['identifier'], $schemaFactory->getDatasetDefinition()->getFacetsSettings()) || $field['type'] == 'textarea') {
                     $properties = ['type' => 'string', 'nullable' => true];
                     if (!empty($field['enum'])) {
-                        $properties['enum'] = explode("\n", $field['enum']);
+                        $properties['enum'] = OpendataDatasetDefinition::parseEnumConfiguration($field['enum']);
                     }
                     $parameters[] = new OA\Parameter($field['identifier'], OA\Parameter::IN_QUERY, 'Search by ' . $field['label'], [
                         'schema' => $this->generateSchemaProperty($properties),

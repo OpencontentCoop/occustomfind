@@ -244,9 +244,13 @@ class OpendataDatasetType extends eZDataType
         return $contentObjectAttribute->attribute('data_text');
     }
 
+    /**
+     * @param eZContentObjectAttribute $contentObjectAttribute
+     * @param $string
+     */
     function fromString($contentObjectAttribute, $string)
     {
-        return $contentObjectAttribute->setAttribute('data_text', $string);
+        $contentObjectAttribute->setAttribute('data_text', $string);
     }
 
     function hasObjectAttributeContent($contentObjectAttribute)
@@ -290,15 +294,22 @@ class OpendataDatasetType extends eZDataType
         }
     }
 
+    /**
+     * @param eZContentObjectAttribute $contentObjectAttribute
+     * @param eZContentObject $contentObject
+     * @param array $publishedNodes
+     */
     function onPublish($contentObjectAttribute, $contentObject, $publishedNodes)
     {
         if (class_exists('\Opencontent\OpenApi\Loader')) {
             \Opencontent\OpenApi\Loader::instance()->getSchemaBuilder()->clearCache();
             eZCache::clearByID(['rest']);
         }
+        $definition = new OpendataDatasetDefinition(json_decode($contentObjectAttribute->attribute("data_text"), true));
+        if (!empty($definition->getExtraUsers())) {
+            $definition->grantPermissions($definition->getExtraUsers(), $contentObject->mainNodeID());
+        }
     }
-
-
 }
 
 eZDataType::register(OpendataDatasetType::DATA_TYPE_STRING, "OpendataDatasetType");

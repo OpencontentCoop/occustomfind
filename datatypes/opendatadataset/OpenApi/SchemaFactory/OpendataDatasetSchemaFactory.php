@@ -52,7 +52,7 @@ class OpendataDatasetSchemaFactory extends SchemaFactory
             'description' => $field['label']
         ];
         if (!empty($field['enum'])) {
-            $data['enum'] = explode("\n", $field['enum']);
+            $data['enum'] = OpendataDatasetDefinition::parseEnumConfiguration($field['enum']);
         }
         foreach (OpendataDatasetType::getTypes() as $item) {
             if ($item['identifier'] == $field['type'] && isset($item['openapi_schema'])) {
