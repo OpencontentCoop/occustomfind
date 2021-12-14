@@ -188,7 +188,7 @@ class OpendataDatasetCsvImporter
             $index++;
         }
 
-        return new OpendataDatasetDefinition(['fields' => $fields]);
+        return new OpendataDatasetDefinition(['itemName' => 'item', 'fields' => $fields]);
     }
 
     /**

@@ -8,6 +8,7 @@ AvailableConnectors[]=opendatadataset
 AvailableConnectors[]=opendatadatasetdelete
 AvailableConnectors[]=opendatadatasetimport
 AvailableConnectors[]=opendatadatasetdeleteitem
+AvailableConnectors[]=opendatadatareset
 
 [opendatadatasetfielddefinition_ConnectorSettings]
 PHPClass=OpendataDatasetFieldDefinitionConnector
@@ -29,5 +30,8 @@ PHPClass=OpendataDatasetImportCsvConnector
 
 [opendatadatasetdeleteitem_ConnectorSettings]
 PHPClass=OpendataDatasetDeleteItemConnector
+
+[opendatadatareset_ConnectorSettings]
+PHPClass=OpendataDatasetResetConnector
 
 */ ?>

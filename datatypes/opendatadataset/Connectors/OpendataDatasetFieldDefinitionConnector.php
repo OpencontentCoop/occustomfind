@@ -5,7 +5,12 @@ class OpendataDatasetFieldDefinitionConnector extends OpendataDatasetConnector
     protected function getData()
     {
         $data = [];
-        $data['itemName'] = $this->datasetDefinition->getItemName();
+        $itemName = $this->datasetDefinition->getItemName();
+        if (!empty($itemName)) {
+            $data['itemName'] = $itemName;
+        }else{
+            $data['itemName'] = 'item';
+        }
         $data['fields'] = $this->datasetDefinition->getFields();
 
         return $data;
@@ -19,6 +24,7 @@ class OpendataDatasetFieldDefinitionConnector extends OpendataDatasetConnector
                 'itemName' => [
                     'type' => 'string',
                     'title' => ezpI18n::tr('opendatadataset', 'Item name'),
+                    'default' => 'item',
                     'required' => true,
                 ],
                 'fields' => [

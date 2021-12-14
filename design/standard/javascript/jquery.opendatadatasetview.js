@@ -50,6 +50,27 @@
             settings.mainQuery += ' facets [' + tools.buildFacetsString(settings.facets) + ']';
         }
 
+        function isEmail(email){
+            return String(email)
+                .toLowerCase()
+                .match(
+                    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+                );
+        }
+
+        function autoLink(text) {
+            if (text) {
+                if (isEmail(text)){
+                    return '<a href="mailto:' + text + '">' + text + '</a>';
+                }
+                return text.replace(/(https?:\/\/[^\s]+)/g, function (url) {
+                    return '<a href="' + url + '">' + url + '</a>';
+                });
+            }
+
+            return text;
+        }
+
         function checkPending(){
             $.get('/opendatadataset/has_pending_action/'+settings.id, function (response) {
                 if (response > 0){
@@ -282,7 +303,7 @@
                     }
                     return str;
                 }
-                return data;
+                return autoLink(data);
             };
             datatable = table.opendataDataTable({
                 'table': {
@@ -415,7 +436,7 @@
                                 if (settings.calendar.textLabels[this]) {
                                     html += '<strong class="d-block">' + settings.calendar.textLabels[this] + '</strong>';
                                 }
-                                html += info.event.extendedProps.content[this].replace(/\n/g,"<br>") + ' ';
+                                html += autoLink(info.event.extendedProps.content[this].replace(/\n/g,"<br>")) + ' ';
                             });
                             html += '</p>';
                             $(info.el)
@@ -485,7 +506,7 @@
                     select.append($('<option value=""></option>'));
                     $.each(data, function (value, count) {
                         let quotedValue = value.toString()
-                            .replace(/"/g, '\\\"')
+                            .replace(/"/g, '&quot;')
                             .replace(/'/g, "\\'")
                             .replace(/\(/g, "\\(")
                             .replace(/\)/g, "\\)")
@@ -541,6 +562,19 @@
             setActiveView($(this).data('active_view'));
         });
         setActiveView(datasetContainer.find('a[data-toggle="tab"].active').data('active_view'));
+
+        let filters = {};
+        datasetContainer.on('dataset:changeFilter', function (e, filter) {
+            filters[filter.name] = filter;
+            let exportButton = datasetContainer.find('[data-action="export"]');
+            let filtersStrings = [];
+            $.each(filters, function (){
+               if (this.value){
+                   filtersStrings.push('filters['+this.name+']='+this.value.replace(/"/g, '\\"'));
+               }
+            });
+            exportButton.attr('href', exportButton.data('href')+'?'+filtersStrings.join('&'));
+        });
 
         checkPending();
     }

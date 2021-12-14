@@ -78,7 +78,7 @@
 
 <div id="dataset-{$attribute.id}" class="my-5 w-100">
     <div class="data_actions">
-        <a href="{concat('/customexport/',$custom_repository)|ezurl(no)}" data-action="export" class="btn btn-primary btn-xs mb-1 mr-1"><i class="fa fa-download"></i> {'Download CSV'|i18n('opendatadataset')}</a>
+        <a href="{concat('/customexport/',$custom_repository)|ezurl(no)}" data-href="{concat('/customexport/',$custom_repository)|ezurl(no)}" data-action="export" class="btn btn-primary btn-xs mb-1 mr-1"><i class="fa fa-download"></i> {'Download CSV'|i18n('opendatadataset')}</a>
         {if and($attribute.content.can_edit, $attribute.content.is_api_enabled)}
             <a href="#" data-action="add" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-plus"></i> {'Create new %name'|i18n('opendatadataset',,hash('%name', $attribute.content.item_name|wash()))}</a>
             {*<a href="#" data-action="apidoc" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-external-link"></i> {'API Doc'|i18n('opendatadataset')}</a>*}
@@ -160,13 +160,13 @@
         {if is_set($field.date_format)}{set $endDateFormat = $field.date_format}{else}{set $dateFormat = $field.datetime_format}{/if}
     {/if}
     {if and(is_set($attribute.content.settings.calendar.text_labels), $attribute.content.settings.calendar.text_labels|contains($field.identifier))}
-        {set $textLabels = $textLabels|merge(hash($field.identifier, $field.label|explode("'")|implode('&apos;')))}
+        {set $textLabels = $textLabels|merge(hash($field.identifier, $field.js_label))}
     {/if}
     {if $attribute.content.settings.facets|contains($field.identifier)}
-        {set $facets = $facets|append(hash(field, $field.identifier, limit, 10000, sort, 'alpha', name, $field.label|explode("'")|implode('&apos;')))}
+        {set $facets = $facets|append(hash(field, $field.identifier, limit, 10000, sort, 'alpha', name, $field.js_label))}
     {/if}
     {if $attribute.content.settings.table.show_fields|contains($field.identifier)}
-        {set $columns = $columns|append(hash(data, $field.identifier, name, $field.identifier, title, $field.label|explode("'")|implode('&apos;'), searchable, true(), orderable, cond(array('checkbox', 'geo')|contains($field.type), false(), true())))}
+        {set $columns = $columns|append(hash(data, $field.identifier, name, $field.identifier, title, $field.js_label, searchable, true(), orderable, cond(array('checkbox', 'geo')|contains($field.type), false(), true())))}
     {/if}
 {/foreach}
 
