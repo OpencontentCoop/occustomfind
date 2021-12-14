@@ -56,15 +56,26 @@ try {
         if (isset($endDateField) && $http->hasGetVariable('endDateFormat')){
             $endDateFormat = OCCustomSearchableField::convertMomentFormatToPhp($http->getVariable('endDateFormat'));
         }
-        $parameters->addFilter($startDateField, ['range', [$start, $end]]);
 
+        if (isset($endDateField)) {
+            $filters = $parameters->getFilters();
+            $filters[100] = [
+                'or',
+                $startDateField => ['range', [$start, $end]],
+                $endDateField => ['range', [$start, $end]],
+            ];
+            $parameters->setFilters($filters);
+        }else {
+            $parameters->addFilter($startDateField, ['range', [$start, $end]]);
+        }
+        $parameters->setSort([$startDateField => 'asc']);
 
         $titleField = false;
         if ($http->hasGetVariable('titleField')) {
             $titleField = $http->getVariable('titleField');
         }
 
-        $parameters->setLimit(300);
+        $parameters->setLimit(1000);
         $searchResults = $repository->find($parameters);
 
         /** @var OCCustomSearchableObjectInterface $hit */

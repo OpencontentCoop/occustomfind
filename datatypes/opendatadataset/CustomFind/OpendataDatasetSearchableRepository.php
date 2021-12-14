@@ -51,7 +51,7 @@ class OpendataDatasetSearchableRepository extends OCCustomSearchableRepositoryAb
         ]);
         if ($row instanceof OcOpendataDataset) {
             $data = (array)json_decode($row->attribute('data'), true);
-            $dataset = new OpendataDataset($data, $context, $context->content());
+            $dataset = new OpendataDataset($data, $this->attribute, $this->attribute->content());
             $dataset->setGuid($row->attribute('guid'));
             $dataset->setCreatedAt($row->attribute('created_at'));
             $dataset->setModifiedAt($row->attribute('modified_at'));
@@ -59,6 +59,8 @@ class OpendataDatasetSearchableRepository extends OCCustomSearchableRepositoryAb
 
             return new OpendataDatasetSearchableObject($dataset);
         }
+
+        throw new Exception("OpendataDataset repository {$this->getIdentifier()} $objectID not found");
     }
 
     public function instanceObject($dataset, $guid)
@@ -104,6 +106,8 @@ class OpendataDatasetSearchableRepository extends OCCustomSearchableRepositoryAb
             case 'identifier':
             case 'string':
             case 'select':
+            case 'url':
+            case 'email':
                 return 'string';
 
             case 'checkbox':

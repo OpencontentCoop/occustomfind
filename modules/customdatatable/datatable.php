@@ -12,8 +12,8 @@ try {
 
         $builder = new OCCustomSearchableQueryBuilder($repository);
         $query = urldecode($http->variable('q'));
-        $queryBuilded = $builder->instanceQuery($query);
-        $parameters = $queryBuilded->convert();
+        $queryBuilt = $builder->instanceQuery($query);
+        $parameters = $queryBuilt->convert();
 
     } else {
 

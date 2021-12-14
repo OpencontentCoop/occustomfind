@@ -111,6 +111,10 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
                             'type' => 'array',
                             'enum' => array_keys($this->fields),
                         ],
+                        'event_limit' => [
+                            'title' => ezpI18n::tr('opendatadataset', 'Event limit'),
+                            'type' => 'string'
+                        ],
                     ]
                 ],
                 'tableSettings' => [
@@ -204,6 +208,9 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
                         'include_weekends' => [
                             'type' => 'checkbox',
                             'rightLabel' => ezpI18n::tr('opendatadataset', 'Include weekends?'),
+                        ],
+                        'event_limit' => [
+                            'type' => 'integer'
                         ],
                     ],
                     'dependencies' => [

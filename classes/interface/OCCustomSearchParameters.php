@@ -14,6 +14,11 @@ class OCCustomSearchParameters implements JsonSerializable
     private $filters = array();
 
     /**
+     * @var array
+     */
+    private $rawFilters = array();
+
+    /**
      * @var int
      */
     private $limit = 10;
@@ -93,6 +98,21 @@ class OCCustomSearchParameters implements JsonSerializable
         $this->filters[$name] = $value;
 
         return $this;
+    }
+
+    public function addRawFilter($value)
+    {
+        $this->rawFilters[] = $value;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRawFilters(): array
+    {
+        return $this->rawFilters;
     }
 
     /**

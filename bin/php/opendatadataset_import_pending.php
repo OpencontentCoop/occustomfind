@@ -14,6 +14,6 @@ $options = $script->getOptions( "[id:]", "", ['id' => 'Attribute id'] );
 $script->initialize();
 $script->setUseDebugAccumulators(true);
 
-OpendataDatasetCsvImporter::executePendingImports($options['id']);
+OpendataDatasetImporterRegistry::executePendingImports($options['id']);
 
 $script->shutdown();

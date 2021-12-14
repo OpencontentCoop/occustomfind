@@ -6,7 +6,7 @@ class OpendataDatasetSolrStorage implements OpendataDatasetStorageInterface
     {
         $repository = new OpendataDatasetSearchableRepository($dataset->getContext());
         if (!$repository->index($repository->instanceObject($dataset, $dataset->getGuid()))){
-            throw new Exception("Fail indexing dataset");
+            throw new Exception("Fail indexing dataset " . implode(', ', $dataset->getData()));
         }
 
         return $dataset;
@@ -16,7 +16,7 @@ class OpendataDatasetSolrStorage implements OpendataDatasetStorageInterface
     {
         $repository = new OpendataDatasetSearchableRepository($dataset->getContext());
         if (!$repository->index($repository->instanceObject($dataset, $dataset->getGuid()))){
-            throw new Exception("Fail indexing dataset");
+            throw new Exception("Fail indexing dataset " . implode(', ', $dataset->getData()));
         }
 
         return $dataset;

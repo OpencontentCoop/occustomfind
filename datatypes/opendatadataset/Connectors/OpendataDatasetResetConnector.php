@@ -2,7 +2,7 @@
 
 use Opencontent\Opendata\Api\Exception\ForbiddenException;
 
-class OpendataDatasetDeleteDataConnector extends OpendataDatasetConnector
+class OpendataDatasetResetConnector extends OpendataDatasetConnector
 {
     protected function getData()
     {
@@ -12,12 +12,12 @@ class OpendataDatasetDeleteDataConnector extends OpendataDatasetConnector
     protected function getSchema()
     {
         return [
-            'title' => ezpI18n::tr('opendatadataset', 'Are you sure you are removing all data from the dataset?'),
+            'title' => ezpI18n::tr('opendatadataset', 'Are you sure you are removing all data and settings?'),
             'type' => 'object',
             'properties' => [
                 'confirm' => [
                     'title' => ezpI18n::tr('opendatadataset', 'Please type %name to confirm.', null,
-                        ['%name' => '<em>'.$this->attribute->object()->attribute('name').'</em>']),
+                        ['%name' => '<em>'.ezpI18n::tr('design/standard/content/view', 'Remove').'</em>']),
                     'type' => 'string',
                     'required' => true,
                 ],
@@ -43,11 +43,13 @@ class OpendataDatasetDeleteDataConnector extends OpendataDatasetConnector
 
     protected function submit()
     {
-        if ($_POST['confirm'] === $this->attribute->object()->attribute('name')) {
+        if ($_POST['confirm'] === ezpI18n::tr('design/standard/content/view', 'Remove')) {
             $this->datasetDefinition->truncate($this->attribute);
+            $this->attribute->setAttribute('data_text', '');
+            $this->attribute->store();
         } else {
             throw new Exception(ezpI18n::tr('opendatadataset', 'Please type %name to confirm.', null,
-                ['%name' => $this->attribute->object()->attribute('name')]));
+                ['%name' => '<em>'.ezpI18n::tr('design/standard/content/view', 'Remove').'</em>']));
         }
 
         return true;

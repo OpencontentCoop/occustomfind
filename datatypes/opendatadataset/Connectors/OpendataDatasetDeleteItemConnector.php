@@ -5,7 +5,7 @@ class OpendataDatasetDeleteItemConnector extends OpendataDatasetConnector
     protected function getSchema()
     {
         return [
-            'title' => 'Sei sicuro di eliminare il record?',
+            'title' => ezpI18n::tr('opendatadataset', 'Are you sure you want to delete the record?'),
             'type' => 'object',
             'properties' => [
                 'confirm' => [

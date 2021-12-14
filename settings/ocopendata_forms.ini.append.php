@@ -8,6 +8,10 @@ AvailableConnectors[]=opendatadataset
 AvailableConnectors[]=opendatadatasetdelete
 AvailableConnectors[]=opendatadatasetimport
 AvailableConnectors[]=opendatadatasetdeleteitem
+AvailableConnectors[]=opendatadatareset
+AvailableConnectors[]=opendatadatasetselectspreadsheet
+AvailableConnectors[]=opendatadatasetgoogleimport
+AvailableConnectors[]=opendatadatasetimportgooglefields
 
 [opendatadatasetfielddefinition_ConnectorSettings]
 PHPClass=OpendataDatasetFieldDefinitionConnector
@@ -16,7 +20,7 @@ PHPClass=OpendataDatasetFieldDefinitionConnector
 PHPClass=OpendataDatasetViewDefinitionConnector
 
 [opendatadatasetimportfielddefinition_ConnectorSettings]
-PHPClass=OpendataDatasetImportFieldDefinitionConnector
+PHPClass=OpendataDatasetImportCsvFieldsConnector
 
 [opendatadataset_ConnectorSettings]
 PHPClass=OpendataDatasetConnector
@@ -29,5 +33,18 @@ PHPClass=OpendataDatasetImportCsvConnector
 
 [opendatadatasetdeleteitem_ConnectorSettings]
 PHPClass=OpendataDatasetDeleteItemConnector
+
+[opendatadatareset_ConnectorSettings]
+PHPClass=OpendataDatasetResetConnector
+
+[opendatadatasetselectspreadsheet_ConnectorSettings]
+PHPClass=OpendataDatasetSelectGoogleSpreadsheetConnector
+
+[opendatadatasetgoogleimport_ConnectorSettings]
+PHPClass=OpendataDatasetImportGoogleSpreadsheetConnector
+
+[opendatadatasetimportgooglefields_ConnectorSettings]
+PHPClass=OpendataDatasetImportGoogleSpreadsheetFieldsConnector
+
 
 */ ?>

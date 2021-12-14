@@ -173,7 +173,7 @@
     </message>
     <message>
       <source>Select</source>
-      <translation>Selezione</translation>
+      <translation>Seleziona</translation>
     </message>
     <message>
       <source>Checkbox</source>
@@ -225,7 +225,7 @@
     </message>
     <message>
       <source>Create new %name</source>
-      <translation>Crea nuovo %name</translation>
+      <translation>Aggiungi %name</translation>
     </message>
     <message>
       <source>API Doc</source>
@@ -246,6 +246,126 @@
     <message>
       <source>Filter by</source>
       <translation>Filtra per</translation>
+    </message>
+    <message>
+      <source>Import from Google Sheet</source>
+      <translation>Importa da Google Sheet</translation>
+    </message>
+    <message>
+      <source>Select Google Spreadsheet Uri</source>
+      <translation>Seleziona l'url del Google Spreadsheet</translation>
+    </message>
+    <message>
+      <source>Invalid spreadsheet url</source>
+      <translation>Url Google Spreadsheet non valido</translation>
+    </message>
+    <message>
+      <source>Enable automatic update</source>
+      <translation>Abilita l'aggiornamento automatico</translation>
+    </message>
+    <message>
+      <source>Schedule</source>
+      <translation>Schedula</translation>
+    </message>
+    <message>
+      <source>Frequency</source>
+      <translation>Frequenza</translation>
+    </message>
+    <message>
+      <source>Start date and time</source>
+      <translation>Data e ora iniziali</translation>
+    </message>
+    <message>
+      <source>Daily</source>
+      <translation>Giornaliero</translation>
+    </message>
+    <message>
+      <source>Weekly</source>
+      <translation>Settimanale</translation>
+    </message>
+    <message>
+      <source>Monthly</source>
+      <translation>Mensile</translation>
+    </message>
+    <message>
+      <source>Are you sure you want to delete the record?</source>
+      <translation>Sei sicuro di eliminare il record?</translation>
+    </message>
+    <message>
+      <source>Geo location (longitude and latitude)</source>
+      <translation>Localizzazione geografica (longitudine e latitudine)</translation>
+    </message>
+    <message>
+      <source>Geo location separator</source>
+      <translation>Separatore stringa localizzazione geografica</translation>
+    </message>
+    <message>
+      <source>map</source>
+      <translation>Mappa</translation>
+    </message>
+    <message>
+      <source>counter</source>
+      <translation>Contatore</translation>
+    </message>
+    <message>
+      <source>Delete</source>
+      <translation>Elimina</translation>
+    </message>
+    <message>
+      <source>Cancel operation</source>
+      <translation>Cancella operazione</translation>
+    </message>
+    <message>
+      <source>I understand the consequences, delete this dataset</source>
+      <translation>Ok ho capito, elimina tutto</translation>
+    </message>
+    <message>
+      <source>Import</source>
+      <translation>Importa</translation>
+    </message>
+    <message>
+      <source>Address</source>
+      <translation>Indirizzo</translation>
+    </message>
+    <message>
+      <source>Latitude</source>
+      <translation>Latitudine</translation>
+    </message>
+    <message>
+      <source>Longitude</source>
+      <translation>Longitudine</translation>
+    </message>
+    <message>
+      <source>No results finding</source>
+      <translation>Nessun risultato</translation>
+    </message>
+    <message>
+      <source>try to refine your search keywords</source>
+      <translation>Prova a rifinire i termini di ricerca</translation>
+    </message>
+    <message>
+      <source>URL</source>
+      <translation>URL</translation>
+    </message>
+    <message>
+      <source>Email</source>
+      <translation>Email</translation>
+    </message>
+    <message>
+      <source>The expected value is a string consisting of longitude + separator + latitude</source>
+      <translation>Il valore atteso è una stringa composta da longitudine, separatore, latitudine</translation>
+    </message>
+    <message>
+      <source>Map</source>
+      <translation>Mappa</translation>
+    </message>
+    <message>
+      <source>Counter</source>
+      <translation>Contatore</translation>
+    </message>
+    <message>
+      <source>Automatic import enabled</source>
+      <translation>Importazione automatica abilitata</translation>
     </message>
   </context>
 </TS>

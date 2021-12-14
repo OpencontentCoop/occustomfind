@@ -15,7 +15,7 @@ class OCCustomSearchResult
 
     public function fromArrayResult(array $resultArray)
     {
-        eZDebug::writeDebug($resultArray['responseHeader'], __METHOD__);
+        eZDebugSetting::writeDebug('occustomfind', $resultArray['responseHeader'], __METHOD__);
 
         $fields = $this->repository->getFields();
 
@@ -25,7 +25,7 @@ class OCCustomSearchResult
             $result['totalCount'] = $resultArray['response']['numFound'];
             foreach ($resultArray['response']['docs'] as $index => $doc) {
                 if ($index == 0){
-                    eZDebug::writeDebug($doc, __METHOD__);
+                    eZDebugSetting::writeDebug('occustomfind', $doc, __METHOD__);
                 }
                 if (isset( $doc[$this->repository->getStorageObjectFieldName()] )) {
                     $data = ezfSolrStorage::unserializeData($doc[$this->repository->getStorageObjectFieldName()]);

@@ -25,7 +25,8 @@
                 endDateField: false,
                 endDateFormat: 'DD/MM/YYYY',
                 textFields: [],
-                textLabels: []
+                textLabels: [],
+                eventLimit: false
             },
             chart: {
                 settings: ''
@@ -34,8 +35,14 @@
                 columns: []
             },
             i18n: {
-                filter_by: 'Filter by'
-            }
+                filter_by: 'Filter by',
+                delete: 'Delete',
+                cancel: 'Cancel operation',
+                delete_dataset: 'I understand the consequences, delete this dataset',
+                import: 'Import',
+                select: 'Select'
+            },
+            itemName: 'Item'
         };
 
     function Plugin(element, options) {
@@ -43,23 +50,63 @@
         let datasetContainer = $(element);
         let tools = $.opendataTools;
         tools.settings('endpoint', settings.endpoints);
-        let form = $('<div class="row my-3">');
+        let form = $('<div class="row my-3 opendatadataset_view_form">');
         let datatable;
         let calendar;
+        let map;
+        let markers;
+        let mapFilters = {};
+        let counterFilters = {};
+        let counterElement;
         if (settings.facets.length > 0) {
             settings.mainQuery += ' facets [' + tools.buildFacetsString(settings.facets) + ']';
         }
 
-        function checkPending(){
-            $.get('/opendatadataset/has_pending_action/'+settings.id, function (response) {
-                if (response > 0){
+        function isEmail(email) {
+            return String(email)
+                .toLowerCase()
+                .match(
+                    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+                );
+        }
+
+        function autoLink(text) {
+            if (text) {
+                if (isEmail(text)) {
+                    return '<a href="mailto:' + text + '">' + text + '</a>';
+                }
+                return text.replace(/(https?:\/\/[^\s]+)/g, function (url) {
+                    return '<a href="' + url + '">' + url + '</a>';
+                });
+            }
+
+            return text;
+        }
+
+        function checkPending() {
+            $.get('/opendatadataset/has_pending_action/' + settings.id, function (response) {
+                if (response.pending > 0) {
+                    datasetContainer.find('.has_error_action_alert').hide();
                     datasetContainer.find('.has_pending_action_alert').show();
                     datasetContainer.find('.data_actions').hide();
                     datasetContainer.trigger('dataset:add');
                     setTimeout(checkPending, 10000);
-                }else{
+                } else if (response.pending === 0) {
                     datasetContainer.find('.has_pending_action_alert').hide();
                     datasetContainer.find('.data_actions').show();
+                }
+                if (response.failed > 0) {
+                    datasetContainer.find('.has_error_action_alert').text(response.message).show();
+                }
+            });
+        }
+
+        function checkScheduled() {
+            $.get('/opendatadataset/has_scheduled_action/' + settings.id, function (response) {
+                if (response.scheduled > 0) {
+                    datasetContainer.find('.has_scheduled_action_alert').show();
+                } else {
+                    datasetContainer.find('.has_scheduled_action_alert').hide();
                 }
             });
         }
@@ -152,15 +199,13 @@
                         'form': {
                             'buttons': {
                                 'submit': {
-                                    // 'value': 'Delete item',
-                                    'value': 'Elimina',
+                                    'value': settings.i18n.delete,
                                 },
                                 'reset': {
                                     'click': function () {
                                         datasetContainer.find('.dataset-modal').modal('hide');
                                     },
-                                    // 'value': 'Cancel',
-                                    'value': 'Annulla operazione',
+                                    'value': settings.i18n.cancel,
                                     'styles': 'btn btn-lg btn-danger pull-left'
                                 }
                             }
@@ -184,21 +229,20 @@
                 'onSuccess': function () {
                     datasetContainer.find('.dataset-modal').modal('hide');
                     datasetContainer.trigger('dataset:add');
+                    datasetContainer.find('.has_error_action_alert').hide();
                 },
                 'alpaca': {
                     'options': {
                         'form': {
                             'buttons': {
                                 'submit': {
-                                    // 'value': 'I understand the consequences, delete this dataset',
-                                    'value': 'Ok elimina tutto il dataset',
+                                    'value': settings.i18n.delete_dataset,
                                 },
                                 'reset': {
                                     'click': function () {
                                         datasetContainer.find('.dataset-modal').modal('hide');
                                     },
-                                    // 'value': 'Cancel',
-                                    'value': 'Annulla operazione',
+                                    'value': settings.i18n.cancel,
                                     'styles': 'btn btn-lg btn-danger pull-left'
                                 }
                             }
@@ -224,7 +268,7 @@
                     datasetContainer.trigger('dataset:add');
                     checkPending();
                 },
-                'onError': function(data) {
+                'onError': function (data) {
                     datasetContainer.find('.dataset-modal').modal('hide');
                     alert(data.error);
                 },
@@ -233,14 +277,91 @@
                         'form': {
                             'buttons': {
                                 'submit': {
-                                    // 'value': 'Import',
-                                    'value': 'Importa',
+                                    'value': settings.i18n.import,
                                 },
                                 'reset': {
                                     'click': function () {
                                         datasetContainer.find('.dataset-modal').modal('hide');
                                     },
-                                    'value': 'Cancel',
+                                    'value': settings.i18n.cancel,
+                                    'styles': 'btn btn-lg btn-danger pull-left'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        let selectSheet = function (sheet) {
+            datasetContainer.find('.dataset-form').opendataForm({
+                'id': settings.id,
+                'version': settings.version,
+                'language': settings.language,
+                'sheet': sheet,
+            }, {
+                'connector': 'opendatadatasetgoogleimport',
+                'onSuccess': function () {
+                    datasetContainer.find('.dataset-modal').modal('hide');
+                    datasetContainer.trigger('dataset:add');
+                    checkPending();
+                    checkScheduled();
+                },
+                'onError': function (data) {
+                    datasetContainer.find('.dataset-modal').modal('hide');
+                    alert(data.error);
+                },
+                'alpaca': {
+                    'options': {
+                        'form': {
+                            'buttons': {
+                                'submit': {
+                                    'value': settings.i18n.import,
+                                },
+                                'reset': {
+                                    'click': function () {
+                                        datasetContainer.find('.dataset-modal').modal('hide');
+                                    },
+                                    'value': settings.i18n.cancel,
+                                    'styles': 'btn btn-lg btn-danger pull-left'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        };
+
+        datasetContainer.find('[data-action="google-import"]').on('click', function (e) {
+            e.preventDefault();
+            datasetContainer.find('.dataset-form').opendataForm({
+                'id': settings.id,
+                'version': settings.version,
+                'language': settings.language,
+            }, {
+                'connector': 'opendatadatasetselectspreadsheet',
+                'onBeforeCreate': function () {
+                    datasetContainer.find('.dataset-modal').modal('show');
+                },
+                'onSuccess': function (data) {
+                    selectSheet(data);
+                },
+                'onError': function (data) {
+                    datasetContainer.find('.dataset-modal').modal('hide');
+                    alert(data.error);
+                },
+                'alpaca': {
+                    'options': {
+                        'form': {
+                            'buttons': {
+                                'submit': {
+                                    'value': settings.i18n.select
+                                },
+                                'reset': {
+                                    'click': function () {
+                                        datasetContainer.find('.dataset-modal').modal('hide');
+                                    },
+                                    'value': settings.i18n.cancel,
                                     'styles': 'btn btn-lg btn-danger pull-left'
                                 }
                             }
@@ -251,14 +372,21 @@
         });
 
         datasetContainer.find('[data-view="table"]').each(function () {
+            $.fn.dataTable.ext.errMode = 'none';
             let table = $(this);
-            let order = [[ 0, 'asc' ]];
-            if (settings.canEdit){
-                settings.datatable.columns.unshift({data: '_guid', name: '_guid', title: '', searchable: false, orderable: false});
-                order = [[ 1, 'asc' ]];
+            let order = [[0, 'asc']];
+            if (settings.canEdit) {
+                settings.datatable.columns.unshift({
+                    data: '_guid',
+                    name: '_guid',
+                    title: '',
+                    searchable: false,
+                    orderable: false
+                });
+                order = [[1, 'asc']];
             }
-            let renderAll = function(data, type, row){
-                if (row._guid === data && settings.canEdit){
+            let renderAll = function (data, type, row) {
+                if (row._guid === data && settings.canEdit) {
                     if (row._canEdit) {
                         return '<span class="text-nowrap"><a data-action="edit" class="btn btn-xs btn-primary px-2 py-1 mx-1" href="#" data-guid="' + data + '">'
                             + '<i class="fa fa-pencil"></i>'
@@ -266,7 +394,7 @@
                             + '<a data-action="delete" class="btn btn-xs btn-danger px-2 py-1" href="#" data-guid="' + data + '">'
                             + '<i class="fa fa-trash"></i>'
                             + '</a></span>';
-                    }else{
+                    } else {
                         return '';
                     }
                 }
@@ -282,8 +410,13 @@
                     }
                     return str;
                 }
-                return data;
+                return autoLink(data);
             };
+            let headers;
+            let tokenNode = document.getElementById('ezxform_token_js');
+            if (tokenNode) {
+                headers = {'X-CSRF-TOKEN': tokenNode.getAttribute('title')};
+            }
             datatable = table.opendataDataTable({
                 'table': {
                     'template': '<table class="table table-striped table-sm display responsive no-wrap w-100"></table>'
@@ -298,7 +431,8 @@
                     'language': {'url': settings.endpoints.datatableLanguage},
                     'ajax': {
                         url: settings.endpoints.datatable,
-                        type: settings.datatable.columns.length > 15 ? 'POST' : 'GET'
+                        type: settings.datatable.columns.length > 15 ? 'POST' : 'GET',
+                        headers: headers
                     },
                     'lengthMenu': [30, 60, 90, 120],
                     'columns': settings.datatable.columns,
@@ -315,7 +449,7 @@
                         'targets': '_all'
                     }]
                 }
-            }).on( 'draw.dt', function ( e, settings ) {
+            }).on('draw.dt', function (e, settings) {
                 $('a[data-action="edit"]').on('click', function (e) {
                     editItem($(this).data('guid'));
                     e.preventDefault();
@@ -357,10 +491,9 @@
                     locale: 'it',
                     height: 'parent',
                     aspectRatio: 3,
-                    eventLimit: false,
+                    eventLimit: settings.calendar.eventLimit,
                     columnHeaderFormat: {
                         weekday: 'short',
-                        day: 'numeric',
                         omitCommas: true
                     },
                     displayEventTime: false,
@@ -415,7 +548,7 @@
                                 if (settings.calendar.textLabels[this]) {
                                     html += '<strong class="d-block">' + settings.calendar.textLabels[this] + '</strong>';
                                 }
-                                html += info.event.extendedProps.content[this].replace(/\n/g,"<br>") + ' ';
+                                html += autoLink(info.event.extendedProps.content[this].replace(/\n/g, "<br>")) + ' ';
                             });
                             html += '</p>';
                             $(info.el)
@@ -471,7 +604,98 @@
             });
         });
 
-        let loadFilters = function() {
+        function loadMap() {
+            map.invalidateSize(false);
+            markers.clearLayers();
+            let markerBuilder = function (response) {
+                return L.geoJson(response, {
+                    pointToLayer: function (feature, latlng) {
+                        let customIcon = L.MakiMarkers.icon({icon: 'circle', size: 'l'});
+                        return L.marker(latlng, {icon: customIcon});
+                    },
+                    onEachFeature: function (feature, layer) {
+                        layer.on('click', function (e) {
+                            viewItem(feature.id);
+                        });
+                    }
+                });
+            };
+            $.ajax({
+                type: 'GET',
+                url: settings.endpoints.geo,
+                data: {'filters': mapFilters},
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (response) {
+                    if (response && response.features.length > 0) {
+                        let geoJsonLayer = markerBuilder(response);
+                        markers.addLayer(geoJsonLayer);
+                        map.fitBounds(markers.getBounds());
+                    } else {
+                        map.setView([0, 0], 1);
+                    }
+                }
+            });
+        }
+
+        datasetContainer.find('[data-view="map"]').each(function () {
+            let mapContainer = $(this).css({height: '600px'});
+            markers = L.markerClusterGroup();
+            map = L.map(mapContainer[0]).setView([0, 0], 1);
+            map.scrollWheelZoom.disable();
+            L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
+            map.addLayer(markers);
+
+            datasetContainer.on('dataset:add', function () {
+                loadMap();
+            });
+            datasetContainer.on('dataset:changeFilter', function (e, filter) {
+                if (filter.value) {
+                    mapFilters[filter.name] = filter.value;
+                } else if (mapFilters[filter.name]) {
+                    delete mapFilters[filter.name];
+                }
+                loadMap();
+            });
+        });
+
+        function loadCounter() {
+            $.ajax({
+                type: 'GET',
+                url: settings.endpoints.search,
+                data: {
+                    'filters': counterFilters,
+                    'limit': 1
+                },
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (response) {
+                    counterElement.html('<p class="h1 m-0" style="line-height:1;font-size:3em">' + response.totalCount + '</p><p>' + settings.itemName + '</p>');
+                },
+                error: function () {
+                    counterElement.text('Error');
+                }
+            });
+        }
+
+        datasetContainer.find('[data-view="counter"]').each(function () {
+            let counterContainer = $(this);
+            counterElement = $('<div class="lead font-weight-bolder text-center"></div>').appendTo(counterContainer);
+
+            datasetContainer.on('dataset:add', function () {
+                loadCounter();
+            });
+            datasetContainer.on('dataset:changeFilter', function (e, filter) {
+                if (filter.value) {
+                    counterFilters[filter.name] = filter.value;
+                } else if (counterFilters[filter.name]) {
+                    delete counterFilters[filter.name];
+                }
+                loadCounter();
+            });
+        });
+
+        let loadFilters = function () {
             tools.find(settings.mainQuery + ' limit 1', function (response) {
                 form.html('');
                 $.each(response.facets, function (field, data) {
@@ -485,7 +709,7 @@
                     select.append($('<option value=""></option>'));
                     $.each(data, function (value, count) {
                         let quotedValue = value.toString()
-                            .replace(/"/g, '\\\"')
+                            .replace(/"/g, '&quot;')
                             .replace(/'/g, "\\'")
                             .replace(/\(/g, "\\(")
                             .replace(/\)/g, "\\)")
@@ -527,6 +751,12 @@
                 if (view === 'calendar') {
                     calendar.updateSize();
                 }
+                if (view === 'map') {
+                    loadMap();
+                }
+                if (view === 'counter') {
+                    loadCounter();
+                }
             }
         };
 
@@ -540,9 +770,33 @@
         datasetContainer.find('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
             setActiveView($(this).data('active_view'));
         });
-        setActiveView(datasetContainer.find('a[data-toggle="tab"].active').data('active_view'));
+        let activeTab = datasetContainer.find('a[data-toggle="tab"].active');
+        if (activeTab.length > 0) {
+            setActiveView(activeTab.data('active_view'));
+        }else{
+            let activeTabPane = datasetContainer.find('.tab-pane.active');
+            if (activeTabPane.length > 0) {
+                setActiveView(activeTabPane.data('view'));
+            }
+        }
+
+        let filters = {};
+        datasetContainer.on('dataset:changeFilter', function (e, filter) {
+            filters[filter.name] = filter;
+            let exportButton = datasetContainer.find('[data-action="export"]');
+            let filtersStrings = [];
+            $.each(filters, function () {
+                if (this.value) {
+                    filtersStrings.push('filters[' + this.name + ']=' + this.value.replace(/"/g, '\\"'));
+                }
+            });
+            exportButton.attr('href', exportButton.data('href') + '?' + filtersStrings.join('&'));
+        });
 
         checkPending();
+        if (datasetContainer.find('.has_scheduled_action_alert').length > 0){
+            checkScheduled();
+        }
     }
 
     $.fn[pluginName] = function (options) {

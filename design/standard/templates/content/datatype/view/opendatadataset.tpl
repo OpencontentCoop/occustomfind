@@ -42,7 +42,7 @@
     'jquery.fileupload-process.js',
     'jquery.fileupload-ui.js',
     'alpaca.js',
-    'fields/OpenStreetMap.js',
+    'fields/SimpleOpenStreetMap.js',
     'jquery.opendataform.js',
     'fullcalendar/core/main.js',
     'fullcalendar/core/locales/it.js',
@@ -72,47 +72,61 @@
     'fullcalendar/daygrid/main.css',
     'fullcalendar/list/main.css',
     'jquery.fileupload.css',
-    'alpaca-custom.css'
+    'alpaca-custom.css',
+    'opendatadataset.css'
 ))}
 {def $custom_repository = concat('dataset-', $attribute.contentclass_attribute_identifier, '-',$attribute.contentobject_id)}
 
 <div id="dataset-{$attribute.id}" class="my-5 w-100">
-    <div class="data_actions">
-        <a href="{concat('/customexport/',$custom_repository)|ezurl(no)}" data-action="export" class="btn btn-primary btn-xs mb-1 mr-1"><i class="fa fa-download"></i> {'Download CSV'|i18n('opendatadataset')}</a>
-        {if and($attribute.content.can_edit, $attribute.content.is_api_enabled)}
-            <a href="#" data-action="add" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-plus"></i> {'Create new %name'|i18n('opendatadataset',,hash('%name', $attribute.content.item_name|wash()))}</a>
-            {*<a href="#" data-action="apidoc" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-external-link"></i> {'API Doc'|i18n('opendatadataset')}</a>*}
-        {/if}
-        {if $attribute.content.can_edit}
-            <a href="#" data-action="import" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-arrow-up"></i> {'Import from CSV'|i18n('opendatadataset')}</a>
-        {/if}
-        {if $attribute.content.can_truncate}
-            <a href="#" data-action="delete-all" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-times"></i> {'Delete data'|i18n('opendatadataset')}</a>
-        {/if}
-    </div>
+    <div class="data_actions_and_alerts">
+        <div class="data_actions">
+            <a href="{concat('/customexport/',$custom_repository)|ezurl(no)}" data-href="{concat('/customexport/',$custom_repository)|ezurl(no)}" data-action="export" class="btn btn-primary btn-xs mb-1 mr-1"><i class="fa fa-download"></i> {'Download CSV'|i18n('opendatadataset')}</a>
+            {if and($attribute.content.can_edit, $attribute.content.is_api_enabled)}
+                <a href="#" data-action="add" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-plus"></i> {'Create new %name'|i18n('opendatadataset',,hash('%name', $attribute.content.item_name|wash()))}</a>
+                {*<a href="#" data-action="apidoc" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-external-link"></i> {'API Doc'|i18n('opendatadataset')}</a>*}
+            {/if}
+            {if $attribute.content.can_edit}
+                <a href="#" data-action="import" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-arrow-up"></i> {'Import from CSV'|i18n('opendatadataset')}</a>
+                <a href="#" data-action="google-import" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-google"></i> {'Import from Google Sheet'|i18n('opendatadataset')}</a>
+            {/if}
+            {if $attribute.content.can_truncate}
+                <a href="#" data-action="delete-all" class="btn btn-outline-danger btn-xs mb-1"><i class="fa fa-trash"></i> {'Delete data'|i18n('opendatadataset')}</a>
+            {/if}
+        </div>
 
-    <div class="alert alert-warning my-2 has_pending_action_alert" style="display: none">
-        <i class="fa fa-circle-o-notch fa-spin"></i> {'There are data being updated'|i18n('opendatadataset')}
+        <div class="alert alert-warning my-2 has_pending_action_alert" style="display: none">
+            <i class="fa fa-circle-o-notch fa-spin"></i> {'There are data being updated'|i18n('opendatadataset')}
+        </div>
+        {if $attribute.content.can_edit}
+            <div class="alert alert-danger my-2 has_error_action_alert" style="display: none"></div>
+            <div class="alert alert-success my-2 has_scheduled_action_alert" style="display: none">
+                {'Automatic import enabled'|i18n('opendatadataset')}
+                <a href="{concat('/opendatadataset/remove_scheduled_import/', $attribute.id)|ezurl(no)}" class="btn btn-xs btn-danger p-1 pull-right">
+                    <i class="fa fa-times"></i> {'Disable'|i18n('opendatadataset')}
+                </a>
+            </div>
+        {/if}
     </div>
 
     {if $attribute.content.views|count()|gt(1)}
-    <ul class="nav nav-tabs nav-fill overflow-hidden mt-3">
+    <ul class="nav nav-tabs overflow-hidden mt-3">
         {def $index = 0}
+        {def $icons = $attribute.class_content.view_icons}
         {foreach $attribute.class_content.views as $view => $name}
         {if $attribute.content.views|contains($view)}
         <li role="presentation" class="nav-item">
-            <a class="text-decoration-none nav-link{if $index|eq(0)} active{/if} text-sans-serif" data-active_view="{$view}" data-toggle="tab" href="#{$view}-{$attribute.id}">
-                {$name|wash()|upfirst}
+            <a title="{$name|wash()|upfirst}" class="text-decoration-none nav-link{if $index|eq(0)} active{/if} text-sans-serif" data-active_view="{$view}" data-toggle="tab" href="#{$view}-{$attribute.id}">
+                <i class="view_icon {$icons[$view]}"></i> <span class="opendatadataset_view_name ml-2">{$name|wash()|upfirst}</span>
             </a>
         </li>
         {set $index = $index|inc()}
         {/if}
         {/foreach}
-        {undef $index}
+        {undef $index $icons}
     </ul>
     {/if}
-    <div class="tab-content mt-3">
 
+    <div class="tab-content mt-3">
     {def $index = 0}
     {foreach $attribute.class_content.views as $view => $name}
         {if $attribute.content.views|contains($view)}
@@ -154,30 +168,32 @@
 }
 {foreach $attribute.content.fields as $field}
     {if and(is_set($attribute.content.settings.calendar.start_date_field), $field.identifier|eq($attribute.content.settings.calendar.start_date_field))}
-        {if is_set($field.date_format)}{set $startDateFormat = $field.date_format}{else}{set $dateFormat = $field.datetime_format}{/if}
+        {if is_set($field.date_format)}{set $startDateFormat = $field.date_format}{else}{set $startDateFormat = $field.datetime_format}{/if}
     {/if}
     {if and(is_set($attribute.content.settings.calendar.end_date_field), $field.identifier|eq($attribute.content.settings.calendar.end_date_field))}
-        {if is_set($field.date_format)}{set $endDateFormat = $field.date_format}{else}{set $dateFormat = $field.datetime_format}{/if}
+        {if is_set($field.date_format)}{set $endDateFormat = $field.date_format}{else}{set $endDateFormat = $field.datetime_format}{/if}
     {/if}
     {if and(is_set($attribute.content.settings.calendar.text_labels), $attribute.content.settings.calendar.text_labels|contains($field.identifier))}
-        {set $textLabels = $textLabels|merge(hash($field.identifier, $field.label|explode("'")|implode('&apos;')))}
+        {set $textLabels = $textLabels|merge(hash($field.identifier, $field.js_label))}
     {/if}
     {if $attribute.content.settings.facets|contains($field.identifier)}
-        {set $facets = $facets|append(hash(field, $field.identifier, limit, 10000, sort, 'alpha', name, $field.label|explode("'")|implode('&apos;')))}
+        {set $facets = $facets|append(hash(field, $field.identifier, limit, 10000, sort, 'alpha', name, $field.js_label))}
     {/if}
     {if $attribute.content.settings.table.show_fields|contains($field.identifier)}
-        {set $columns = $columns|append(hash(data, $field.identifier, name, $field.identifier, title, $field.label|explode("'")|implode('&apos;'), searchable, true(), orderable, cond(array('checkbox', 'geo')|contains($field.type), false(), true())))}
+        {set $columns = $columns|append(hash(data, $field.identifier, name, $field.identifier, title, $field.js_label, searchable, true(), orderable, cond(array('checkbox', 'geo')|contains($field.type), false(), true())))}
     {/if}
 {/foreach}
 
 <script>
     moment.locale('{$moment_language}');
     $(document).ready(function () {ldelim}
-        $("#dataset-{$attribute.id}").datasetView({ldelim}
+        if ($.isFunction($.fn['datasetView'])){ldelim}
+            $("#dataset-{$attribute.id}").datasetView({ldelim}
             id: {$attribute.id},
             version: {$attribute.version},
             language: "{$attribute.language_code}",
             facets: JSON.parse('{$facets|json_encode()}'),
+            itemName: "{$attribute.content.item_name|wash()}",
             canEdit: {cond(and($attribute.content.can_edit, $attribute.content.is_api_enabled), 'true', 'false')},
             endpoints: {ldelim}
                 geo: "{concat('/customgeo/',$custom_repository)|ezurl(no)}/",
@@ -195,7 +211,8 @@
                 endDateField: {if is_set($attribute.content.settings.calendar.end_date_field)}"{$attribute.content.settings.calendar.end_date_field}"{else}false{/if},
                 endDateFormat: '{$endDateFormat}',
                 textFields: [{if is_set($attribute.content.settings.calendar.text_fields)}"{$attribute.content.settings.calendar.text_fields|implode('","')}"{/if}],
-                textLabels: JSON.parse('{$textLabels|json_encode()}')
+                textLabels: JSON.parse('{$textLabels|json_encode()}'),
+                eventLimit: {if and(is_set($attribute.content.settings.calendar.event_limit), $attribute.content.settings.calendar.event_limit|gt(0))}{$attribute.content.settings.calendar.event_limit}{else}false{/if},
             {rdelim},
             chart: {ldelim}
                 settings: '{if is_set($attribute.content.settings.chart)}{$attribute.content.settings.chart}{/if}'
@@ -204,9 +221,18 @@
                 columns: JSON.parse('{$columns|json_encode()}')
             {rdelim},
             i18n: {ldelim}
-                filter_by: "{'Filter by'|i18n('opendatadataset')}"
+                filter_by: "{'Filter by'|i18n('opendatadataset')}",
+                delete: "{'Delete'|i18n('opendatadataset')}",
+                cancel: "{'Cancel operation'|i18n('opendatadataset')}",
+                delete_dataset: "{'I understand the consequences, delete this dataset'|i18n('opendatadataset')}",
+                import: "{'Import'|i18n('opendatadataset')}",
+                select: "{'Select'|i18n('opendatadataset')}"
             {rdelim}
         {rdelim});
+        {rdelim}else{ldelim}
+            console.log('can not load datasetView plugin');
+            $("#dataset-{$attribute.id}").hide();
+        {rdelim}
     {rdelim})
 </script>
 {undef $current_language $current_locale $moment_language $startDateFormat $endDateFormat $textLabels $facets $columns}

@@ -5,35 +5,36 @@ use Opencontent\Opendata\Api\Exception\ForbiddenException;
 class OpendataDatasetDefinition implements JsonSerializable
 {
     private static $role;
-    private $properties;
+
+    private $properties = [];
     /**
      * @var string
      */
-    private $itemName;
+    private $itemName = 'Item';
     /**
      * @var array
      */
-    private $fields;
+    private $fields = [];
     /**
      * @var string[]
      */
-    private $views;
+    private $views = [];
     /**
      * @var bool
      */
-    private $apiEnabled;
+    private $apiEnabled = false;
     /**
      * @var array
      */
-    private $facetsSettings;
+    private $facetsSettings = [];
     /**
      * @var array
      */
-    private $calendarSettings;
+    private $calendarSettings = [];
     /**
      * @var array
      */
-    private $tableSettings;
+    private $tableSettings = [];
     /**
      * @var array
      */
@@ -65,6 +66,7 @@ class OpendataDatasetDefinition implements JsonSerializable
                     $this->$property = $value;
                 }
             }
+            $this->normalizeFields();
         }
     }
 
@@ -506,5 +508,21 @@ class OpendataDatasetDefinition implements JsonSerializable
     public static function parseEnumConfiguration($enum)
     {
         return explode("\n", $enum);
+    }
+
+    private function normalizeFields()
+    {
+        if (is_array($this->fields)){
+            foreach ($this->fields as $index => $field){
+                if (is_numeric($field['identifier'])) {
+                    $this->fields[$index]['identifier'] = 'col_' . $field['identifier'];
+                }
+                $this->fields[$index]['js_label'] = str_replace(
+                    ['"', "'"],
+                    ["&quot;", "&apos;"],
+                    htmlspecialchars($this->fields[$index]['label'])
+                );
+            }
+        }
     }
 }

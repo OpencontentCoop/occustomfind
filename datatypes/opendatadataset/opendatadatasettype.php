@@ -134,33 +134,75 @@ class OpendataDatasetType extends eZDataType
                     'format' => 'date-time',
                 ],
             ],
-//            [
-//                'label' => ezpI18n::tr('opendatadataset', 'Geo location', "CSV Dataset"),
-//                'identifier' => 'geo',
-//                'schema' => [
-//                    'type' => 'string',
-//                ],
-//                'options' => [
-//                    'type' => 'openstreetmap',
-//                    'i18n' => [
-//                        'address' => \ezpI18n::tr('opendata_forms', 'Address'),
-//                        'latitude' => \ezpI18n::tr('opendata_forms', 'Latitude'),
-//                        'longitude' => \ezpI18n::tr('opendata_forms', 'Longitude'),
-//                        'noResultsFinding' => \ezpI18n::tr('opendata_forms', 'No results finding'),
-//                        'tryToRefineYourSearch' => \ezpI18n::tr('opendata_forms', 'try to refine your search keywords'),
-//                    ]
-//                ],
-//            ],
+            [
+                'label' => ezpI18n::tr('opendatadataset', 'URL', "CSV Dataset"),
+                'identifier' => 'url',
+                'schema' => [
+                    'type' => 'string',
+                    'format' => 'uri',
+                ],
+                'options' => [
+                    'type' => 'url',
+                ],
+                'openapi_schema' => [
+                    'type' => 'string',
+                    'format' => 'uri',
+                ],
+            ],
+            [
+                'label' => ezpI18n::tr('opendatadataset', 'Email', "CSV Dataset"),
+                'identifier' => 'email',
+                'schema' => [
+                    'type' => 'string',
+                    'format' => 'email',
+                ],
+                'openapi_schema' => [
+                    'type' => 'string',
+                    'format' => 'email',
+                ],
+            ],
+            [
+                'label' => ezpI18n::tr('opendatadataset', 'Geo location (longitude and latitude)', "CSV Dataset"),
+                'identifier' => 'geo',
+                'schema' => [
+                    'type' => 'string',
+                ],
+                'options' => [
+                    'type' => 'openstreetmap',
+                    'i18n' => [
+                        'address' => \ezpI18n::tr('opendatadataset', 'Address'),
+                        'latitude' => \ezpI18n::tr('opendatadataset', 'Latitude'),
+                        'longitude' => \ezpI18n::tr('opendatadataset', 'Longitude'),
+                        'noResultsFinding' => \ezpI18n::tr('opendatadataset', 'No results finding'),
+                        'tryToRefineYourSearch' => \ezpI18n::tr('opendatadataset', 'try to refine your search keywords'),
+                    ]
+                ],
+                'openapi_schema' => [
+                    'type' => 'string',
+                ],
+            ],
         ];
     }
 
     public static function getViews()
     {
         return [
+            'counter' => ezpI18n::tr('opendatadataset', 'Counter', "CSV Dataset"),
             'calendar' => ezpI18n::tr('opendatadataset', 'Calendar', "CSV Dataset"),
-            //'map' => ezpI18n::tr('opendatadataset', 'Map', "CSV Dataset"),
+            'map' => ezpI18n::tr('opendatadataset', 'Map', "CSV Dataset"),
             'chart' => ezpI18n::tr('opendatadataset', 'Chart', "CSV Dataset"),
             'table' => ezpI18n::tr('opendatadataset', 'Data table', "CSV Dataset"),
+        ];
+    }
+
+    public static function getViewIcons()
+    {
+        return [
+            'counter' => 'fa fa-bullseye',
+            'calendar' => 'fa fa-calendar',
+            'map' => 'fa fa-map',
+            'chart' => 'fa fa-bar-chart',
+            'table' => 'fa fa-table',
         ];
     }
 
@@ -169,6 +211,7 @@ class OpendataDatasetType extends eZDataType
         return [
             'types' => self::getTypes(),
             'views' => self::getViews(),
+            'view_icons' => self::getViewIcons(),
         ];
     }
 
