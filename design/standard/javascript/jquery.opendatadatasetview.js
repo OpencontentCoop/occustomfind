@@ -25,7 +25,8 @@
                 endDateField: false,
                 endDateFormat: 'DD/MM/YYYY',
                 textFields: [],
-                textLabels: []
+                textLabels: [],
+                eventLimit: false
             },
             chart: {
                 settings: ''
@@ -271,6 +272,84 @@
             });
         });
 
+        let selectSheet = function (sheet){
+            datasetContainer.find('.dataset-form').opendataForm({
+                'id': settings.id,
+                'version': settings.version,
+                'language': settings.language,
+                'sheet': sheet,
+            }, {
+                'connector': 'opendatadatasetgoogleimport',
+                'onSuccess': function () {
+                    datasetContainer.find('.dataset-modal').modal('hide');
+                    datasetContainer.trigger('dataset:add');
+                    checkPending();
+                },
+                'onError': function(data) {
+                    datasetContainer.find('.dataset-modal').modal('hide');
+                    alert(data.error);
+                },
+                'alpaca': {
+                    'options': {
+                        'form': {
+                            'buttons': {
+                                'submit': {
+                                    // 'value': 'Import',
+                                    'value': 'Importa',
+                                },
+                                'reset': {
+                                    'click': function () {
+                                        datasetContainer.find('.dataset-modal').modal('hide');
+                                    },
+                                    'value': 'Cancel',
+                                    'styles': 'btn btn-lg btn-danger pull-left'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        };
+
+        datasetContainer.find('[data-action="google-import"]').on('click', function (e) {
+            e.preventDefault();
+            datasetContainer.find('.dataset-form').opendataForm({
+                'id': settings.id,
+                'version': settings.version,
+                'language': settings.language,
+            }, {
+                'connector': 'opendatadatasetselectspreadsheet',
+                'onBeforeCreate': function () {
+                    datasetContainer.find('.dataset-modal').modal('show');
+                },
+                'onSuccess': function (data) {
+                    selectSheet(data);
+                },
+                'onError': function(data) {
+                    datasetContainer.find('.dataset-modal').modal('hide');
+                    alert(data.error);
+                },
+                'alpaca': {
+                    'options': {
+                        'form': {
+                            'buttons': {
+                                'submit': {
+                                    'value': 'Select',
+                                },
+                                'reset': {
+                                    'click': function () {
+                                        datasetContainer.find('.dataset-modal').modal('hide');
+                                    },
+                                    'value': 'Cancel',
+                                    'styles': 'btn btn-lg btn-danger pull-left'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
         datasetContainer.find('[data-view="table"]').each(function () {
             let table = $(this);
             let order = [[ 0, 'asc' ]];
@@ -305,6 +384,11 @@
                 }
                 return autoLink(data);
             };
+            let headers;
+            let tokenNode = document.getElementById('ezxform_token_js');
+            if (tokenNode) {
+                headers = {'X-CSRF-TOKEN': tokenNode.getAttribute('title')};
+            }
             datatable = table.opendataDataTable({
                 'table': {
                     'template': '<table class="table table-striped table-sm display responsive no-wrap w-100"></table>'
@@ -319,7 +403,8 @@
                     'language': {'url': settings.endpoints.datatableLanguage},
                     'ajax': {
                         url: settings.endpoints.datatable,
-                        type: settings.datatable.columns.length > 15 ? 'POST' : 'GET'
+                        type: settings.datatable.columns.length > 15 ? 'POST' : 'GET',
+                        headers: headers
                     },
                     'lengthMenu': [30, 60, 90, 120],
                     'columns': settings.datatable.columns,
@@ -378,10 +463,9 @@
                     locale: 'it',
                     height: 'parent',
                     aspectRatio: 3,
-                    eventLimit: false,
+                    eventLimit: settings.calendar.eventLimit,
                     columnHeaderFormat: {
                         weekday: 'short',
-                        day: 'numeric',
                         omitCommas: true
                     },
                     displayEventTime: false,

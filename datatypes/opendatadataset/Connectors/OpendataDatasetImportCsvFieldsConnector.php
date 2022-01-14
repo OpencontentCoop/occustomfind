@@ -1,7 +1,7 @@
 <?php
 
 
-class OpendataDatasetImportFieldDefinitionConnector extends OpendataDatasetImportCsvConnector
+class OpendataDatasetImportCsvFieldsConnector extends OpendataDatasetImportCsvConnector
 {
     protected function getSchema()
     {

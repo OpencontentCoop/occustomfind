@@ -129,7 +129,6 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
         $solr = new eZSolrBase();
         $resultArray = $solr->rawSearch($queryParams);
         eZDebug::accumulatorStop('Engine time');
-
         $result = new OCCustomSearchResult($this);
 
         return $result->fromArrayResult($resultArray);

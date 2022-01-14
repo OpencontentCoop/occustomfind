@@ -85,9 +85,10 @@
         {/if}
         {if $attribute.content.can_edit}
             <a href="#" data-action="import" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-arrow-up"></i> {'Import from CSV'|i18n('opendatadataset')}</a>
+            <a href="#" data-action="google-import" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-google"></i> {'Import from Google Sheet'|i18n('opendatadataset')}</a>
         {/if}
         {if $attribute.content.can_truncate}
-            <a href="#" data-action="delete-all" class="btn btn-outline-primary btn-xs mb-1"><i class="fa fa-times"></i> {'Delete data'|i18n('opendatadataset')}</a>
+            <a href="#" data-action="delete-all" class="btn btn-outline-danger btn-xs mb-1"><i class="fa fa-trash"></i> {'Delete data'|i18n('opendatadataset')}</a>
         {/if}
     </div>
 
@@ -154,10 +155,10 @@
 }
 {foreach $attribute.content.fields as $field}
     {if and(is_set($attribute.content.settings.calendar.start_date_field), $field.identifier|eq($attribute.content.settings.calendar.start_date_field))}
-        {if is_set($field.date_format)}{set $startDateFormat = $field.date_format}{else}{set $dateFormat = $field.datetime_format}{/if}
+        {if is_set($field.date_format)}{set $startDateFormat = $field.date_format}{else}{set $startDateFormat = $field.datetime_format}{/if}
     {/if}
     {if and(is_set($attribute.content.settings.calendar.end_date_field), $field.identifier|eq($attribute.content.settings.calendar.end_date_field))}
-        {if is_set($field.date_format)}{set $endDateFormat = $field.date_format}{else}{set $dateFormat = $field.datetime_format}{/if}
+        {if is_set($field.date_format)}{set $endDateFormat = $field.date_format}{else}{set $endDateFormat = $field.datetime_format}{/if}
     {/if}
     {if and(is_set($attribute.content.settings.calendar.text_labels), $attribute.content.settings.calendar.text_labels|contains($field.identifier))}
         {set $textLabels = $textLabels|merge(hash($field.identifier, $field.js_label))}
@@ -195,7 +196,8 @@
                 endDateField: {if is_set($attribute.content.settings.calendar.end_date_field)}"{$attribute.content.settings.calendar.end_date_field}"{else}false{/if},
                 endDateFormat: '{$endDateFormat}',
                 textFields: [{if is_set($attribute.content.settings.calendar.text_fields)}"{$attribute.content.settings.calendar.text_fields|implode('","')}"{/if}],
-                textLabels: JSON.parse('{$textLabels|json_encode()}')
+                textLabels: JSON.parse('{$textLabels|json_encode()}'),
+                eventLimit: {if and(is_set($attribute.content.settings.calendar.event_limit), $attribute.content.settings.calendar.event_limit|gt(0))}{$attribute.content.settings.calendar.event_limit}{else}false{/if},
             {rdelim},
             chart: {ldelim}
                 settings: '{if is_set($attribute.content.settings.chart)}{$attribute.content.settings.chart}{/if}'

@@ -22,13 +22,9 @@
     'highcharts/highcharts.css'
 ))}
 
-<p>
-    <a href="#" id="import-definition-{$attribute.id}" class="btn btn-sm btn-info{if $attribute.has_content} hide{/if}">
-        {'Import fields definition from csv'|i18n('opendatadataset')}
-    </a>
-
+<div class="mb-4">
     <a href="#" id="edit-definition-{$attribute.id}"
-       class="btn btn-sm btn-info"
+       class="btn btn-sm btn-info mt-1"
        data-create_label="{'Set fields definition'|i18n('opendatadataset')}"
        data-edit_label="{'Edit fields definition'|i18n('opendatadataset')}">
         {if $attribute.has_content}
@@ -37,9 +33,8 @@
             {'Set fields definition'|i18n('opendatadataset')}
         {/if}
     </a>
-
     <a href="#" id="edit-view-{$attribute.id}"
-       class="btn btn-sm btn-info{if $attribute.has_content|not} hide{/if}"
+       class="btn btn-sm btn-info mt-1{if $attribute.has_content|not} hide{/if}"
        data-create_label="{'Set views settings'|i18n('opendatadataset')}"
        data-edit_label="{'Edit views settings'|i18n('opendatadataset')}">
         {if $attribute.has_content}
@@ -48,11 +43,21 @@
             {'Set views settings'|i18n('opendatadataset')}
         {/if}
     </a>
-
-    <a href="#" id="delete-definition-{$attribute.id}" class="btn btn-sm btn-danger{if $attribute.has_content|not} hide{/if}">
+    <a href="#" id="delete-definition-{$attribute.id}" class="btn btn-sm btn-danger mt-1{if $attribute.has_content|not} hide{/if}">
         {'Remove all data and settings'|i18n('opendatadataset')}
     </a>
-</p>
+</div>
+
+<div id="import-container-{$attribute.id}" class="{if $attribute.has_content}hide{/if}">
+    <small class="text-uppercase text-100 d-block">{'You can import field definitions from existing data'|i18n('opendatadataset')}</small>
+    <a href="#" id="import-definition-{$attribute.id}" class="btn btn-sm btn-info mt-1">
+        {'Import fields definition from csv'|i18n('opendatadataset')}
+    </a>
+    <a href="#" id="import-definition-{$attribute.id}-from-spreadsheet" class="btn btn-sm btn-info mt-1">
+        {'Import fields definition from Google Spreadsheet'|i18n('opendatadataset')}
+    </a>
+</div>
+
 
 <table id="definition-{$attribute.id}" class="table table-sm{if $attribute.has_content|not} hide{/if}">
     <caption>{if $attribute.has_content}{$attribute.content.item_name|wash}{/if}</caption>
@@ -84,7 +89,7 @@
     {/foreach}
 </div>
 
-<div id="modal-{$attribute.id}" class="modal fade" data-backdrop="static" style="z-index:10000">
+<div id="modal-{$attribute.id}" class="modal modal-fullscreen fade" data-backdrop="static" style="z-index:10000">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-body p-4">
@@ -100,7 +105,9 @@
         var modalDataset = $("#modal-{/literal}{$attribute.id}{literal}");
         var definitionButton = $("#edit-definition-{/literal}{$attribute.id}{literal}");
         var viewButton = $("#edit-view-{/literal}{$attribute.id}{literal}");
+        var importContainer = $("#import-container-{/literal}{$attribute.id}{literal}");
         var importButton = $("#import-definition-{/literal}{$attribute.id}{literal}");
+        var importFromSpreadsheetButton = $("#import-definition-{/literal}{$attribute.id}{literal}-from-spreadsheet");
         var deleteButton = $("#delete-definition-{/literal}{$attribute.id}{literal}");
         var form = $("#form-{/literal}{$attribute.id}{literal}");
         var table = $("#definition-{/literal}{$attribute.id}{literal}");
@@ -123,7 +130,7 @@
                     tbody.find('tr').remove();
                     definitionButton.text(definitionButton.data('edit_label'));
                     viewButton.removeClass('hide');
-                    importButton.addClass('hide');
+                    importContainer.addClass('hide');
                     deleteButton.removeClass('hide');
                     $.each(data.fields, function () {
                         tbody.append(
@@ -134,7 +141,7 @@
                         );
                     });
                     views.removeClass('hide').find('[data-view]').removeClass('chip-primary').addClass('chip-info');
-                    if (data.views.length > 0) {
+                    if (data.views && data.views.length > 0) {
                         $.each(data.views, function () {
                             views.find('[data-view="' + this + '"]').addClass('chip-primary').removeClass('chip-info');
                         });
@@ -146,7 +153,7 @@
                     definitionButton.text(definitionButton.data('create_label'));
                     views.addClass('hide');
                     viewButton.addClass('hide');
-                    importButton.removeClass('hide');
+                    importContainer.removeClass('hide');
                     table.addClass('hide').find('caption').text('');
                     deleteButton.addClass('hide');
                 }
@@ -168,6 +175,67 @@
                     "options": {
                         "form": {
                             "buttons": {
+                                "reset": {
+                                    "click": function () {
+                                        modalDataset.modal('hide');
+                                    },
+                                    "value": 'Cancel',
+                                    "styles": "btn btn-lg btn-danger pull-left"
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        let selectSheet = function (sheet){
+            datasetIdentifier.sheet = sheet;
+            form.opendataForm(datasetIdentifier, {
+                'connector': 'opendatadatasetimportgooglefields',
+                'onSuccess': function () {
+                    renderTable(false);
+                    modalDataset.modal('hide');
+                },
+                'alpaca': {
+                    'options': {
+                        'form': {
+                            'buttons': {
+                                'submit': {
+                                    // 'value': 'Import',
+                                    'value': 'Importa',
+                                },
+                                'reset': {
+                                    'click': function () {
+                                        modalDataset.modal('hide');
+                                    },
+                                    'value': 'Cancel',
+                                    'styles': 'btn btn-lg btn-danger pull-left'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        };
+
+        importFromSpreadsheetButton.on('click', function (e) {
+            e.preventDefault();
+            form.opendataForm(datasetIdentifier, {
+                'connector': 'opendatadatasetselectspreadsheet',
+                'onBeforeCreate': function () {
+                    modalDataset.modal('show');
+                },
+                'onSuccess': function (data) {
+                    selectSheet(data);
+                },
+                "alpaca": {
+                    "options": {
+                        "form": {
+                            "buttons": {
+                                'submit': {
+                                    'value': 'Next',
+                                },
                                 "reset": {
                                     "click": function () {
                                         modalDataset.modal('hide');

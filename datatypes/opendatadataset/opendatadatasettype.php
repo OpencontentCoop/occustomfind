@@ -134,6 +134,33 @@ class OpendataDatasetType extends eZDataType
                     'format' => 'date-time',
                 ],
             ],
+            [
+                'label' => ezpI18n::tr('opendatadataset', 'URL', "CSV Dataset"),
+                'identifier' => 'url',
+                'schema' => [
+                    'type' => 'string',
+                    'format' => 'uri',
+                ],
+                'options' => [
+                    'type' => 'url',
+                ],
+                'openapi_schema' => [
+                    'type' => 'string',
+                    'format' => 'uri',
+                ],
+            ],
+            [
+                'label' => ezpI18n::tr('opendatadataset', 'Email', "CSV Dataset"),
+                'identifier' => 'email',
+                'schema' => [
+                    'type' => 'string',
+                    'format' => 'email',
+                ],
+                'openapi_schema' => [
+                    'type' => 'string',
+                    'format' => 'email',
+                ],
+            ],
 //            [
 //                'label' => ezpI18n::tr('opendatadataset', 'Geo location', "CSV Dataset"),
 //                'identifier' => 'geo',
