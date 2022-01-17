@@ -34,19 +34,13 @@ class OpendataDatasetGoogleSpreadsheetImporter extends OpendataDatasetAbstractIm
 
     public function delayImport(eZContentObjectAttribute $attribute)
     {
-        $pendingAction = new eZPendingActions([
-            'action' => OpendataDatasetImporterRegistry::PENDING_ACTION_IMPORT_FROM_CSV,
-            'created' => time(),
-            'param' => json_encode([
-                'attribute_id' => $attribute->attribute('id'),
-                'object_id' => $attribute->attribute('contentobject_id'),
-                'spreadsheet_id' => $this->spreadsheetId,
-                'spreadsheet_title' => $this->sheetTitle,
-                'user' => eZUser::currentUserID(),
-            ])
+        OpendataDatasetImporterRegistry::addPendingImport($attribute->attribute('id'), [
+            'attribute_id' => $attribute->attribute('id'),
+            'object_id' => $attribute->attribute('contentobject_id'),
+            'spreadsheet_id' => $this->spreadsheetId,
+            'spreadsheet_title' => $this->sheetTitle,
+            'user' => eZUser::currentUserID(),
         ]);
-        $pendingAction->store();
-        exec('sh extension/occustomfind/bin/bash/opendatadataset_import_pending.sh ' . eZSiteAccess::current()['name'] . ' ' . $attribute->attribute('id'));
     }
 
 }

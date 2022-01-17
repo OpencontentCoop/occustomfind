@@ -71,7 +71,19 @@ class OpendataDatasetConnector extends AbstractBaseConnector
     protected function getData()
     {
         if ($this->currentDataset instanceof OpendataDataset){
-            return $this->currentDataset;
+            $data = $this->currentDataset->jsonSerialize();
+            foreach ($this->datasetDefinition->getFields() as $definitionField) {
+                if ($definitionField['type'] === 'geo' && isset($data[$definitionField['identifier']])){
+                    $separator = isset($definitionField['geo_separator']) ? $definitionField['geo_separator'] : '|';
+                    list($longitude, $latitude) = explode($separator, $data[$definitionField['identifier']], 2);
+                    $data[$definitionField['identifier']] = [
+                        'longitude' => $longitude,
+                        'latitude' => $latitude,
+                    ];
+                }
+            }
+
+            return $data;
         }
 
         return null;
@@ -89,7 +101,7 @@ class OpendataDatasetConnector extends AbstractBaseConnector
             $property = [
                 'title' => $field['label'],
                 'required' => $field['required'] == "true",
-                'default' => $field['default'],
+                'default' => isset($field['default']) ? $field['default'] : null,
             ];
             if ($this->view === 'display'){
                 unset($property['required']);
@@ -203,7 +215,17 @@ class OpendataDatasetConnector extends AbstractBaseConnector
 
     protected function submit()
     {
-        $dataset = $this->datasetDefinition->create($_POST, $this->attribute);
+        $data = $_POST;
+        foreach ($this->datasetDefinition->getFields() as $definitionField) {
+            if ($definitionField['type'] === 'geo' && isset($data[$definitionField['identifier']])){
+                $separator = isset($definitionField['geo_separator']) ? $definitionField['geo_separator'] : '|';
+                $data[$definitionField['identifier']] = implode($separator, [
+                    $data[$definitionField['identifier']]['longitude'],
+                    $data[$definitionField['identifier']]['latitude'],
+                ]);
+            }
+        }
+        $dataset = $this->datasetDefinition->create($data, $this->attribute);
 
         if ($this->currentDataset instanceof OpendataDataset){
             $dataset->setGuid($this->currentDataset->getGuid());

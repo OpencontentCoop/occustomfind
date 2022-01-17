@@ -54,7 +54,7 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
         $debugDom = new DOMDocument('1.0', 'utf-8');
         $debugDom->formatOutput = true;
         $debugDom->loadXML($doc->docToXML());
-        eZDebug::writeDebug($debugDom->saveXML(), __METHOD__);
+        eZDebugSetting::writeDebug('occustomfind', $debugDom->saveXML(), __METHOD__);
 
         $languageCode = eZLocale::currentLocaleCode();
         $docList[$languageCode] = $doc;
@@ -196,9 +196,12 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
 
         if ($guid === null) {
             $filter = $this->buildFilters($parameters->getFilters());
-
+            $rawFilters = $parameters->getRawFilters();
             if ($filter !== null) {
                 $filterQuery[] = $filter;
+            }
+            if (count($rawFilters) > 0){
+                $filterQuery = array_merge($filterQuery, $rawFilters);
             }
         }else{
             $filterQuery[] = ezfSolrDocumentFieldBase::generateMetaFieldName('guid') . ':' . $guid;
@@ -390,7 +393,7 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
 
                     default:
                         {
-                            eZDebug::writeDebug('Unrecognized sort order. Setting for order for default: "desc"',
+                            eZDebug::writeWarning('Unrecognized sort order. Setting for order for default: "desc"',
                                 __METHOD__);
                             $order = 'desc';
                         }

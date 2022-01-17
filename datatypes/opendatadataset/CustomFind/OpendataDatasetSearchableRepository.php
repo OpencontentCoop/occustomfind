@@ -59,6 +59,8 @@ class OpendataDatasetSearchableRepository extends OCCustomSearchableRepositoryAb
 
             return new OpendataDatasetSearchableObject($dataset);
         }
+
+        throw new Exception("OpendataDataset repository {$this->getIdentifier()} $objectID not found");
     }
 
     public function instanceObject($dataset, $guid)

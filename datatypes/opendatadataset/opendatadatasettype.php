@@ -161,31 +161,35 @@ class OpendataDatasetType extends eZDataType
                     'format' => 'email',
                 ],
             ],
-//            [
-//                'label' => ezpI18n::tr('opendatadataset', 'Geo location', "CSV Dataset"),
-//                'identifier' => 'geo',
-//                'schema' => [
-//                    'type' => 'string',
-//                ],
-//                'options' => [
-//                    'type' => 'openstreetmap',
-//                    'i18n' => [
-//                        'address' => \ezpI18n::tr('opendata_forms', 'Address'),
-//                        'latitude' => \ezpI18n::tr('opendata_forms', 'Latitude'),
-//                        'longitude' => \ezpI18n::tr('opendata_forms', 'Longitude'),
-//                        'noResultsFinding' => \ezpI18n::tr('opendata_forms', 'No results finding'),
-//                        'tryToRefineYourSearch' => \ezpI18n::tr('opendata_forms', 'try to refine your search keywords'),
-//                    ]
-//                ],
-//            ],
+            [
+                'label' => ezpI18n::tr('opendatadataset', 'Geo location (longitude and latitude)', "CSV Dataset"),
+                'identifier' => 'geo',
+                'schema' => [
+                    'type' => 'string',
+                ],
+                'options' => [
+                    'type' => 'openstreetmap',
+                    'i18n' => [
+                        'address' => \ezpI18n::tr('opendatadataset', 'Address'),
+                        'latitude' => \ezpI18n::tr('opendatadataset', 'Latitude'),
+                        'longitude' => \ezpI18n::tr('opendatadataset', 'Longitude'),
+                        'noResultsFinding' => \ezpI18n::tr('opendatadataset', 'No results finding'),
+                        'tryToRefineYourSearch' => \ezpI18n::tr('opendatadataset', 'try to refine your search keywords'),
+                    ]
+                ],
+                'openapi_schema' => [
+                    'type' => 'string',
+                ],
+            ],
         ];
     }
 
     public static function getViews()
     {
         return [
+            'counter' => ezpI18n::tr('opendatadataset', 'Counter', "CSV Dataset"),
             'calendar' => ezpI18n::tr('opendatadataset', 'Calendar', "CSV Dataset"),
-            //'map' => ezpI18n::tr('opendatadataset', 'Map', "CSV Dataset"),
+            'map' => ezpI18n::tr('opendatadataset', 'Map', "CSV Dataset"),
             'chart' => ezpI18n::tr('opendatadataset', 'Chart', "CSV Dataset"),
             'table' => ezpI18n::tr('opendatadataset', 'Data table', "CSV Dataset"),
         ];

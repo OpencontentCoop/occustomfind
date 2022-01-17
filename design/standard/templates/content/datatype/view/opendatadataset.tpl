@@ -42,7 +42,7 @@
     'jquery.fileupload-process.js',
     'jquery.fileupload-ui.js',
     'alpaca.js',
-    'fields/OpenStreetMap.js',
+    'fields/SimpleOpenStreetMap.js',
     'jquery.opendataform.js',
     'fullcalendar/core/main.js',
     'fullcalendar/core/locales/it.js',
@@ -95,6 +95,15 @@
     <div class="alert alert-warning my-2 has_pending_action_alert" style="display: none">
         <i class="fa fa-circle-o-notch fa-spin"></i> {'There are data being updated'|i18n('opendatadataset')}
     </div>
+    {if $attribute.content.can_edit}
+        <div class="alert alert-danger my-2 has_error_action_alert" style="display: none"></div>
+        <div class="alert alert-success my-2 has_scheduled_action_alert" style="display: none">
+            {'Automatic import enabled'|i18n('opendatadataset')}
+            <a href="{concat('/opendatadataset/remove_scheduled_import/', $attribute.id)|ezurl(no)}" class="btn btn-xs btn-danger p-1 pull-right">
+                <i class="fa fa-times"></i> {'Disable'|i18n('opendatadataset')}
+            </a>
+        </div>
+    {/if}
 
     {if $attribute.content.views|count()|gt(1)}
     <ul class="nav nav-tabs nav-fill overflow-hidden mt-3">
@@ -179,6 +188,7 @@
             version: {$attribute.version},
             language: "{$attribute.language_code}",
             facets: JSON.parse('{$facets|json_encode()}'),
+            itemName: "{$attribute.content.item_name|wash()}",
             canEdit: {cond(and($attribute.content.can_edit, $attribute.content.is_api_enabled), 'true', 'false')},
             endpoints: {ldelim}
                 geo: "{concat('/customgeo/',$custom_repository)|ezurl(no)}/",
@@ -206,7 +216,12 @@
                 columns: JSON.parse('{$columns|json_encode()}')
             {rdelim},
             i18n: {ldelim}
-                filter_by: "{'Filter by'|i18n('opendatadataset')}"
+                filter_by: "{'Filter by'|i18n('opendatadataset')}",
+                delete: "{'Delete'|i18n('opendatadataset')}",
+                cancel: "{'Cancel operation'|i18n('opendatadataset')}",
+                delete_dataset: "{'I understand the consequences, delete this dataset'|i18n('opendatadataset')}",
+                import: "{'Import'|i18n('opendatadataset')}",
+                select: "{'Select'|i18n('opendatadataset')}"
             {rdelim}
         {rdelim});
     {rdelim})

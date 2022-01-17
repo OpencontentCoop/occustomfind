@@ -16,7 +16,7 @@ class OpendataDatasetSelectGoogleSpreadsheetConnector extends OpendataDatasetCon
             'type' => 'object',
             'properties' => [
                 'sheet_url' => [
-                    'title' => 'Google Spreadsheet Uri',
+                    'title' => ezpI18n::tr('opendatadataset', 'Select Google Spreadsheet Uri'),
                 ]
             ],
         ];
@@ -28,6 +28,7 @@ class OpendataDatasetSelectGoogleSpreadsheetConnector extends OpendataDatasetCon
         $options['fields'] = [
             'sheet_url' => [
                 "type" => "url",
+                "helper" => 'e.g. https://docs.google.com/spreadsheets/d/1HODPUjKiiOppJhmPTho-lUh3VEtr1gG8xPC7jNgwSTo/edit'
             ]
         ];
 
@@ -42,7 +43,7 @@ class OpendataDatasetSelectGoogleSpreadsheetConnector extends OpendataDatasetCon
         );
         $googleSpreadsheetId = array_shift($googleSpreadsheetParts);
         if (empty($googleSpreadsheetId)){
-            throw new Exception('Invalid spreadsheet url');
+            throw new Exception(ezpI18n::tr('opendatadataset', 'Invalid spreadsheet url'));
         }
 
         try {

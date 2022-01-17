@@ -68,13 +68,14 @@ try {
         }else {
             $parameters->addFilter($startDateField, ['range', [$start, $end]]);
         }
+        $parameters->setSort([$startDateField => 'asc']);
 
         $titleField = false;
         if ($http->hasGetVariable('titleField')) {
             $titleField = $http->getVariable('titleField');
         }
 
-        $parameters->setLimit(300);
+        $parameters->setLimit(1000);
         $searchResults = $repository->find($parameters);
 
         /** @var OCCustomSearchableObjectInterface $hit */

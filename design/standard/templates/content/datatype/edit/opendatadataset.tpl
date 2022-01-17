@@ -58,7 +58,6 @@
     </a>
 </div>
 
-
 <table id="definition-{$attribute.id}" class="table table-sm{if $attribute.has_content|not} hide{/if}">
     <caption>{if $attribute.has_content}{$attribute.content.item_name|wash}{/if}</caption>
     <thead>
@@ -179,7 +178,7 @@
                                     "click": function () {
                                         modalDataset.modal('hide');
                                     },
-                                    "value": 'Cancel',
+                                    "value": '{/literal}{'Cancel'|i18n('opendatadataset')}{literal}',
                                     "styles": "btn btn-lg btn-danger pull-left"
                                 }
                             }
@@ -202,14 +201,13 @@
                         'form': {
                             'buttons': {
                                 'submit': {
-                                    // 'value': 'Import',
-                                    'value': 'Importa',
+                                    "value": '{/literal}{'Import'|i18n('opendatadataset')}{literal}'
                                 },
                                 'reset': {
                                     'click': function () {
                                         modalDataset.modal('hide');
                                     },
-                                    'value': 'Cancel',
+                                    "value": '{/literal}{'Cancel'|i18n('opendatadataset')}{literal}',
                                     'styles': 'btn btn-lg btn-danger pull-left'
                                 }
                             }
@@ -234,13 +232,13 @@
                         "form": {
                             "buttons": {
                                 'submit': {
-                                    'value': 'Next',
+                                    "value": '{/literal}{'Select'|i18n('opendatadataset')}{literal}'
                                 },
                                 "reset": {
                                     "click": function () {
                                         modalDataset.modal('hide');
                                     },
-                                    "value": 'Cancel',
+                                    "value": '{/literal}{'Cancel'|i18n('opendatadataset')}{literal}',
                                     "styles": "btn btn-lg btn-danger pull-left"
                                 }
                             }
@@ -266,13 +264,13 @@
                         "form": {
                             "buttons": {
                                 'submit': {
-                                    'value': 'Import',
+                                    "value": '{/literal}{'Import'|i18n('opendatadataset')}{literal}'
                                 },
                                 "reset": {
                                     "click": function () {
                                         modalDataset.modal('hide');
                                     },
-                                    "value": 'Cancel',
+                                    "value": '{/literal}{'Cancel'|i18n('opendatadataset')}{literal}',
                                     "styles": "btn btn-lg btn-danger pull-left"
                                 }
                             }
@@ -301,7 +299,7 @@
                                     "click": function () {
                                         modalDataset.modal('hide');
                                     },
-                                    "value": 'Cancel',
+                                    "value": '{/literal}{'Cancel'|i18n('opendatadataset')}{literal}',
                                     "styles": "btn btn-lg btn-danger pull-left"
                                 }
                             }
@@ -330,7 +328,7 @@
                                     "click": function () {
                                         modalDataset.modal('hide');
                                     },
-                                    "value": 'Cancel',
+                                    "value": '{/literal}{'Cancel'|i18n('opendatadataset')}{literal}',
                                     "styles": "btn btn-lg btn-danger pull-left"
                                 }
                             }

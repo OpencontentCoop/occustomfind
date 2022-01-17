@@ -9,5 +9,6 @@ ModuleList[]=customconsole
 ModuleList[]=customcalendar
 ModuleList[]=customexport
 ModuleList[]=opendatadataset
+ModuleList[]=customgeo
 
 */ ?>

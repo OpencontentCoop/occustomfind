@@ -71,6 +71,11 @@ class OpendataDatasetFieldDefinitionConnector extends OpendataDatasetConnector
                                 'default' => 'DD/MM/YYYY HH:mm',
                                 'required' => true,
                             ],
+                            'geo_separator' => [
+                                'type' => 'string',
+                                'title' => ezpI18n::tr('opendatadataset', 'Geo location separator'),
+                                'default' => '|',
+                            ],
                             'default' => [
                                 'type' => 'string',
                                 'title' => ezpI18n::tr('opendatadataset', 'Default value'),
@@ -80,6 +85,7 @@ class OpendataDatasetFieldDefinitionConnector extends OpendataDatasetConnector
                             'enum' => ['type'],
                             'date_format' => ['type'],
                             'datetime_format' => ['type'],
+                            'geo_separator' => ['type'],
                         ],
                     ]
                 ],
@@ -138,6 +144,12 @@ class OpendataDatasetFieldDefinitionConnector extends OpendataDatasetConnector
                                 'helper' => ezpI18n::tr('opendatadataset', 'MomentJS datetime format (es: DD/MM/YYYY HH:mm)'),
                                 'dependencies' => [
                                     'type' => ['datetime']
+                                ],
+                            ],
+                            'geo_separator' => [
+                                'helper' => ezpI18n::tr('opendatadataset', 'The expected value is a string consisting of longitude + separator + latitude'),
+                                'dependencies' => [
+                                    'type' => ['geo']
                                 ],
                             ],
                         ]
