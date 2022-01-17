@@ -195,11 +195,23 @@ class OpendataDatasetType extends eZDataType
         ];
     }
 
+    public static function getViewIcons()
+    {
+        return [
+            'counter' => 'fa fa-bullseye',
+            'calendar' => 'fa fa-calendar',
+            'map' => 'fa fa-map',
+            'chart' => 'fa fa-bar-chart',
+            'table' => 'fa fa-table',
+        ];
+    }
+
     function classAttributeContent( $classAttribute )
     {
         return [
             'types' => self::getTypes(),
             'views' => self::getViews(),
+            'view_icons' => self::getViewIcons(),
         ];
     }
 

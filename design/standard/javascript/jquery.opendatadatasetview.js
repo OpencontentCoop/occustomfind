@@ -50,7 +50,7 @@
         let datasetContainer = $(element);
         let tools = $.opendataTools;
         tools.settings('endpoint', settings.endpoints);
-        let form = $('<div class="row my-3">');
+        let form = $('<div class="row my-3 opendatadataset_view_form">');
         let datatable;
         let calendar;
         let map;
@@ -670,7 +670,7 @@
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 success: function (response) {
-                    counterElement.html('<p class="h1 m-0" style="line-height:1">' + response.totalCount + '</p><p>' + settings.itemName + '</p>');
+                    counterElement.html('<p class="h1 m-0" style="line-height:1;font-size:3em">' + response.totalCount + '</p><p>' + settings.itemName + '</p>');
                 },
                 error: function () {
                     counterElement.text('Error');
@@ -679,7 +679,7 @@
         }
 
         datasetContainer.find('[data-view="counter"]').each(function () {
-            let counterContainer = $(this).css({height: '600px'});
+            let counterContainer = $(this);
             counterElement = $('<div class="lead font-weight-bolder text-center"></div>').appendTo(counterContainer);
 
             datasetContainer.on('dataset:add', function () {
@@ -770,7 +770,15 @@
         datasetContainer.find('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
             setActiveView($(this).data('active_view'));
         });
-        setActiveView(datasetContainer.find('a[data-toggle="tab"].active').data('active_view'));
+        let activeTab = datasetContainer.find('a[data-toggle="tab"].active');
+        if (activeTab.length > 0) {
+            setActiveView(activeTab.data('active_view'));
+        }else{
+            let activeTabPane = datasetContainer.find('.tab-pane.active');
+            if (activeTabPane.length > 0) {
+                setActiveView(activeTabPane.data('view'));
+            }
+        }
 
         let filters = {};
         datasetContainer.on('dataset:changeFilter', function (e, filter) {

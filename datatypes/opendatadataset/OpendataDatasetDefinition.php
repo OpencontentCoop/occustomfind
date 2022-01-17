@@ -14,7 +14,7 @@ class OpendataDatasetDefinition implements JsonSerializable
     /**
      * @var array
      */
-    private $fields;
+    private $fields = [];
     /**
      * @var string[]
      */

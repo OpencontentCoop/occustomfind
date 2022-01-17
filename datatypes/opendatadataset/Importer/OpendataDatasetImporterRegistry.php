@@ -61,19 +61,19 @@ class OpendataDatasetImporterRegistry
         return false;
     }
 
-    public static function addScheduledImport($attributeId, $options, $frequency, $isActive, $nextDateTime)
+    public static function addScheduledImport($attributeId, $options, $frequency, $nextDateTime)
     {
         self::removeScheduledImport($attributeId);
         $scheduledImport = new SQLIScheduledImport([
             'handler' => self::SCHEDULED_HANDLER,
             'user_id' => eZUser::currentUserID(),
             'label' => ezpI18n::tr('opendatadataset', 'Import from Google Sheet'),
+            'is_active' => 1,
         ]);
         $scheduledImport->setAttribute('options', new SQLIImportHandlerOptions($options));
         $scheduledImport->setAttribute('label', ezpI18n::tr('opendatadataset', 'Import from Google Sheet'));
         if ($frequency){
             $scheduledImport->setAttribute('frequency', $frequency);
-            $scheduledImport->setAttribute('is_active', $isActive);
             $nextDate = ($nextDateTime instanceof DateTime) ? $nextDateTime->format('U') : time();
             $scheduledImport->setAttribute('next', $nextDate);
         }

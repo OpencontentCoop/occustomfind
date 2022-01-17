@@ -143,18 +143,19 @@ class OpendataDatasetImportGoogleSpreadsheetConnector extends OpendataDatasetCon
 
         if (isset($data['activate_importer'])) {
             $activateImporter = $data['activate_importer'] == 'true';
-            OpendataDatasetImporterRegistry::addScheduledImport(
-                $this->attribute->attribute('id'), [
+            if ($activateImporter) {
+                OpendataDatasetImporterRegistry::addScheduledImport(
+                    $this->attribute->attribute('id'), [
                     'attribute_id' => $this->attribute->attribute('id'),
                     'object_id' => $this->attribute->attribute('contentobject_id'),
                     'spreadsheet_id' => $this->googleSpreadsheetId,
                     'spreadsheet_title' => $sheetTitle,
                     'user' => eZUser::currentUserID(),
                 ],
-                isset($data['schedule_importer']) ? $data['schedule_importer']['frequency'] : false,
-                (int)$activateImporter,
-                isset($data['schedule_importer']['date']) ? \DateTime::createFromFormat('d/m/Y H:i', $data['schedule_importer']['date']) : null
-            );
+                    isset($data['schedule_importer']) ? $data['schedule_importer']['frequency'] : false,
+                    isset($data['schedule_importer']['date']) ? \DateTime::createFromFormat('d/m/Y H:i', $data['schedule_importer']['date']) : null
+                );
+            }
         }
 
         return true;
