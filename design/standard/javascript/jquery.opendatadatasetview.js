@@ -15,7 +15,8 @@
                 datatable: '/',
                 datatableLanguage: '/',
                 calendar: '/',
-                csv: '/'
+                csv: '/',
+                counter: '/'
             },
             calendar: {
                 defaultView: 'dayGridWeek',
@@ -33,6 +34,12 @@
             },
             datatable: {
                 columns: []
+            },
+            counter: {
+                label: '',
+                field: false,
+                stat: 'calc',
+                image: false,
             },
             i18n: {
                 filter_by: 'Filter by',
@@ -70,13 +77,17 @@
                 );
         }
 
+        function textellipsis(text, n) {
+            return (text.length > n) ? text.substr(0, n - 1) + '...' : text;
+        }
+
         function autoLink(text) {
             if (text) {
                 if (isEmail(text)) {
                     return '<a href="mailto:' + text + '">' + text + '</a>';
                 }
                 return text.replace(/(https?:\/\/[^\s]+)/g, function (url) {
-                    return '<a href="' + url + '">' + url + '</a>';
+                    return '<a href="' + url + '" title="' + url + '">' + textellipsis(url, 20) + '</a>';
                 });
             }
 
@@ -105,6 +116,9 @@
             $.get('/opendatadataset/has_scheduled_action/' + settings.id, function (response) {
                 if (response.scheduled > 0) {
                     datasetContainer.find('.has_scheduled_action_alert').show();
+                    if (response.spreadsheet_url){
+                        datasetContainer.find('.has_scheduled_action_alert .spreadsheet_uri').attr('href', response.spreadsheet_url);
+                    }
                 } else {
                     datasetContainer.find('.has_scheduled_action_alert').hide();
                 }
@@ -660,17 +674,23 @@
         });
 
         function loadCounter() {
+            var requestParams = {
+                'filters': counterFilters
+            };
+            if (settings.counter.field){
+                requestParams.field = settings.counter.field;
+            }
+            if (settings.counter.stat){
+                requestParams.stat = settings.counter.stat;
+            }
             $.ajax({
                 type: 'GET',
-                url: settings.endpoints.search,
-                data: {
-                    'filters': counterFilters,
-                    'limit': 1
-                },
+                url: settings.endpoints.counter,
+                data: requestParams,
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 success: function (response) {
-                    counterElement.html('<p class="h1 m-0" style="line-height:1;font-size:3em">' + response.totalCount + '</p><p>' + settings.itemName + '</p>');
+                    counterElement.html('<p class="h1 m-0" style="line-height:1.1;font-size:3em">' + response.count + '</p><p style="line-height:1;font-size:1.5em">' + settings.counter.label + '</p>');
                 },
                 error: function () {
                     counterElement.text('Error');
@@ -680,6 +700,9 @@
 
         datasetContainer.find('[data-view="counter"]').each(function () {
             let counterContainer = $(this);
+            if (settings.counter.image){
+                $('<div class="text-center my-2"><img class="img-fluid" src="'+settings.counter.image+'" alt="'+settings.counter.label+'" role="presentation" /></div>').appendTo(counterContainer);
+            }
             counterElement = $('<div class="lead font-weight-bolder text-center"></div>').appendTo(counterContainer);
 
             datasetContainer.on('dataset:add', function () {

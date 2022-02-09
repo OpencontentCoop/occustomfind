@@ -10,5 +10,5 @@ ModuleList[]=customcalendar
 ModuleList[]=customexport
 ModuleList[]=opendatadataset
 ModuleList[]=customgeo
-
+ModuleList[]=customcount
 */ ?>

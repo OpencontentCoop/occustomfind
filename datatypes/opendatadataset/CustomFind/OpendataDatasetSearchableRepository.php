@@ -117,7 +117,7 @@ class OpendataDatasetSearchableRepository extends OCCustomSearchableRepositoryAb
                 return 'int';
 
             case 'number':
-                return 'float';
+                return 'double';
 
             case 'textarea':
                 return 'text';

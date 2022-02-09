@@ -1,5 +1,7 @@
 <?php
 
+use Opencontent\Google\GoogleSheet;
+
 class OpendataDatasetImporterRegistry
 {
     const PENDING_ACTION_IMPORT_FROM_CSV = 'opendatadataset_import';
@@ -26,6 +28,10 @@ class OpendataDatasetImporterRegistry
         exec('sh extension/occustomfind/bin/bash/opendatadataset_import_pending.sh ' . eZSiteAccess::current()['name'] . ' ' . $attributeId);
     }
 
+    /**
+     * @param $attributeId
+     * @return SQLIScheduledImport|false
+     */
     public static function fetchScheduledImport($attributeId)
     {
         $handler = self::SCHEDULED_HANDLER;
@@ -43,19 +49,32 @@ class OpendataDatasetImporterRegistry
     public static function hasScheduledImport($attributeId)
     {
         $data = self::fetchScheduledImport($attributeId);
-        if (!$data){
-            return ['scheduled' => 0];
+        if ($data instanceof SQLIScheduledImport){
+            $options = $data->getOptions();
+            $spreadsheetUri = false;
+            if (isset($options['spreadsheet_id'])) {
+                $spreadsheet = new GoogleSheet($options['spreadsheet_id']);
+                $sheets = $spreadsheet->getSheets();
+                foreach ($sheets as $sheet){
+                    if ($sheet->getProperties()->getTitle() == $options['spreadsheet_title']) {
+                        $spreadsheetUri  = 'https://docs.google.com/spreadsheets/d/' . $options['spreadsheet_id'] . '#' . $sheet->getProperties()->getSheetId();
+                    }
+                }
+            }
+            return [
+                'scheduled' => 1,
+                'spreadsheet_url' => $spreadsheetUri,
+            ];
         }
-        return ['scheduled' => 1];
+        return ['scheduled' => 0];
     }
 
     public static function removeScheduledImport($attributeId)
     {
         $data = self::fetchScheduledImport($attributeId);
         if ($data instanceof SQLIScheduledImport){
-            $options = $data->getOptions();
             $data->remove();
-            return $options->object_id;
+            return true;
         }
 
         return false;

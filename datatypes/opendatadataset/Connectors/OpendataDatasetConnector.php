@@ -74,12 +74,10 @@ class OpendataDatasetConnector extends AbstractBaseConnector
             $data = $this->currentDataset->jsonSerialize();
             foreach ($this->datasetDefinition->getFields() as $definitionField) {
                 if ($definitionField['type'] === 'geo' && isset($data[$definitionField['identifier']])){
-                    $separator = isset($definitionField['geo_separator']) ? $definitionField['geo_separator'] : '|';
-                    list($longitude, $latitude) = explode($separator, $data[$definitionField['identifier']], 2);
-                    $data[$definitionField['identifier']] = [
-                        'longitude' => $longitude,
-                        'latitude' => $latitude,
-                    ];
+                    $data[$definitionField['identifier']] = OpendataDatasetDefinition::explodeGeoValue(
+                        $definitionField,
+                        $data[$definitionField['identifier']]
+                    );
                 }
             }
 
@@ -218,11 +216,10 @@ class OpendataDatasetConnector extends AbstractBaseConnector
         $data = $_POST;
         foreach ($this->datasetDefinition->getFields() as $definitionField) {
             if ($definitionField['type'] === 'geo' && isset($data[$definitionField['identifier']])){
-                $separator = isset($definitionField['geo_separator']) ? $definitionField['geo_separator'] : '|';
-                $data[$definitionField['identifier']] = implode($separator, [
-                    $data[$definitionField['identifier']]['longitude'],
-                    $data[$definitionField['identifier']]['latitude'],
-                ]);
+                $data[$definitionField['identifier']] = OpendataDatasetDefinition::implodeGeoValue(
+                    $definitionField,
+                    $data[$definitionField['identifier']]
+                );
             }
         }
         $dataset = $this->datasetDefinition->create($data, $this->attribute);

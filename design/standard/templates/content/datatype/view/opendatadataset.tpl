@@ -101,7 +101,10 @@
             <div class="alert alert-danger my-2 has_error_action_alert" style="display: none"></div>
             <div class="alert alert-success my-2 has_scheduled_action_alert" style="display: none">
                 {'Automatic import enabled'|i18n('opendatadataset')}
-                <a href="{concat('/opendatadataset/remove_scheduled_import/', $attribute.id)|ezurl(no)}" class="btn btn-xs btn-danger p-1 pull-right">
+                <a href="#" target="_blank" class="spreadsheet_uri btn btn-xs btn-success p-1 ml-3">
+                    <i class="fa fa-external-link"></i> {'Go to source'|i18n('opendatadataset')}
+                </a>
+                <a href="{concat('/opendatadataset/remove_scheduled_import/', $attribute.id)|ezurl(no)}" class="btn btn-xs btn-danger p-1 ml-3">
                     <i class="fa fa-times"></i> {'Disable'|i18n('opendatadataset')}
                 </a>
             </div>
@@ -201,7 +204,8 @@
                 datatable: "{concat('/customdatatable/',$custom_repository)|ezurl(no)}/",
                 datatableLanguage: "{concat('javascript/datatable/',$current_language,'.json')|ezdesign(no)}",
                 calendar: "{concat('/customcalendar/',$custom_repository)|ezurl(no)}/",
-                csv: "{concat('/customexport/',$custom_repository)|ezurl(no)}/"
+                csv: "{concat('/customexport/',$custom_repository)|ezurl(no)}/",
+                counter: "{concat('/customcount/',$custom_repository)|ezurl(no)}/"
             {rdelim},
             calendar: {ldelim}
                 defaultView: "{if is_set($attribute.content.settings.calendar.default_view)}{$attribute.content.settings.calendar.default_view}{else}dayGridWeek{/if}",
@@ -219,6 +223,12 @@
             {rdelim},
             datatable: {ldelim}
                 columns: JSON.parse('{$columns|json_encode()}')
+            {rdelim},
+            counter: {ldelim}
+                label: "{if is_set($attribute.content.settings.counter.label)}{$attribute.content.settings.counter.label}{else}{$attribute.content.item_name|wash()}{/if}",
+                field: {if is_set($attribute.content.settings.counter.select_field)}"{$attribute.content.settings.counter.select_field}"{else}false{/if},
+                stat: "{if is_set($attribute.content.settings.counter.select_stat)}{$attribute.content.settings.counter.select_stat}{else}count{/if}",
+                image: {if is_set($attribute.content.settings.counter.image_uri)}"{$attribute.content.settings.counter.image_uri}"{else}false{/if}
             {rdelim},
             i18n: {ldelim}
                 filter_by: "{'Filter by'|i18n('opendatadataset')}",

@@ -55,9 +55,17 @@ class OpendataDatasetSearchableObject implements OCCustomSearchableObjectInterfa
                         return $date instanceof \DateTime ? ezfSolrDocumentFieldBase::convertTimestampToDate($date->format('U')) : null;
 
                     case 'geo':
-                        $separator = isset($definitionField['geo_separator']) ? $definitionField['geo_separator'] : '|';
-                        list($longitude, $latitude) = explode($separator, $fieldData);
-                        return $longitude . ',' . $latitude;
+                        $latLng = OpendataDatasetDefinition::explodeGeoValue(
+                            $definitionField,
+                            $fieldData
+                        );
+                        return $latLng['longitude'] . ',' . $latLng['latitude'];
+
+                    case 'number':
+                        return OpendataDatasetDefinition::floatValue($fieldData);
+
+                    case 'integer':
+                        return (int)$fieldData;
 
                     default:
                         return $fieldData;

@@ -40,6 +40,10 @@ class OpendataDatasetDefinition implements JsonSerializable
      */
     private $chartSettings;
     /**
+     * @var array
+     */
+    private $counterSettings = [];
+    /**
      * @var OpendataDatasetStorageInterface
      */
     private $storage;
@@ -84,6 +88,9 @@ class OpendataDatasetDefinition implements JsonSerializable
         ], [
             'ModuleName' => 'customfind',
             'FunctionName' => 'find'
+        ], [
+            'ModuleName' => 'customcounter',
+            'FunctionName' => 'count'
         ], [
             'ModuleName' => 'forms',
             'FunctionName' => 'use'
@@ -336,6 +343,7 @@ class OpendataDatasetDefinition implements JsonSerializable
                     'calendar' => (array)$this->getCalendarSettings(),
                     'table' => (array)$this->getTableSettings(),
                     'chart' => $this->getChartSettings(),
+                    'counter' => $this->getCounterSettings(),
                 ];
 
             case 'can_edit':
@@ -399,6 +407,14 @@ class OpendataDatasetDefinition implements JsonSerializable
     }
 
     /**
+     * @return array
+     */
+    public function getCounterSettings()
+    {
+        return $this->counterSettings;
+    }
+
+    /**
      * @param bool $canEdit
      */
     public function setCanEdit($canEdit)
@@ -447,6 +463,7 @@ class OpendataDatasetDefinition implements JsonSerializable
             'calendarSettings' => $this->getCalendarSettings(),
             'tableSettings' => $this->getTableSettings(),
             'chartSettings' => $this->getChartSettings(),
+            'counterSettings' => $this->getCounterSettings(),
         ];
     }
 
@@ -508,6 +525,75 @@ class OpendataDatasetDefinition implements JsonSerializable
     public static function parseEnumConfiguration($enum)
     {
         return explode("\n", $enum);
+    }
+
+    /**
+     * From csv string to array
+     * @param $definition array Geo field definition
+     * @param $data string Source string value
+     * @return array
+     */
+    public static function explodeGeoValue(array $definition, $data)
+    {
+        $longitude = $latitude = false;
+        if (isset($definition['geo_separator'])) {
+            $separator = isset($definition['geo_separator']) ? $definition['geo_separator'] : '|';
+            [$longitude, $latitude] = explode($separator, $data, 2);
+        }else{
+            $format = isset($definition['geo_format']) ? $definition['geo_format'] : OpendataDatasetFieldDefinitionConnector::DEFAULT_GEO_FORMAT;
+            $latPosition = strpos($format, '%latitude');
+            $lngPosition = strpos($format, '%longitude');
+            $format = str_replace(['%latitude', '%longitude'], '%f', $format);
+            $dataParsed = sscanf($data, $format);
+            if (count($dataParsed) == 2 && is_float($dataParsed[0]) && is_float($dataParsed[1])) {
+                if ($latPosition < $lngPosition) {
+                    $latitude = $dataParsed[0];
+                    $longitude = $dataParsed[1];
+                } else {
+                    $longitude = $dataParsed[0];
+                    $latitude = $dataParsed[1];
+                }
+            }
+        }
+
+        if ($longitude && $latitude) {
+            return [
+                'longitude' => $longitude,
+                'latitude' => $latitude,
+            ];
+        }
+        return [];
+    }
+
+    /**
+     * From array to csv string
+     * @param $definition array Geo field definition
+     * @param $data array Exploded geo value
+     * @return string
+     */
+    public static function implodeGeoValue(array $definition, array $data)
+    {
+        if (isset($definition['geo_separator'])) {
+            $separator = isset($definition['geo_separator']) ? $definition['geo_separator'] : '|';
+            return implode($separator, [
+                $data['longitude'],
+                $data['latitude'],
+            ]);
+        }else{
+            $format = isset($definition['geo_format']) ? $definition['geo_format'] : OpendataDatasetFieldDefinitionConnector::DEFAULT_GEO_FORMAT;
+            return str_replace(['%latitude', '%longitude'], [$data['latitude'], $data['longitude']], $format);
+        }
+    }
+
+    /**
+     * @param $data
+     * @return float
+     */
+    public static function floatValue($data)
+    {
+        $data = str_replace(",",".",$data);
+        $data = preg_replace('/\.(?=.*\.)/', '', $data);
+        return floatval($data);
     }
 
     private function normalizeFields()

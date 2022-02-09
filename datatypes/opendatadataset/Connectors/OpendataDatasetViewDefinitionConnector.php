@@ -12,6 +12,8 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
 
     private $firstGeoField;
 
+    private $availableCalc;
+
     public function runService($serviceIdentifier)
     {
         $this->load();
@@ -37,9 +39,21 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
         if (empty($this->dateFields)) {
             unset($this->availableViews['calendar']);
         }
+
+        $this->availableCalc = [
+            'min' => ezpI18n::tr('opendatadataset', 'Minimun'),
+            'max' => ezpI18n::tr('opendatadataset', 'Maximun'),
+            'count' => ezpI18n::tr('opendatadataset', 'Count'),
+            'missing' => ezpI18n::tr('opendatadataset', 'Missing values'),
+            'sum' => ezpI18n::tr('opendatadataset', 'Sum'),
+//            'sumOfSquares' => ezpI18n::tr('opendatadataset', 'Sum of squares'),
+            'mean' => ezpI18n::tr('opendatadataset', 'Mean'),
+//            'stddev' => ezpI18n::tr('opendatadataset', 'Standard deviation'),
+
+        ];
+
         return parent::runService($serviceIdentifier);
     }
-
 
     protected function getData()
     {
@@ -51,6 +65,7 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
         $data['tableSettings'] = $this->datasetDefinition->getTableSettings();
         $data['chartSettings'] = $this->datasetDefinition->getChartSettings();
         $data['facetsSettings'] = $this->datasetDefinition->getFacetsSettings();
+        $data['counterSettings'] = $this->datasetDefinition->getCounterSettings();
 
         return $data;
     }
@@ -131,6 +146,41 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
                 ],
                 'chartSettings' => [
                     'title' => ezpI18n::tr('opendatadataset', 'Chart settings'),
+                ],
+                'counterSettings' => [
+                    'title' => ezpI18n::tr('opendatadataset', 'Counter settings'),
+                    'type' => 'object',
+                    'properties' => [
+                        'label' => [
+                            'title' => ezpI18n::tr('opendatadataset', 'Counter label'),
+                            'type' => 'string'
+                        ],
+                        'image_uri' => [
+                            'title' => ezpI18n::tr('opendatadataset', 'Counter image full url'),
+                            'type' => 'string',
+                            'format' => 'uri',
+                        ],
+                        'count_field' => [
+                            'title' => ezpI18n::tr('opendatadataset', 'Field'),
+                            'type' => 'boolean',
+                        ],
+                        'select_field' => [
+                            'title' => ezpI18n::tr('opendatadataset', 'Select field'),
+                            'enum' => array_keys($this->fields),
+                            'default' => false,
+                            'required' => true,
+                        ],
+                        'select_stat' => [
+                            'title' => ezpI18n::tr('opendatadataset', 'Select calculation'),
+                            'enum' => array_keys($this->availableCalc),
+                            'default' => 'count',
+                            'required' => true,
+                        ],
+                    ],
+                    'dependencies' => [
+                        'select_field' => ['count_field'],
+                        'select_stat' => ['count_field'],
+                    ]
                 ],
             ],
             'dependencies' => [
@@ -237,7 +287,28 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
                     'chart' => [
                         'dataUrl' => '/customexport/dataset-' . $this->attribute->attribute('contentclass_attribute_identifier') . '-' . $this->attribute->attribute('contentobject_id')
                     ]
-                ]
+                ],
+                'counterSettings' => [
+                    'fields' => [
+                        'image_uri' => [
+                            'type' => 'url'
+                        ],
+                        'count_field' => [
+                            'type' => 'checkbox',
+                            'rightLabel' => ezpI18n::tr('opendatadataset', 'Perform calculation on a single field'),
+                        ],
+                        'select_field' => [
+                            'optionLabels' => array_values($this->fields),
+                            'type' => 'select',
+                            'hideNone' => true,
+                        ],
+                        'select_stat' => [
+                            'optionLabels' => array_values($this->availableCalc),
+                            'type' => 'select',
+                            'hideNone' => true,
+                        ],
+                    ],
+                ],
             ]
         ];
     }
@@ -252,5 +323,77 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
         $definition->grantPermissions($extraUsers, $this->attribute->object()->mainNodeID());
 
         return $definition;
+    }
+
+    protected function getView()
+    {
+        $view = parent::getView();
+        $view['layout'] = $this->getLayout();
+        return $view;
+    }
+
+    protected function getLayout()
+    {
+        $categories = [
+            [
+                'identifier' => 'views',
+                'name' => ezpI18n::tr('opendatadataset', 'Views'),
+                'identifiers' => ['views', 'facetsSettings'],
+                'canBeDisable' => false,
+            ],
+            [
+                'identifier' => 'api',
+                'name' => ezpI18n::tr('opendatadataset', 'API'),
+                'identifiers' => ['apiEnabled', 'extraUsers'],
+                'canBeDisable' => false,
+            ],
+            [
+                'identifier' => 'table',
+                'name' => ezpI18n::tr('opendatadataset', 'Data table'),
+                'identifiers' => ['tableSettings'],
+                'canBeDisable' => true,
+            ],
+            [
+                'identifier' => 'calendar',
+                'name' => ezpI18n::tr('opendatadataset', 'Calendar'),
+                'identifiers' => ['calendarSettings'],
+                'canBeDisable' => true,
+            ],
+            [
+                'identifier' => 'chart',
+                'name' => ezpI18n::tr('opendatadataset', 'Chart'),
+                'identifiers' => ['chartSettings'],
+                'canBeDisable' => true,
+            ],
+            [
+                'identifier' => 'counter',
+                'name' => ezpI18n::tr('opendatadataset', 'Counter'),
+                'identifiers' => ['counterSettings'],
+                'canBeDisable' => true,
+            ],
+        ];
+
+        $bindings = array();
+        $tabs = '<ul class="nav nav-tabs auto">';
+        $panels = '<div class="tab-content my-5">';
+        $i = 0;
+
+        foreach ($categories as $category) {
+            $activeClass = $i == 0 ? 'active' : '';
+            $canBeDisableClass = $category['canBeDisable'] ? 'dataset-definition-group' : '';
+            $tabs .= '<li class="nav-item ' . $canBeDisableClass . '" id="dataset-definition-group-' . $category['identifier'] . '"><a class="nav-link ' . $activeClass . '" data-toggle="tab" href="#dataset-group-' . $category['identifier'] . '">' . $category['name'] . '</a></li>';
+            $panels .= '<div class="tab-pane ' . $activeClass . '" id="dataset-group-' . $category['identifier'] . '"></div>';
+            foreach ($category['identifiers'] as $field) {
+                $bindings[$field] = 'dataset-group-' . $category['identifier'];
+            }
+            $i++;
+        }
+        $tabs .= '</ul>';
+        $panels .= '</div>';
+
+        return array(
+            'template' => '<div><legend class="alpaca-container-label">{{options.label}}</legend>' . $tabs . $panels . '</div>',
+            'bindings' => $bindings
+        );
     }
 }

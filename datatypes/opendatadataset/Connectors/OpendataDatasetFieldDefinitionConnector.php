@@ -2,6 +2,8 @@
 
 class OpendataDatasetFieldDefinitionConnector extends OpendataDatasetConnector
 {
+    const DEFAULT_GEO_FORMAT = '%latitude,%longitude';
+
     protected function getData()
     {
         $data = [];
@@ -11,9 +13,25 @@ class OpendataDatasetFieldDefinitionConnector extends OpendataDatasetConnector
         }else{
             $data['itemName'] = 'item';
         }
-        $data['fields'] = $this->datasetDefinition->getFields();
+        $data['fields'] = $this->fixGeoDefinitions($this->datasetDefinition->getFields());
 
         return $data;
+    }
+
+    private function fixGeoDefinitions($fields)
+    {
+        foreach ($fields as $index => $definition) {
+            if ($definition['type'] === 'geo') {
+                if (!isset($definition['geo_format'])){
+                    $fields[$index]['geo_format'] = self::DEFAULT_GEO_FORMAT;
+                }
+                if (isset($definition['geo_separator'])) {
+                    $fields[$index]['geo_format'] = "%longitude{$definition['geo_separator']}%latitude";
+                    unset($fields[$index]['geo_separator']);
+                }
+            }
+        }
+        return $fields;
     }
 
     protected function getSchema()
@@ -71,10 +89,10 @@ class OpendataDatasetFieldDefinitionConnector extends OpendataDatasetConnector
                                 'default' => 'DD/MM/YYYY HH:mm',
                                 'required' => true,
                             ],
-                            'geo_separator' => [
+                            'geo_format' => [
                                 'type' => 'string',
-                                'title' => ezpI18n::tr('opendatadataset', 'Geo location separator'),
-                                'default' => '|',
+                                'title' => ezpI18n::tr('opendatadataset', 'Geo point format'),
+                                'default' => self::DEFAULT_GEO_FORMAT,
                             ],
                             'default' => [
                                 'type' => 'string',
@@ -85,7 +103,7 @@ class OpendataDatasetFieldDefinitionConnector extends OpendataDatasetConnector
                             'enum' => ['type'],
                             'date_format' => ['type'],
                             'datetime_format' => ['type'],
-                            'geo_separator' => ['type'],
+                            'geo_format' => ['type'],
                         ],
                     ]
                 ],
@@ -146,8 +164,9 @@ class OpendataDatasetFieldDefinitionConnector extends OpendataDatasetConnector
                                     'type' => ['datetime']
                                 ],
                             ],
-                            'geo_separator' => [
-                                'helper' => ezpI18n::tr('opendatadataset', 'The expected value is a string consisting of longitude + separator + latitude'),
+                            'geo_format' => [
+                                'helper' => ezpI18n::tr('opendatadataset', 'The latitude and longitude format: you can use %latitude and %longitude placeholders, the %latitude and %longitude expecetd values must be float values (with dot as decimal separator, e.g. 43.1234)'),
+                                'placeholder' => self::DEFAULT_GEO_FORMAT,
                                 'dependencies' => [
                                     'type' => ['geo']
                                 ],
