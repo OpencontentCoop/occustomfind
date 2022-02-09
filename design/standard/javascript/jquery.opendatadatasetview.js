@@ -70,13 +70,18 @@
                 );
         }
 
+        function textellipsis(text, n) {
+            return (text.length > n) ? text.substr(0, n - 1) + '...' : text;
+        }
+
         function autoLink(text) {
             if (text) {
                 if (isEmail(text)) {
                     return '<a href="mailto:' + text + '">' + text + '</a>';
                 }
                 return text.replace(/(https?:\/\/[^\s]+)/g, function (url) {
-                    return '<a href="' + url + '">' + url + '</a>';
+
+                    return '<a href="' + url + '" title="' + textellipsis(url, 20) + '">' + url + '</a>';
                 });
             }
 

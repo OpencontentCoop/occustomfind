@@ -510,6 +510,47 @@ class OpendataDatasetDefinition implements JsonSerializable
         return explode("\n", $enum);
     }
 
+    /**
+     * @param $definition array Geo field definition
+     * @param $data string Source string value
+     * @return array
+     */
+    public static function explodeGeoValue(array $definition, $data)
+    {
+        $separator = isset($definition['geo_separator']) ? $definition['geo_separator'] : '|';
+        [$longitude, $latitude] = explode($separator, $data, 2);
+        return [
+            'longitude' => $longitude,
+            'latitude' => $latitude,
+        ];
+    }
+
+    /**
+     * @param $definition array Geo field definition
+     * @param $data array Exploded geo value
+     * @return string
+     */
+    public static function implodeGeoValue(array $definition, array $data)
+    {
+        $separator = isset($definition['geo_separator']) ? $definition['geo_separator'] : '|';
+        return implode($separator, [
+            $data['longitude'],
+            $data['latitude'],
+        ]);
+    }
+
+    /**
+     * @param $definition array Geo field definition
+     * @param $data string Source string value
+     * @return string
+     */
+    public static function formatGeoValueToSolr(array $definition, $data)
+    {
+        $separator = isset($definition['geo_separator']) ? $definition['geo_separator'] : '|';
+        [$longitude, $latitude] = explode($separator, $data);
+        return $longitude . ',' . $latitude;
+    }
+
     private function normalizeFields()
     {
         if (is_array($this->fields)){

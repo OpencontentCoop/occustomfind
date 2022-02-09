@@ -49,7 +49,7 @@
 </div>
 
 <div id="import-container-{$attribute.id}" class="{if $attribute.has_content}hide{/if}">
-    <small class="text-uppercase text-100 d-block">{'You can import field definitions from existing data'|i18n('opendatadataset')}</small>
+    {*<small class="text-uppercase text-100 d-block">{'You can import field definitions from existing data'|i18n('opendatadataset')}</small>*}
     <a href="#" id="import-definition-{$attribute.id}" class="btn btn-sm btn-info mt-1">
         {'Import fields definition from csv'|i18n('opendatadataset')}
     </a>
