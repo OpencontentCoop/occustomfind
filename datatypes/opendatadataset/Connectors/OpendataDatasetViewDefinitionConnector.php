@@ -40,7 +40,6 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
         return parent::runService($serviceIdentifier);
     }
 
-
     protected function getData()
     {
         $data = [];
@@ -252,5 +251,71 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
         $definition->grantPermissions($extraUsers, $this->attribute->object()->mainNodeID());
 
         return $definition;
+    }
+
+    protected function getView()
+    {
+        $view = parent::getView();
+        $view['layout'] = $this->getLayout();
+        return $view;
+    }
+
+    protected function getLayout()
+    {
+        $categories = [
+            [
+                'identifier' => 'views',
+                'name' => ezpI18n::tr('opendatadataset', 'Views'),
+                'identifiers' => ['views', 'facetsSettings'],
+                'canBeDisable' => false,
+            ],
+            [
+                'identifier' => 'api',
+                'name' => ezpI18n::tr('opendatadataset', 'API'),
+                'identifiers' => ['apiEnabled', 'extraUsers'],
+                'canBeDisable' => false,
+            ],
+            [
+                'identifier' => 'table',
+                'name' => ezpI18n::tr('opendatadataset', 'Data table'),
+                'identifiers' => ['tableSettings'],
+                'canBeDisable' => true,
+            ],
+            [
+                'identifier' => 'calendar',
+                'name' => ezpI18n::tr('opendatadataset', 'Calendar'),
+                'identifiers' => ['calendarSettings'],
+                'canBeDisable' => true,
+            ],
+            [
+                'identifier' => 'chart',
+                'name' => ezpI18n::tr('opendatadataset', 'Chart'),
+                'identifiers' => ['chartSettings'],
+                'canBeDisable' => true,
+            ],
+        ];
+
+        $bindings = array();
+        $tabs = '<ul class="nav nav-tabs auto">';
+        $panels = '<div class="tab-content my-5">';
+        $i = 0;
+
+        foreach ($categories as $category) {
+            $activeClass = $i == 0 ? 'active' : '';
+            $canBeDisableClass = $category['canBeDisable'] ? 'dataset-definition-group' : '';
+            $tabs .= '<li class="nav-item ' . $canBeDisableClass . '" id="dataset-definition-group-' . $category['identifier'] . '"><a class="nav-link ' . $activeClass . '" data-toggle="tab" href="#dataset-group-' . $category['identifier'] . '">' . $category['name'] . '</a></li>';
+            $panels .= '<div class="tab-pane ' . $activeClass . '" id="dataset-group-' . $category['identifier'] . '"></div>';
+            foreach ($category['identifiers'] as $field) {
+                $bindings[$field] = 'dataset-group-' . $category['identifier'];
+            }
+            $i++;
+        }
+        $tabs .= '</ul>';
+        $panels .= '</div>';
+
+        return array(
+            'template' => '<div><legend class="alpaca-container-label">{{options.label}}</legend>' . $tabs . $panels . '</div>',
+            'bindings' => $bindings
+        );
     }
 }

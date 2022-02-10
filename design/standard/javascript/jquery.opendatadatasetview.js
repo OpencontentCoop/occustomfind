@@ -80,8 +80,7 @@
                     return '<a href="mailto:' + text + '">' + text + '</a>';
                 }
                 return text.replace(/(https?:\/\/[^\s]+)/g, function (url) {
-
-                    return '<a href="' + url + '" title="' + textellipsis(url, 20) + '">' + url + '</a>';
+                    return '<a href="' + url + '" title="' + url + '">' + textellipsis(url, 20) + '</a>';
                 });
             }
 
@@ -110,6 +109,9 @@
             $.get('/opendatadataset/has_scheduled_action/' + settings.id, function (response) {
                 if (response.scheduled > 0) {
                     datasetContainer.find('.has_scheduled_action_alert').show();
+                    if (response.spreadsheet_url){
+                        datasetContainer.find('.has_scheduled_action_alert .spreadsheet_uri').attr('href', response.spreadsheet_url);
+                    }
                 } else {
                     datasetContainer.find('.has_scheduled_action_alert').hide();
                 }

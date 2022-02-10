@@ -304,6 +304,15 @@
                                 }
                             }
                         }
+                    },
+                    "postRender": function(control) {
+                        control.childrenByPropertyId["views"].on("change", function() {
+                            var values = this.getValue();
+                            $('.dataset-definition-group').hide();
+                            $.each(values, function (){
+                                $('#dataset-definition-group-'+this).show();
+                            })
+                        });
                     }
                 }
             });

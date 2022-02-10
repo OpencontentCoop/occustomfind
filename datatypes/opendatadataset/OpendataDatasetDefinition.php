@@ -511,44 +511,61 @@ class OpendataDatasetDefinition implements JsonSerializable
     }
 
     /**
+     * From csv string to array
      * @param $definition array Geo field definition
      * @param $data string Source string value
      * @return array
      */
     public static function explodeGeoValue(array $definition, $data)
     {
-        $separator = isset($definition['geo_separator']) ? $definition['geo_separator'] : '|';
-        [$longitude, $latitude] = explode($separator, $data, 2);
-        return [
-            'longitude' => $longitude,
-            'latitude' => $latitude,
-        ];
+        $longitude = $latitude = false;
+        if (isset($definition['geo_separator'])) {
+            $separator = isset($definition['geo_separator']) ? $definition['geo_separator'] : '|';
+            [$longitude, $latitude] = explode($separator, $data, 2);
+        }else{
+            $format = isset($definition['geo_format']) ? $definition['geo_format'] : OpendataDatasetFieldDefinitionConnector::DEFAULT_GEO_FORMAT;
+            $latPosition = strpos($format, '%latitude');
+            $lngPosition = strpos($format, '%longitude');
+            $format = str_replace(['%latitude', '%longitude'], '%f', $format);
+            $dataParsed = sscanf($data, $format);
+            if (count($dataParsed) == 2 && is_float($dataParsed[0]) && is_float($dataParsed[1])) {
+                if ($latPosition < $lngPosition) {
+                    $latitude = $dataParsed[0];
+                    $longitude = $dataParsed[1];
+                } else {
+                    $longitude = $dataParsed[0];
+                    $latitude = $dataParsed[1];
+                }
+            }
+        }
+
+        if ($longitude && $latitude) {
+            return [
+                'longitude' => $longitude,
+                'latitude' => $latitude,
+            ];
+        }
+        return [];
     }
 
     /**
+     * From array to csv string
      * @param $definition array Geo field definition
      * @param $data array Exploded geo value
      * @return string
      */
     public static function implodeGeoValue(array $definition, array $data)
     {
-        $separator = isset($definition['geo_separator']) ? $definition['geo_separator'] : '|';
-        return implode($separator, [
-            $data['longitude'],
-            $data['latitude'],
-        ]);
-    }
-
-    /**
-     * @param $definition array Geo field definition
-     * @param $data string Source string value
-     * @return string
-     */
-    public static function formatGeoValueToSolr(array $definition, $data)
-    {
-        $separator = isset($definition['geo_separator']) ? $definition['geo_separator'] : '|';
-        [$longitude, $latitude] = explode($separator, $data);
-        return $longitude . ',' . $latitude;
+        if (isset($definition['geo_separator'])) {
+            $separator = isset($definition['geo_separator']) ? $definition['geo_separator'] : '|';
+            return implode($separator, [
+                $data['longitude'],
+                $data['latitude'],
+            ]);
+        }else{
+            $format = isset($definition['geo_format']) ? $definition['geo_format'] : OpendataDatasetFieldDefinitionConnector::DEFAULT_GEO_FORMAT;
+            return str_replace(['%latitude', '%longitude'], [$data['latitude'], $data['longitude']], $format);
+        }
     }
 
     private function normalizeFields()

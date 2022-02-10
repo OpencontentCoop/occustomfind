@@ -104,6 +104,9 @@
                 <a href="{concat('/opendatadataset/remove_scheduled_import/', $attribute.id)|ezurl(no)}" class="btn btn-xs btn-danger p-1 pull-right">
                     <i class="fa fa-times"></i> {'Disable'|i18n('opendatadataset')}
                 </a>
+                <a href="#" target="_blank" class="spreadsheet_uri btn btn-xs btn-success p-1 pull-right mr-2">
+                    <i class="fa fa-external-link"></i> {'Go to source'|i18n('opendatadataset')}
+                </a>
             </div>
         {/if}
     </div>
