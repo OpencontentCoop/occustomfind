@@ -192,6 +192,10 @@
       <translation>Importa le definizioni dei campi da file CSV</translation>
     </message>
     <message>
+      <source>Import fields definition from Google Spreadsheet</source>
+      <translation>Importa le definizioni dei campi da Google Spreadsheet</translation>
+    </message>
+    <message>
       <source>Import from CSV</source>
       <translation>Importa dati da file CSV</translation>
     </message>
@@ -394,6 +398,58 @@
     <message>
       <source>Counter settings</source>
       <translation>Impostazioni del contatore</translation>
+    </message>
+    <message>
+      <source>Minimun</source>
+      <translation>Minimo</translation>
+    </message>
+    <message>
+      <source>Maximun</source>
+      <translation>Massimo</translation>
+    </message>
+    <message>
+      <source>Count</source>
+      <translation>Totale elementi</translation>
+    </message>
+    <message>
+      <source>Missing values</source>
+      <translation>Elementi non popolati</translation>
+    </message>
+    <message>
+      <source>Sum</source>
+      <translation>Somma</translation>
+    </message>
+    <message>
+      <source>Mean</source>
+      <translation>Media</translation>
+    </message>
+    <message>
+      <source>Perform calculation on a single field</source>
+      <translation>Effettua il calcolo su un singolo campo</translation>
+    </message>
+    <message>
+      <source>Event limit</source>
+      <translation>Numero di eventi visualizzati</translation>
+    </message>
+    <message>
+      <source>Counter label</source>
+      <translation>Etichetta</translation>
+    </message>
+    <message>
+      <source>Counter image full url</source>
+      <translation>Immagine (inserire url completo)</translation>
+    </message>
+    <message>
+      <source>Field</source>
+      <translation>Campo</translation>
+    </message>
+    <message>
+      <source>Select field</source>
+      <translation>Seleziona campo</translation>
+    </message>
+    <message>
+      <source>Select calculation</source>
+      <translation>Seleziona il calcolo</translation>
     </message>
   </context>
 </TS>

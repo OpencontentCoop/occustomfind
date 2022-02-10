@@ -192,6 +192,10 @@
       <translation type="unfinished"/>
     </message>
     <message>
+      <source>Import fields definition from Google Spreadsheet</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
       <source>Import from CSV</source>
       <translation type="unfinished"/>
     </message>
@@ -393,6 +397,58 @@
     </message>
     <message>
       <source>Counter settings</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Minimun</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Maximun</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Count</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Missing values</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Sum</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Mean</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Perform calculation on a single field</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Event limit</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Counter label</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Counter image full url</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Field</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Select field</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Select calculation</source>
       <translation type="unfinished"/>
     </message>
   </context>
