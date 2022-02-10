@@ -166,6 +166,7 @@ class OpendataDatasetFieldDefinitionConnector extends OpendataDatasetConnector
                             ],
                             'geo_format' => [
                                 'helper' => ezpI18n::tr('opendatadataset', 'The latitude and longitude format: you can use %latitude and %longitude placeholders, the %latitude and %longitude expecetd values must be float values (with dot as decimal separator, e.g. 43.1234)'),
+                                'placeholder' => self::DEFAULT_GEO_FORMAT,
                                 'dependencies' => [
                                     'type' => ['geo']
                                 ],

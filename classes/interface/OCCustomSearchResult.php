@@ -41,9 +41,36 @@ class OCCustomSearchResult
                     }
                 }
             }
+            if (isset($resultArray['stats']['stats_fields'])){
+                $result['stats'] = array();
+                foreach ($resultArray['stats']['stats_fields'] as $solrName => $statData){
+                    foreach($fields as $field){
+                        if ($field->getSolrName('facet') == $solrName){
+                            $statData['facets'] = $this->renameStatFacetsFields($statData['facets'], $fields);
+                            $result['stats'][$field->getName()] = $statData;
+                        }
+                    }
+                }
+            }
         }
 
         return $result;
+    }
+
+    private function renameStatFacetsFields(array $statDataFacets, $fields)
+    {
+        if (!empty($statDataFacets)){
+            foreach ($statDataFacets as $solrName => $values){
+                foreach($fields as $field){
+                    if ($field->getSolrName('facet') == $solrName){
+                        $statDataFacets[$field->getName()] = $values;
+                        unset($statDataFacets[$solrName]);
+                    }
+                }
+            }
+        }
+
+        return $statDataFacets;
     }
 
     /**

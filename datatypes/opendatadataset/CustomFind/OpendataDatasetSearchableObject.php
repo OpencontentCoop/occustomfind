@@ -61,6 +61,12 @@ class OpendataDatasetSearchableObject implements OCCustomSearchableObjectInterfa
                         );
                         return $latLng['longitude'] . ',' . $latLng['latitude'];
 
+                    case 'number':
+                        return OpendataDatasetDefinition::floatValue($fieldData);
+
+                    case 'integer':
+                        return (int)$fieldData;
+
                     default:
                         return $fieldData;
                 }

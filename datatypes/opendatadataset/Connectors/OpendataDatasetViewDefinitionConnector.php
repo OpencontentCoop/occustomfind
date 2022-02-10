@@ -12,6 +12,8 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
 
     private $firstGeoField;
 
+    private $availableCalc;
+
     public function runService($serviceIdentifier)
     {
         $this->load();
@@ -37,6 +39,19 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
         if (empty($this->dateFields)) {
             unset($this->availableViews['calendar']);
         }
+
+        $this->availableCalc = [
+            'min' => ezpI18n::tr('opendatadataset', 'Minimun'),
+            'max' => ezpI18n::tr('opendatadataset', 'Maximun'),
+            'count' => ezpI18n::tr('opendatadataset', 'Count'),
+            'missing' => ezpI18n::tr('opendatadataset', 'Missing values'),
+            'sum' => ezpI18n::tr('opendatadataset', 'Sum'),
+//            'sumOfSquares' => ezpI18n::tr('opendatadataset', 'Sum of squares'),
+            'mean' => ezpI18n::tr('opendatadataset', 'Mean'),
+//            'stddev' => ezpI18n::tr('opendatadataset', 'Standard deviation'),
+
+        ];
+
         return parent::runService($serviceIdentifier);
     }
 
@@ -50,6 +65,7 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
         $data['tableSettings'] = $this->datasetDefinition->getTableSettings();
         $data['chartSettings'] = $this->datasetDefinition->getChartSettings();
         $data['facetsSettings'] = $this->datasetDefinition->getFacetsSettings();
+        $data['counterSettings'] = $this->datasetDefinition->getCounterSettings();
 
         return $data;
     }
@@ -130,6 +146,41 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
                 ],
                 'chartSettings' => [
                     'title' => ezpI18n::tr('opendatadataset', 'Chart settings'),
+                ],
+                'counterSettings' => [
+                    'title' => ezpI18n::tr('opendatadataset', 'Counter settings'),
+                    'type' => 'object',
+                    'properties' => [
+                        'label' => [
+                            'title' => ezpI18n::tr('opendatadataset', 'Counter label'),
+                            'type' => 'string'
+                        ],
+                        'image_uri' => [
+                            'title' => ezpI18n::tr('opendatadataset', 'Counter image full url'),
+                            'type' => 'string',
+                            'format' => 'uri',
+                        ],
+                        'count_field' => [
+                            'title' => ezpI18n::tr('opendatadataset', 'Field'),
+                            'type' => 'boolean',
+                        ],
+                        'select_field' => [
+                            'title' => ezpI18n::tr('opendatadataset', 'Select field'),
+                            'enum' => array_keys($this->fields),
+                            'default' => false,
+                            'required' => true,
+                        ],
+                        'select_stat' => [
+                            'title' => ezpI18n::tr('opendatadataset', 'Select calculation'),
+                            'enum' => array_keys($this->availableCalc),
+                            'default' => 'count',
+                            'required' => true,
+                        ],
+                    ],
+                    'dependencies' => [
+                        'select_field' => ['count_field'],
+                        'select_stat' => ['count_field'],
+                    ]
                 ],
             ],
             'dependencies' => [
@@ -236,7 +287,28 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
                     'chart' => [
                         'dataUrl' => '/customexport/dataset-' . $this->attribute->attribute('contentclass_attribute_identifier') . '-' . $this->attribute->attribute('contentobject_id')
                     ]
-                ]
+                ],
+                'counterSettings' => [
+                    'fields' => [
+                        'image_uri' => [
+                            'type' => 'url'
+                        ],
+                        'count_field' => [
+                            'type' => 'checkbox',
+                            'rightLabel' => ezpI18n::tr('opendatadataset', 'Perform calculation on a single field'),
+                        ],
+                        'select_field' => [
+                            'optionLabels' => array_values($this->fields),
+                            'type' => 'select',
+                            'hideNone' => true,
+                        ],
+                        'select_stat' => [
+                            'optionLabels' => array_values($this->availableCalc),
+                            'type' => 'select',
+                            'hideNone' => true,
+                        ],
+                    ],
+                ],
             ]
         ];
     }
@@ -291,6 +363,12 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
                 'identifier' => 'chart',
                 'name' => ezpI18n::tr('opendatadataset', 'Chart'),
                 'identifiers' => ['chartSettings'],
+                'canBeDisable' => true,
+            ],
+            [
+                'identifier' => 'counter',
+                'name' => ezpI18n::tr('opendatadataset', 'Counter'),
+                'identifiers' => ['counterSettings'],
                 'canBeDisable' => true,
             ],
         ];

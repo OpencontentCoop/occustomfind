@@ -73,9 +73,8 @@ class OpendataDatasetImporterRegistry
     {
         $data = self::fetchScheduledImport($attributeId);
         if ($data instanceof SQLIScheduledImport){
-            $options = $data->getOptions();
             $data->remove();
-            return $options->object_id;
+            return true;
         }
 
         return false;

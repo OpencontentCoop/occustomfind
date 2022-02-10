@@ -40,7 +40,7 @@ interface OCCustomSearchableRepositoryInterface
     /**
      * @param OCCustomSearchParameters $parameters
      *
-     * @return OCCustomSearchResult
+     * @return array
      */
     public function find(OCCustomSearchParameters $parameters);
 

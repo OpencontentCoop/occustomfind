@@ -306,12 +306,15 @@
                         }
                     },
                     "postRender": function(control) {
-                        control.childrenByPropertyId["views"].on("change", function() {
-                            var values = this.getValue();
+                        var refreshTabs = function(values){
                             $('.dataset-definition-group').hide();
                             $.each(values, function (){
                                 $('#dataset-definition-group-'+this).show();
                             })
+                        }
+                        refreshTabs(control.childrenByPropertyId["views"].getValue());
+                        control.childrenByPropertyId["views"].on("change", function() {
+                            refreshTabs(this.getValue());
                         });
                     }
                 }

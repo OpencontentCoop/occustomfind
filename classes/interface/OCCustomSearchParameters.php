@@ -36,6 +36,11 @@ class OCCustomSearchParameters implements JsonSerializable
     /**
      * @var array
      */
+    private $stats = array();
+
+    /**
+     * @var array
+     */
     private $sort = array();
 
     public static function instance(array $data = null)
@@ -171,6 +176,26 @@ class OCCustomSearchParameters implements JsonSerializable
     public function setFacets($facets)
     {
         $this->facets = $facets;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getStats()
+    {
+        return $this->stats;
+    }
+
+    /**
+     * @param array $facets
+     *
+     * @return OCCustomSearchParameters
+     */
+    public function setStats($stats)
+    {
+        $this->stats = $stats;
 
         return $this;
     }

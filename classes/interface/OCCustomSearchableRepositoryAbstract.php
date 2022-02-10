@@ -130,7 +130,6 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
         $resultArray = $solr->rawSearch($queryParams);
         eZDebug::accumulatorStop('Engine time');
         $result = new OCCustomSearchResult($this);
-
         return $result->fromArrayResult($resultArray);
     }
 
@@ -225,7 +224,8 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
                 'fq' => $filterQuery,
                 'wt' => 'php'
             ),
-            $this->buildFacet($parameters->getFacets())
+            $this->buildFacet($parameters->getFacets()),
+            $this->buildStats($parameters->getStats())
         );
 
         return $queryParams;
@@ -482,6 +482,37 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
         }
 
         return $queryParamList;
+    }
+
+    protected function buildStats(array $statsArray)
+    {
+        $queryParams = array();
+        $fields = [];
+        $facets = [];
+        if (isset($statsArray['fields'])){
+            foreach ($statsArray['fields'] as $field){
+                $solrField = $this->getFieldSolrName($field, 'facet');
+                if ($solrField) {
+                    $fields[] = $solrField;
+                }
+            }
+        }
+        if (isset($statsArray['facets'])){
+            foreach ($statsArray['facets'] as $field){
+                $solrField = $this->getFieldSolrName($field, 'facet');
+                if ($solrField) {
+                    $facets[] = $solrField;
+                }
+            }
+        }
+        if (!empty($fields)){
+            $queryParams['stats'] = 'true';
+            $queryParams['stats.field'] = $fields;
+            if (!empty($facets)){
+                $queryParams['stats.facet'] = $facets;
+            }
+        }
+        return $queryParams;
     }
 
     protected function buildMultiFieldQuery($searchText)
