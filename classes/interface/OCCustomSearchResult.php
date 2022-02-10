@@ -46,7 +46,9 @@ class OCCustomSearchResult
                 foreach ($resultArray['stats']['stats_fields'] as $solrName => $statData){
                     foreach($fields as $field){
                         if ($field->getSolrName('facet') == $solrName){
-                            $statData['facets'] = $this->renameStatFacetsFields($statData['facets'], $fields);
+                            if (isset($statData['facets'])) {
+                                $statData['facets'] = $this->renameStatFacetsFields($statData['facets'], $fields);
+                            }
                             $result['stats'][$field->getName()] = $statData;
                         }
                     }
