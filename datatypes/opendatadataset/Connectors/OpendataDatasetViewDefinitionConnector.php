@@ -168,13 +168,13 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
                             'title' => ezpI18n::tr('opendatadataset', 'Select field'),
                             'enum' => array_keys($this->fields),
                             'default' => false,
-                            'required' => true,
+//                            'required' => true,
                         ],
                         'select_stat' => [
                             'title' => ezpI18n::tr('opendatadataset', 'Select calculation'),
                             'enum' => array_keys($this->availableCalc),
                             'default' => 'count',
-                            'required' => true,
+//                            'required' => true,
                         ],
                     ],
                     'dependencies' => [
