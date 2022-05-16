@@ -11,6 +11,8 @@ class OpendataDatasetSearchOperationFactory extends OperationFactory\SearchOpera
     use OpendataDatasetCheckAccessTrait;
     use OpendataDatasetFilterTrait;
 
+    const MAX_LIMIT = 400;
+
     /**
      * @param OpendataDatasetEndpointFactory $endpointFactory
      * @return ezpRestMvcResult
