@@ -381,7 +381,7 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
         foreach ($categories as $category) {
             $activeClass = $i == 0 ? 'active' : '';
             $canBeDisableClass = $category['canBeDisable'] ? 'dataset-definition-group' : '';
-            $tabs .= '<li class="nav-item ' . $canBeDisableClass . '" id="dataset-definition-group-' . $category['identifier'] . '"><a class="nav-link ' . $activeClass . '" data-toggle="tab" href="#dataset-group-' . $category['identifier'] . '">' . $category['name'] . '</a></li>';
+            $tabs .= '<li class="nav-item ' . $canBeDisableClass . '" id="dataset-definition-group-' . $category['identifier'] . '"><a class="nav-link ' . $activeClass . '" data-toggle="tab" data-bs-toggle="tab" href="#dataset-group-' . $category['identifier'] . '">' . $category['name'] . '</a></li>';
             $panels .= '<div class="tab-pane ' . $activeClass . '" id="dataset-group-' . $category['identifier'] . '"></div>';
             foreach ($category['identifiers'] as $field) {
                 $bindings[$field] = 'dataset-group-' . $category['identifier'];
