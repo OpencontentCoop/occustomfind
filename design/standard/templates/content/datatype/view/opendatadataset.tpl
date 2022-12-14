@@ -118,7 +118,7 @@
         {foreach $attribute.class_content.views as $view => $name}
         {if $attribute.content.views|contains($view)}
         <li role="presentation" class="nav-item">
-            <a title="{$name|wash()|upfirst}" class="text-decoration-none nav-link{if $index|eq(0)} active{/if} text-sans-serif" data-active_view="{$view}" data-toggle="tab" href="#{$view}-{$attribute.id}">
+            <a title="{$name|wash()|upfirst}" class="text-decoration-none nav-link{if $index|eq(0)} active{/if} text-sans-serif" data-active_view="{$view}" data-toggle="tab" data-bs-toggle="tab" href="#{$view}-{$attribute.id}">
                 <i class="view_icon {$icons[$view]}"></i> <span class="opendatadataset_view_name ml-2">{$name|wash()|upfirst}</span>
             </a>
         </li>
