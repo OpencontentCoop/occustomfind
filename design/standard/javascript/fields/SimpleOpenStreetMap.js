@@ -42,10 +42,12 @@
                 Alpaca.merge(this.options, {
                     "fields": {
                         "latitude": {
-                            "type": "number"
+                            "type": "number",
+                            "label": 'Lat'
                         },
                         "longitude": {
-                            "type": "number"
+                            "type": "number",
+                            "label": 'Lon'
                         }
                     },
                     "i18n":{
@@ -111,10 +113,7 @@
                                         var number = index + 1;
                                         var latLng = new L.latLng(result.center.lat, result.center.lng);
                                         var marker = new L.marker(latLng, {
-                                            icon: new L.MakiMarkers.icon({
-                                                icon: "star",
-                                                color: "#000"
-                                            })
+                                            icon: L.divIcon({html: '<i class="fa fa-map-marker fa-4x text-primary"></i>',iconSize: [20, 20],className: 'myDivIcon'})
                                         });
                                         marker.on('click', function (e) {
                                             if (e.latlng !== undefined) {
@@ -198,11 +197,7 @@
                         this.map = map;
                         this.marker = new L.marker(
                             new L.latLng(this.lat, this.lng), {
-                                icon: new L.MakiMarkers.icon({
-                                    icon: "star",
-                                    color: "#f00",
-                                    size: "l"
-                                }),
+                                icon: L.divIcon({html: '<i class="fa fa-map-marker fa-4x text-primary"></i>',iconSize: [20, 20],className: 'myDivIcon'}),
                                 draggable: true
                             }
                         );

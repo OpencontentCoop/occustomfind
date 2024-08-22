@@ -27,6 +27,11 @@ class OpendataDatasetDefinition implements JsonSerializable
      * @var array
      */
     private $facetsSettings = [];
+
+    /**
+     * @var bool
+     */
+    private $isEnabledSearchInput = false;
     /**
      * @var array
      */
@@ -60,6 +65,7 @@ class OpendataDatasetDefinition implements JsonSerializable
      */
     private $canTruncate;
     private $extraUsers;
+
 
     public function __construct(array $properties = null)
     {
@@ -180,6 +186,11 @@ class OpendataDatasetDefinition implements JsonSerializable
         $dataset->setCreatedAt($now);
         $dataset->setModifiedAt($now);
         $dataset->setCreator(eZUser::currentUserID());
+
+        if ($dataset->getContext() instanceof eZContentObjectAttribute){
+            $dataset->getContext()->setAttribute('data_int', $dataset->getModifiedAt());
+            $dataset->getContext()->store();
+        }
 
         return $this->getStorage()->createDataset($dataset);
     }
@@ -344,6 +355,7 @@ class OpendataDatasetDefinition implements JsonSerializable
                     'table' => (array)$this->getTableSettings(),
                     'chart' => $this->getChartSettings(),
                     'counter' => $this->getCounterSettings(),
+                    'search_form' => $this->isEnabledSearchInput(),
                 ];
 
             case 'can_edit':
@@ -460,6 +472,7 @@ class OpendataDatasetDefinition implements JsonSerializable
             'views' => $this->getViews(),
             'fields' => $this->getFields(),
             'facetsSettings' => $this->getFacetsSettings(),
+            'isEnabledSearchInput' => $this->isEnabledSearchInput(),
             'calendarSettings' => $this->getCalendarSettings(),
             'tableSettings' => $this->getTableSettings(),
             'chartSettings' => $this->getChartSettings(),
@@ -610,5 +623,10 @@ class OpendataDatasetDefinition implements JsonSerializable
                 );
             }
         }
+    }
+
+    public function isEnabledSearchInput(): bool
+    {
+        return $this->isEnabledSearchInput === 'true' || $this->isEnabledSearchInput === true;
     }
 }
