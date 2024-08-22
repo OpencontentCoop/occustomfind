@@ -30,6 +30,7 @@ class OCCustomSearchableQueryBuilder extends QueryBuilder
 		foreach ($repository->getFields() as $field) {
 			$this->fields[] = $field->getName();
 		}
+        $this->fields[] = 'q';
 
 		$this->tokenFactory = new OCCustomSearchableTokenFactory( $this->fields, $this->operators, $this->parameters, $this->clauses );
 		$this->converter = new OCCustomSearchableQueryConverter($repository);

@@ -47,9 +47,11 @@
                 cancel: 'Cancel operation',
                 delete_dataset: 'I understand the consequences, delete this dataset',
                 import: 'Import',
-                select: 'Select'
+                select: 'Select',
+                search_placeholder: 'Search by keyword'
             },
-            itemName: 'Item'
+            itemName: 'Item',
+            searchInput: false
         };
 
     function Plugin(element, options) {
@@ -57,12 +59,14 @@
         let datasetContainer = $(element);
         let tools = $.opendataTools;
         tools.settings('endpoint', settings.endpoints);
-        let form = $('<div class="row my-3 opendatadataset_view_form">');
+        let form = $('<div class="my-3 opendatadataset_view_form">');
+        let facetsContainer = $('<div class="row opendatadataset_view_facets"></div>')
         let datatable;
         let calendar;
         let map;
         let markers;
         let mapFilters = {};
+        let mapQuery = null;
         let counterFilters = {};
         let counterElement;
         if (settings.facets.length > 0) {
@@ -488,11 +492,24 @@
                 }
                 datatable.loadDataTable();
             });
+            datasetContainer.on('dataset:changeQuery', function (e, queryValue) {
+                if (queryValue.length > 0){
+                    datatable.settings.builder.filters['q'] = {
+                        'field': 'q',
+                        'operator': 'in',
+                        'value': [queryValue]
+                    };
+                } else {
+                    datatable.settings.builder.filters['q'] = null;
+                }
+                datatable.loadDataTable();
+            });
             datatable.loadDataTable();
         });
 
         datasetContainer.find('[data-view="calendar"] .block-calendar-default').each(function () {
             let filters = {};
+            let query = null;
             calendar = $(this).data('fullcalendar', new FullCalendar.Calendar(
                 this,
                 {
@@ -551,6 +568,9 @@
                                     params['filters[' + name + ']'] = value;
                                 }
                             });
+                            if (query){
+                                params['query'] = query;
+                            }
                             return params;
                         }
                     },
@@ -582,6 +602,10 @@
             });
             datasetContainer.on('dataset:changeFilter', function (e, filter) {
                 filters[filter.name] = filter.value;
+                calendar.refetchEvents();
+            });
+            datasetContainer.on('dataset:changeQuery', function (e, queryValue) {
+                query = queryValue.length > 0 ? queryValue : null;
                 calendar.refetchEvents();
             });
         });
@@ -624,7 +648,7 @@
             let markerBuilder = function (response) {
                 return L.geoJson(response, {
                     pointToLayer: function (feature, latlng) {
-                        let customIcon = L.MakiMarkers.icon({icon: 'circle', size: 'l'});
+                        let customIcon = L.divIcon({html: '<i class="fa fa-map-marker fa-4x text-primary"></i>',iconSize: [20, 20],className: 'myDivIcon'});
                         return L.marker(latlng, {icon: customIcon});
                     },
                     onEachFeature: function (feature, layer) {
@@ -637,7 +661,7 @@
             $.ajax({
                 type: 'GET',
                 url: settings.endpoints.geo,
-                data: {'filters': mapFilters},
+                data: {'filters': mapFilters, 'search': mapQuery},
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 success: function (response) {
@@ -669,6 +693,10 @@
                 } else if (mapFilters[filter.name]) {
                     delete mapFilters[filter.name];
                 }
+                loadMap();
+            });
+            datasetContainer.on('dataset:changeQuery', function (e, queryValue) {
+                mapQuery = queryValue.length > 0 ? queryValue : null;
                 loadMap();
             });
         });
@@ -720,7 +748,7 @@
 
         let loadFilters = function () {
             tools.find(settings.mainQuery + ' limit 1', function (response) {
-                form.html('');
+                facetsContainer.html('');
                 $.each(response.facets, function (field, data) {
                     let labelText = field;
                     $.each(settings.facets, function () {
@@ -747,7 +775,7 @@
                     let label = $('<label class="sr-only" for="' + field + '">' + labelText + '</label>');
                     let selectContainer = $('<div class="col my-1"></div>');
                     selectContainer.append(label).append(select);
-                    form.append(selectContainer);
+                    facetsContainer.append(selectContainer);
                     select.chosen({width: '100%', allow_single_deselect: true}).on('change', function (e) {
                         let that = $(e.currentTarget);
                         let values = $(e.currentTarget).val();
@@ -783,7 +811,27 @@
             }
         };
 
+        if (settings.searchInput){
+            let searchinputContainer = $('<div class="input-group input-group-sm mb-2"></div>')
+            let searchInput = $('<input type="text" class="form-control border-left border-start border-bottom border-top rounded-start rounded-left bg-white" placeholder="'+settings.i18n.search_placeholder+'" aria-label="'+settings.i18n.search_placeholder+'" aria-describedby="button-addon2">')
+              .appendTo(searchinputContainer)
+              .on('keyup', function (e) {
+                  if (e.keyCode === 13) {
+                      searchButton.trigger('click');
+                      e.preventDefault();
+                  }
+              });
+            let searchButton = $('<button class="btn border-right border-end border-bottom border-top rounded-start rounded-left rounded-end rounded-right bg-white" type="button" id="button-addon2"><i class="fa fa-search"></></button>')
+              .appendTo(searchinputContainer)
+              .on('click', function (e){
+                  datasetContainer.trigger('dataset:changeQuery', searchInput.val());
+                  e.preventDefault();
+              });
+            form.append(searchinputContainer);
+        }
+
         if (settings.facets.length > 0) {
+            form.append(facetsContainer);
             loadFilters();
             datasetContainer.on('dataset:add', function () {
                 loadFilters();

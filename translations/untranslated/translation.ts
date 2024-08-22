@@ -451,5 +451,13 @@
       <source>Select calculation</source>
       <translation type="unfinished"/>
     </message>
+    <message>
+      <source>Show search input</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Show search input in text fields</source>
+      <translation type="unfinished"/>
+    </message>
   </context>
 </TS>

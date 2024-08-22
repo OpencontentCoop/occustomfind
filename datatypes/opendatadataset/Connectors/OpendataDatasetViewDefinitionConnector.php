@@ -8,6 +8,8 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
 
     private $facetsFields = [];
 
+    private $isSearchAllowed = false;
+
     private $firstTextField;
 
     private $firstGeoField;
@@ -27,6 +29,7 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
             }
             if ($this->firstTextField === null && ($field['type'] == 'string' || $field['type'] == 'textarea')) {
                 $this->firstTextField = $field['identifier'];
+                $this->isSearchAllowed = true;
             }
             if ($this->firstGeoField === null && $field['type'] == 'geo') {
                 $this->firstGeoField = $field['identifier'];
@@ -66,7 +69,7 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
         $data['chartSettings'] = $this->datasetDefinition->getChartSettings();
         $data['facetsSettings'] = $this->datasetDefinition->getFacetsSettings();
         $data['counterSettings'] = $this->datasetDefinition->getCounterSettings();
-
+        $data['isEnabledSearchInput'] = $this->datasetDefinition->isEnabledSearchInput();
         return $data;
     }
 
@@ -92,6 +95,10 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
                     'title' => ezpI18n::tr('opendatadataset', 'Show filters'),
                     'type' => 'array',
                     'enum' => array_keys($this->facetsFields),
+                ],
+                'isEnabledSearchInput' => [
+                    'title' => ezpI18n::tr('opendatadataset', 'Show search input'),
+                    'type' => 'boolean',
                 ],
                 'calendarSettings' => [
                     'title' => ezpI18n::tr('opendatadataset', 'Calendar settings'),
@@ -229,6 +236,10 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
                     'type' => 'checkbox',
                     'hideNone' => true,
                 ],
+                'isEnabledSearchInput' => [
+                    'type' => 'checkbox',
+                    'rightLabel' => ezpI18n::tr('opendatadataset', 'Show search input in text fields'),
+                ],
                 'calendarSettings' => [
                     'fields' => [
                         'default_view' => [
@@ -338,7 +349,7 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
             [
                 'identifier' => 'views',
                 'name' => ezpI18n::tr('opendatadataset', 'Views'),
-                'identifiers' => ['views', 'facetsSettings'],
+                'identifiers' => ['views', 'facetsSettings', 'isEnabledSearchInput'],
                 'canBeDisable' => false,
             ],
             [

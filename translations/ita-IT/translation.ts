@@ -451,5 +451,13 @@
       <source>Select calculation</source>
       <translation>Seleziona il calcolo</translation>
     </message>
+    <message>
+      <source>Show search input</source>
+      <translation>Mostra motore di ricerca</translation>
+    </message>
+    <message>
+      <source>Show search input in text fields</source>
+      <translation>Mostra input per eseguire la ricerca nei campi di tipo testo</translation>
+    </message>
   </context>
 </TS>

@@ -83,7 +83,11 @@ class OCCustomSearchableQueryConverter implements QueryConverter
             {
                 if ( $sentence->getField() == 'q' )
                 {
-                    $this->searchParameters->setQuery($this->cleanValue($sentence->stringValue()));
+                    if ($sentence->getOperator() == 'in' || is_array($sentence->getValue())){
+                        $this->searchParameters->setQuery(implode(' ', $this->cleanValue($sentence->getValue())));
+                    }else {
+                        $this->searchParameters->setQuery($this->cleanValue($sentence->stringValue()));
+                    }
                 }
                 else
                     $filters[] = $this->convertSentence( $sentence );
