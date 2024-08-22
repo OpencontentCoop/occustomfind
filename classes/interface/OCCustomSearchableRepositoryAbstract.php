@@ -209,6 +209,7 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
         $fieldsToReturnString = 'score, *';
 
         $queryFields = $this->buildQueryFields();
+        $queryFields[] = 'ezf_df_text';
 
         $queryParams = array_merge(
             array(
