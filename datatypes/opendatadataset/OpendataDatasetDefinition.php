@@ -192,7 +192,10 @@ class OpendataDatasetDefinition implements JsonSerializable
             $dataset->getContext()->store();
         }
 
-        return $this->getStorage()->createDataset($dataset);
+        $dataset = $this->getStorage()->createDataset($dataset);
+        $this->updateLastModified($dataset);
+
+        return $dataset;
     }
 
     /**
@@ -247,7 +250,10 @@ class OpendataDatasetDefinition implements JsonSerializable
         $now = time();
         $dataset->setModifiedAt($now);
 
-        return $this->getStorage()->updateDataset($dataset);
+        $dataset = $this->getStorage()->updateDataset($dataset);
+        $this->updateLastModified($dataset);
+
+        return $dataset;
     }
 
     /**
@@ -264,6 +270,10 @@ class OpendataDatasetDefinition implements JsonSerializable
             throw new ForbiddenException($this->getItemName(), 'edit');
         }
 
+        $now = time();
+        $dataset->setModifiedAt($now);
+        $this->updateLastModified($dataset);
+        
         return $this->getStorage()->deleteDataset($dataset);
     }
 
@@ -628,5 +638,24 @@ class OpendataDatasetDefinition implements JsonSerializable
     public function isEnabledSearchInput(): bool
     {
         return $this->isEnabledSearchInput === 'true' || $this->isEnabledSearchInput === true;
+    }
+
+
+    private function updateLastModified(OpendataDataset $dataset)
+    {
+        if ($dataset->getContext() instanceof eZContentObjectAttribute) {
+            $dataset->getContext()->setAttribute('data_int', $dataset->getModifiedAt());
+            $dataset->getContext()->store();
+            $datasetObject = $dataset->getContext()->object();
+            if ($datasetObject instanceof eZContentObject) {
+                $datasetObject->setAttribute('modified', $dataset->getModifiedAt());
+                $datasetObject->store();
+                $nodeIdList = array_column($datasetObject->assignedNodes(false), 'node_id');
+                eZContentCacheManager::clearNodeViewCacheArray(
+                    $nodeIdList,
+                    [$datasetObject->attribute('id')]
+                );
+            }
+        }
     }
 }
