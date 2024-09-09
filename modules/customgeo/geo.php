@@ -39,8 +39,8 @@ try {
 
         if ($http->hasVariable('search')) {
             $search = $http->variable('search');
-            if (!empty($search['value'])) {
-                $parameters->setQuery($search['value']);
+            if (!empty($search)) {
+                $parameters->setQuery($search);
             }
         }
         $parameters->addRawFilter($geoPointField->getSolrName() . ':[-90,-90 TO 90,90]');
