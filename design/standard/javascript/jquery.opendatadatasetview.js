@@ -85,8 +85,9 @@
             return (text.length > n) ? text.substr(0, n - 1) + '...' : text;
         }
 
-        function autoLink(text) {
-            if (text && !String(text).startsWith("<ul>") && !String(text).startsWith("<p>")) {
+        function autoLink(data) {
+            let text = String(data)
+            if (text && !text.startsWith("<ul>") && !text.startsWith("<p>")) {
                 if (isEmail(text)) {
                     return '<a href="mailto:' + text + '">' + text + '</a>';
                 }
