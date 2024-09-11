@@ -86,7 +86,7 @@
         }
 
         function autoLink(text) {
-            if (text) {
+            if (text && !text.startsWith("<ul>") && !text.startsWith("<p>")) {
                 if (isEmail(text)) {
                     return '<a href="mailto:' + text + '">' + text + '</a>';
                 }
