@@ -95,7 +95,10 @@ abstract class OpendataDatasetAbstractImporter
             $identifierAndLabels[$field['identifier']] = $field['label'];
         }
 
+        $valuesCount = $this->countValues();
+        $counter = 0;
         foreach ($this->values as $row) {
+            $counter++;
             $item = [];
             foreach ($row as $key => $value) {
                 if (in_array($key, $identifierAndLabels)) {
@@ -107,7 +110,7 @@ abstract class OpendataDatasetAbstractImporter
                 }
             }
             $dataset = $definition->create($item, $context);
-            $definition->createDataset($dataset);
+            $definition->createDataset($dataset, $counter === $valuesCount);
         }
     }
 

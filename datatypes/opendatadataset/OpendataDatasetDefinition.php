@@ -166,7 +166,7 @@ class OpendataDatasetDefinition implements JsonSerializable
         return $role;
     }
 
-    public function createDataset(OpendataDataset $dataset)
+    public function createDataset(OpendataDataset $dataset, $updateLastModified = true)
     {
         if (!$this->canEdit()) {
             throw new ForbiddenException($this->getItemName(), 'edit');
@@ -193,7 +193,9 @@ class OpendataDatasetDefinition implements JsonSerializable
         }
 
         $dataset = $this->getStorage()->createDataset($dataset);
-        $this->updateLastModified($dataset);
+        if ($updateLastModified) {
+            $this->updateLastModified($dataset);
+        }
 
         return $dataset;
     }
@@ -237,7 +239,7 @@ class OpendataDatasetDefinition implements JsonSerializable
         return $this->storage;
     }
 
-    public function updateDataset(OpendataDataset $dataset)
+    public function updateDataset(OpendataDataset $dataset, $updateLastModified = true)
     {
         if (!$this->canEdit()) {
             throw new ForbiddenException($this->getItemName(), 'edit');
@@ -251,7 +253,9 @@ class OpendataDatasetDefinition implements JsonSerializable
         $dataset->setModifiedAt($now);
 
         $dataset = $this->getStorage()->updateDataset($dataset);
-        $this->updateLastModified($dataset);
+        if ($updateLastModified){
+            $this->updateLastModified($dataset);
+        }
 
         return $dataset;
     }
@@ -264,15 +268,17 @@ class OpendataDatasetDefinition implements JsonSerializable
         return $this->canTruncate;
     }
 
-    public function deleteDataset(OpendataDataset $dataset)
+    public function deleteDataset(OpendataDataset $dataset, $updateLastModified = true)
     {
         if (!$this->canDeleteDataset($dataset)) {
             throw new ForbiddenException($this->getItemName(), 'edit');
         }
 
-        $now = time();
-        $dataset->setModifiedAt($now);
-        $this->updateLastModified($dataset);
+        if ($updateLastModified) {
+            $now = time();
+            $dataset->setModifiedAt($now);
+            $this->updateLastModified($dataset);
+        }
         
         return $this->getStorage()->deleteDataset($dataset);
     }
