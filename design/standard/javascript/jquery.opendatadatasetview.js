@@ -847,8 +847,8 @@
         };
 
         if (settings.searchInput){
-            let searchinputContainer = $('<div class="input-group input-group-sm mb-2"></div>')
-            let searchInput = $('<input type="text" class="form-control border-left border-start border-bottom border-top rounded-start rounded-left bg-white" placeholder="'+settings.i18n.search_placeholder+'" aria-label="'+settings.i18n.search_placeholder+'" aria-describedby="button-addon2">')
+            let searchinputContainer = $('<div class="input-group mb-2"></div>')
+            let searchInput = $('<input type="text" class="form-control form-control-lg border-left border-start border-bottom border-top rounded-start rounded-left bg-white" placeholder="'+settings.i18n.search_placeholder+'" aria-label="'+settings.i18n.search_placeholder+'" aria-describedby="button-addon2">')
               .appendTo(searchinputContainer)
               .on('keyup', function (e) {
                   if (e.keyCode === 13) {
@@ -856,7 +856,7 @@
                       e.preventDefault();
                   }
               });
-            let searchButton = $('<button class="btn border-right border-end border-bottom border-top rounded-start rounded-left rounded-end rounded-right bg-white" type="button" id="button-addon2"><i class="fa fa-search"></></button>')
+            let searchButton = $('<button class="btn btn-sm border-right border-end border-bottom border-top rounded-start rounded-left rounded-end rounded-right bg-white" type="button" id="button-addon2"><i class="fa fa-search"></></button>')
               .appendTo(searchinputContainer)
               .on('click', function (e){
                   datasetContainer.trigger('dataset:changeQuery', searchInput.val());
