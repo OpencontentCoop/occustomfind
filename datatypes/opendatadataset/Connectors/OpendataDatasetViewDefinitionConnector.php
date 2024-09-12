@@ -8,13 +8,16 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
 
     private $facetsFields = [];
 
-    private $isSearchAllowed = false;
-
     private $firstTextField;
 
     private $firstGeoField;
 
     private $availableCalc;
+
+    private $tableViews = [
+        'default' => 'Default',
+        'description-list' => 'Description list',
+    ];
 
     public function runService($serviceIdentifier)
     {
@@ -29,7 +32,6 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
             }
             if ($this->firstTextField === null && ($field['type'] == 'string' || $field['type'] == 'textarea')) {
                 $this->firstTextField = $field['identifier'];
-                $this->isSearchAllowed = true;
             }
             if ($this->firstGeoField === null && $field['type'] == 'geo') {
                 $this->firstGeoField = $field['identifier'];
@@ -148,6 +150,16 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
                             'type' => 'array',
                             'enum' => array_keys($this->fields),
                             'default' => array_keys($this->fields),
+                        ],
+                        'view' => [
+                            'title' => ezpI18n::tr('opendatadataset', 'View'),
+                            'type' => 'string',
+                            'enum' => array_keys($this->tableViews),
+                        ],
+                        'order' => [
+                            'title' => ezpI18n::tr('opendatadataset', 'Default sorting method'),
+                            'type' => 'string',
+                            'enum' => ['asc', 'desc'],
                         ],
                     ]
                 ],
@@ -284,7 +296,22 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
                             'optionLabels' => array_values($this->fields),
                             'type' => 'checkbox',
                             'hideNone' => true,
-                        ]
+                        ],
+                        'view' => [
+                            'optionLabels' => array_values($this->tableViews),
+                            'type' => 'radio',
+                            'hideNone' => true,
+                            'sort' => false,
+                        ],
+                        'order' => [
+                            'title' => ezpI18n::tr('design/standard/content/datatype', 'Order'),
+                            'type' => 'radio',
+                            'hideNone' => true,
+                            'optionLabels' => [
+                                ezpI18n::tr('design/standard/content/datatype', 'Ascending'),
+                                ezpI18n::tr('design/standard/content/datatype', 'Descending')
+                            ],
+                        ],
                     ],
                     'dependencies' => [
                         'views' => ['table']

@@ -33,7 +33,11 @@
                 settings: ''
             },
             datatable: {
-                columns: []
+                columns: [],
+                defaultOrder: 'asc',
+                viewAsDescriptionList: false,
+                lengthMenu: [30, 60, 90, 120],
+                pageLength: 30
             },
             counter: {
                 label: '',
@@ -55,7 +59,9 @@
         };
 
     function Plugin(element, options) {
+        let datatableSettings = $.extend({}, defaults.datatable, options.datatable);
         let settings = $.extend({}, defaults, options);
+        settings.datatable = datatableSettings;
         let datasetContainer = $(element);
         let tools = $.opendataTools;
         tools.settings('endpoint', settings.endpoints);
@@ -71,6 +77,19 @@
         let counterElement;
         if (settings.facets.length > 0) {
             settings.mainQuery += ' facets [' + tools.buildFacetsString(settings.facets) + ']';
+        }
+
+        if (settings.datatable.viewAsDescriptionList){
+            settings.datatable.originalColumns = settings.datatable.columns;
+            settings.datatable.columns = [{
+                data: '_createdAt',
+                name: '_createdAt',
+                title: '',
+                searchable: false,
+                orderable: true
+            }];
+            settings.datatable.lengthMenu = [5];
+            settings.datatable.pageLength = 5;
         }
 
         function isEmail(email) {
@@ -393,7 +412,7 @@
         datasetContainer.find('[data-view="table"]').each(function () {
             $.fn.dataTable.ext.errMode = 'none';
             let table = $(this);
-            let order = [[0, 'asc']];
+            let order = [[0, settings.datatable.defaultOrder]];
             if (settings.canEdit) {
                 settings.datatable.columns.unshift({
                     data: '_guid',
@@ -402,21 +421,9 @@
                     searchable: false,
                     orderable: false
                 });
-                order = [[1, 'asc']];
+                order = [[1, settings.datatable.defaultOrder]];
             }
-            let renderAll = function (data, type, row) {
-                if (row._guid === data && settings.canEdit) {
-                    if (row._canEdit) {
-                        return '<span class="text-nowrap"><a data-action="edit" class="btn btn-xs btn-primary px-2 py-1 mx-1" href="#" data-guid="' + data + '">'
-                            + '<i class="fa fa-pencil"></i>'
-                            + '</a>'
-                            + '<a data-action="delete" class="btn btn-xs btn-danger px-2 py-1" href="#" data-guid="' + data + '">'
-                            + '<i class="fa fa-trash"></i>'
-                            + '</a></span>';
-                    } else {
-                        return '';
-                    }
-                }
+            let renderValue = function (data){
                 if ($.isArray(data)) {
                     return data.join(', ');
                 }
@@ -430,6 +437,32 @@
                     return str;
                 }
                 return autoLink(data);
+            }
+            let renderDescriptionList = function (row){
+                let dl = '<dl class="row">';
+                settings.datatable.originalColumns.forEach(function (column){
+                    dl += '<dt class="col-sm-3 mb-1">'+column.title+'</dt>';
+                    dl += '<dd class="col-sm-9 mb-1">'+renderValue(row[column.data] || '')+'</dd>';
+                })
+                dl += '<dl>';
+                return dl;
+            };
+            let renderAll = function (data, type, row) {
+                if (row._guid === data && settings.canEdit) {
+                    if (row._canEdit) {
+                        return '<span class="text-nowrap"><a data-action="edit" class="btn btn-xs btn-primary px-2 py-1 mx-1" href="#" data-guid="' + data + '">'
+                            + '<i class="fa fa-pencil"></i>'
+                            + '</a>'
+                            + '<a data-action="delete" class="btn btn-xs btn-danger px-2 py-1" href="#" data-guid="' + data + '">'
+                            + '<i class="fa fa-trash"></i>'
+                            + '</a></span>';
+                    } else {
+                        return '';
+                    }
+                } else if (settings.datatable.viewAsDescriptionList){
+                    return renderDescriptionList(row);
+                }
+                return renderValue(data);
             };
             let headers;
             let tokenNode = document.getElementById('ezxform_token_js');
@@ -453,7 +486,8 @@
                         type: settings.datatable.columns.length > 15 ? 'POST' : 'GET',
                         headers: headers
                     },
-                    'lengthMenu': [30, 60, 90, 120],
+                    'lengthMenu': settings.datatable.lengthMenu,
+                    'pageLength': settings.datatable.pageLength,
                     'columns': settings.datatable.columns,
                     'columnDefs': [{
                         'className': 'dtr-control',
