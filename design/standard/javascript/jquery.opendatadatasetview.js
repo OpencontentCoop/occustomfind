@@ -37,7 +37,12 @@
                 defaultOrder: 'asc',
                 viewAsDescriptionList: false,
                 lengthMenu: [30, 60, 90, 120],
-                pageLength: 30
+                pageLength: 30,
+                customTpl: null,
+                template: '<table class="table table-striped table-sm display responsive no-wrap w-100"></table>'
+            },
+            map: {
+                customTpl: null
             },
             counter: {
                 label: '',
@@ -55,7 +60,9 @@
                 search_placeholder: 'Search by keyword'
             },
             itemName: 'Item',
-            searchInput: false
+            searchInput: false,
+            preselectedFilters: null,
+            filterAllowMultipleValue: []
         };
 
     function Plugin(element, options) {
@@ -67,19 +74,21 @@
         tools.settings('endpoint', settings.endpoints);
         let form = $('<div class="my-3 opendatadataset_view_form">');
         let facetsContainer = $('<div class="row opendatadataset_view_facets"></div>')
+        let fullscreenToggle = datasetContainer.find('.dataset-fullscreen')
+        let fullscreenable = datasetContainer.find('.fullscreenable')
         let datatable;
         let calendar;
         let map;
         let markers;
-        let mapFilters = {};
+        let mapFilters = settings.preselectedFilters || {};
         let mapQuery = null;
-        let counterFilters = {};
+        let counterFilters = settings.preselectedFilters || {};
         let counterElement;
         if (settings.facets.length > 0) {
             settings.mainQuery += ' facets [' + tools.buildFacetsString(settings.facets) + ']';
         }
 
-        if (settings.datatable.viewAsDescriptionList){
+        if (settings.datatable.viewAsDescriptionList || settings.datatable.customTpl){
             settings.datatable.originalColumns = settings.datatable.columns;
             settings.datatable.columns = [{
                 data: '_createdAt',
@@ -252,6 +261,24 @@
                 }
             });
         };
+
+        fullscreenToggle.on('click', function (e) {
+            e.preventDefault();
+            let icon = $(this).blur().find('i')
+            let reverseIcon = icon.data('reverse')
+            let currentIcon = icon.attr('class')
+            icon.data('reverse', currentIcon)
+              .removeClass(currentIcon)
+              .addClass(reverseIcon);
+            if (fullscreenable.hasClass('extended')){
+                fullscreenable.removeClass('extended')
+                $('body').removeClass('with-fullscreen')
+            } else {
+                fullscreenable.addClass('extended')
+                $('body').addClass('with-fullscreen')
+            }
+            redraw();
+        });
 
         datasetContainer.find('[data-action="delete-all"]').on('click', function (e) {
             e.preventDefault();
@@ -447,6 +474,9 @@
                 dl += '<dl>';
                 return dl;
             };
+            let renderCustomTpl = function (row){
+                return $.templates(settings.datatable.customTpl).render({row:row})
+            }
             let renderAll = function (data, type, row) {
                 if (row._guid === data && settings.canEdit) {
                     if (row._canEdit) {
@@ -459,6 +489,8 @@
                     } else {
                         return '';
                     }
+                } else if (settings.datatable.customTpl){
+                    return renderCustomTpl(row);
                 } else if (settings.datatable.viewAsDescriptionList){
                     return renderDescriptionList(row);
                 }
@@ -471,7 +503,7 @@
             }
             datatable = table.opendataDataTable({
                 'table': {
-                    'template': '<table class="table table-striped table-sm display responsive no-wrap w-100"></table>'
+                    'template': settings.datatable.template
                 },
                 'builder': {
                     'query': settings.mainQuery
@@ -512,6 +544,15 @@
                     e.preventDefault();
                 });
             }).data('opendataDataTable');
+            if (settings.preselectedFilters){
+                $.each(settings.preselectedFilters, function (name, value){
+                    datatable.settings.builder.filters[name] = {
+                        'field': name,
+                        'operator': 'in',
+                        'value': $.isArray(value) ? value : [value]
+                    };
+                })
+            }
             datasetContainer.on('dataset:add', function () {
                 datatable.loadDataTable();
             });
@@ -520,7 +561,7 @@
                     datatable.settings.builder.filters[filter.name] = {
                         'field': filter.name,
                         'operator': 'in',
-                        'value': [filter.value]
+                        'value': $.isArray(filter.value) ? filter.value : [filter.value]
                     };
                 } else {
                     datatable.settings.builder.filters[filter.name] = null;
@@ -543,7 +584,7 @@
         });
 
         datasetContainer.find('[data-view="calendar"] .block-calendar-default').each(function () {
-            let filters = {};
+            let filters = settings.preselectedFilters || {};
             let query = null;
             calendar = $(this).data('fullcalendar', new FullCalendar.Calendar(
                 this,
@@ -688,7 +729,14 @@
                     },
                     onEachFeature: function (feature, layer) {
                         layer.on('click', function (e) {
-                            viewItem(feature.id);
+                            if (settings.map.customTpl) {
+                                datasetContainer.find('.dataset-modal').modal('show');
+                                datasetContainer.find('.dataset-form').html(
+                                    $.templates(settings.map.customTpl).render({row:feature.properties})
+                                )
+                            }else{
+                                viewItem(feature.id);
+                            }
                         });
                     }
                 });
@@ -791,8 +839,11 @@
                             labelText = this.name;
                         }
                     });
-                    let select = $('<select data-placeholder="' + settings.i18n.filter_by + ' ' + labelText + '" id="' + field + '" data-field="' + field + '"">');
-                    select.append($('<option value=""></option>'));
+                    let isMultiple = $.inArray(field, settings.filterAllowMultipleValue) > -1 ? 'multiple' : false;
+                    let select = $('<select '+isMultiple+' data-placeholder="' + settings.i18n.filter_by + ' ' + labelText + '" id="' + field + '" data-field="' + field + '"">');
+                    if (isMultiple === false) {
+                        select.append($('<option value=""></option>'));
+                    }
                     $.each(data, function (value, count) {
                         let quotedValue = value.toString()
                             .replace(/"/g, '&quot;')
@@ -801,7 +852,10 @@
                             .replace(/\)/g, "\\)")
                             .replace(/\[/g, "\\[")
                             .replace(/\]/g, "\\]");
-                        let option = $('<option value="' + quotedValue + '">' + value + '</option>');
+                        let selected = (settings.preselectedFilters
+                          && settings.preselectedFilters.hasOwnProperty(field)
+                          && $.inArray(value, settings.preselectedFilters[field]) > -1) ? 'selected=""' : '';
+                        let option = $('<option '+selected+' value="' + quotedValue + '">' + value + '</option>');
                         if (count === 0) {
                             option.attr('disabled', 'disabled');
                         }
@@ -819,7 +873,10 @@
                             filter.value = values;
                         }
                         datasetContainer.trigger('dataset:changeFilter', filter);
-                    }).val('');
+                    });
+                    if (!settings.preselectedFilters || !settings.preselectedFilters.hasOwnProperty(field)){
+                        select.val('')
+                    }
                 });
                 datasetContainer.find('.tab-content').before(form);
             });
@@ -856,7 +913,7 @@
                       e.preventDefault();
                   }
               });
-            let searchButton = $('<button class="btn btn-sm border-right border-end border-bottom border-top rounded-start rounded-left rounded-end rounded-right bg-white" type="button" id="button-addon2"><i class="fa fa-search"></></button>')
+            let searchButton = $('<button class="btn btn-xs border-right border-end border-bottom border-top  rounded-end rounded-right bg-white" type="button" id="button-addon2"><i class="fa fa-search"></></button>')
               .appendTo(searchinputContainer)
               .on('click', function (e){
                   datasetContainer.trigger('dataset:changeQuery', searchInput.val());
@@ -876,15 +933,19 @@
         datasetContainer.find('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
             setActiveView($(this).data('active_view'));
         });
-        let activeTab = datasetContainer.find('a[data-toggle="tab"].active');
-        if (activeTab.length > 0) {
-            setActiveView(activeTab.data('active_view'));
-        }else{
-            let activeTabPane = datasetContainer.find('.tab-pane.active');
-            if (activeTabPane.length > 0) {
-                setActiveView(activeTabPane.data('view'));
+
+        let redraw = function () {
+            let activeTab = datasetContainer.find('a[data-toggle="tab"].active');
+            if (activeTab.length > 0) {
+                setActiveView(activeTab.data('active_view'));
+            } else {
+                let activeTabPane = datasetContainer.find('.tab-pane.active');
+                if (activeTabPane.length > 0) {
+                    setActiveView(activeTabPane.data('view'));
+                }
             }
         }
+        redraw();
 
         let filters = {};
         datasetContainer.on('dataset:changeFilter', function (e, filter) {
@@ -892,9 +953,15 @@
             let exportButton = datasetContainer.find('[data-action="export"]');
             let filtersStrings = [];
             $.each(filters, function () {
-                if (this.value) {
-                    filtersStrings.push('filters[' + this.name + ']=' + this.value.replace(/"/g, '\\"'));
+                let filter = this;
+                if (!$.isArray(filter.value)){
+                    filter.value = [filter.value];
                 }
+                $.each(filter.value, function (){
+                    if (this && this.length > 0) {
+                        filtersStrings.push('filters[' + filter.name + ']=' + this.replace(/"/g, '\\"'));
+                    }
+                })
             });
             exportButton.attr('href', exportButton.data('href') + '?' + filtersStrings.join('&'));
         });
@@ -903,6 +970,14 @@
         if (datasetContainer.find('.has_scheduled_action_alert').length > 0){
             checkScheduled();
         }
+
+        $(document).keyup(function (e) {
+            if (e.key === "Escape") {
+                if (fullscreenable.hasClass('extended')){
+                    fullscreenToggle.trigger('click')
+                }
+            }
+        });
     }
 
     $.fn[pluginName] = function (options) {

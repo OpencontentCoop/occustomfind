@@ -84,22 +84,22 @@ class OpendataDatasetDefinition implements JsonSerializable
     {
         return self::initRole('Dataset read', [[
             'ModuleName' => 'customcalendar',
-            'FunctionName' => 'calendar'
+            'FunctionName' => 'calendar',
         ], [
             'ModuleName' => 'customdatatable',
-            'FunctionName' => 'datatable'
+            'FunctionName' => 'datatable',
         ], [
             'ModuleName' => 'customexport',
-            'FunctionName' => 'export'
+            'FunctionName' => 'export',
         ], [
             'ModuleName' => 'customfind',
-            'FunctionName' => 'find'
+            'FunctionName' => 'find',
         ], [
             'ModuleName' => 'customcounter',
-            'FunctionName' => 'count'
+            'FunctionName' => 'count',
         ], [
             'ModuleName' => 'forms',
-            'FunctionName' => 'use'
+            'FunctionName' => 'use',
         ]]);
     }
 
@@ -137,10 +137,10 @@ class OpendataDatasetDefinition implements JsonSerializable
         if (self::$role === null) {
             self::$role = self::initRole('Dataset edit', [[
                 'ModuleName' => 'opendatadataset',
-                'FunctionName' => 'edit'
+                'FunctionName' => 'edit',
             ], [
                 'ModuleName' => 'forms',
-                'FunctionName' => 'use'
+                'FunctionName' => 'use',
             ]]);
         }
 
@@ -172,16 +172,7 @@ class OpendataDatasetDefinition implements JsonSerializable
             throw new ForbiddenException($this->getItemName(), 'edit');
         }
 
-        $fieldName = null;
-        foreach ($dataset->getDefinition()->getFields() as $field) {
-            if ($field['type'] == 'identifier') {
-                $fieldName = $field['identifier'];
-            }
-        }
-        $key = $fieldName ? md5($dataset->getData($fieldName)) : md5(json_encode($dataset->getData()));
-        $dataset->setGuid($dataset->getContext()->attribute('contentclassattribute_id')
-            . '_' . $dataset->getContext()->attribute('contentobject_id')
-            . '_' . $key);
+        $dataset->setGuid($this->generateDatasetGuid($dataset));
         $now = time();
         $dataset->setCreatedAt($now);
         $dataset->setModifiedAt($now);
@@ -193,6 +184,21 @@ class OpendataDatasetDefinition implements JsonSerializable
         }
 
         return $this->getStorage()->createDataset($dataset);
+    }
+
+    public function generateDatasetGuid(OpendataDataset $dataset)
+    {
+        $fieldName = null;
+        foreach ($dataset->getDefinition()->getFields() as $field) {
+            if ($field['type'] == 'identifier') {
+                $fieldName = $field['identifier'];
+            }
+        }
+        $key = $fieldName ? md5($dataset->getData($fieldName)) : md5(json_encode($dataset->getData()));
+
+        return $dataset->getContext()->attribute('contentclassattribute_id')
+            . '_' . $dataset->getContext()->attribute('contentobject_id')
+            . '_' . $key;
     }
 
     /**
@@ -227,7 +233,7 @@ class OpendataDatasetDefinition implements JsonSerializable
         if ($this->storage === null || !$this->storage instanceof OpendataDatasetStorageInterface) {
             $this->storage = new OpendataDatasetChainStorage([
                 new OpendataDatasetDBStorage(),
-                new OpendataDatasetSolrStorage()
+                new OpendataDatasetSolrStorage(),
             ]);
         }
 

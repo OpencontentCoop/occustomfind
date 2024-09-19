@@ -233,7 +233,7 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
     }
 
     protected function buildFilters(array $filterArray)
-    {      
+    {
         if (!empty($filterArray)) {
             $booleanOperator = $this->getBooleanOperatorFromFilter($filterArray);           
             $filterQueryList = array();
@@ -244,7 +244,7 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
                     }else{
                         
                         $field = $this->getFieldByName($name);
-                        
+
                         reset($value);
                         $firstValue = current($value);
                         $firstKey = key($value);
@@ -262,7 +262,7 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
                                     break;
 
                                 default:
-                                    throw new Exception("Operator $firstValue not handled", 1);                                    
+                                    $filterQueryList[] = $this->generateInFilter($field, $value, false);
                                     break;
                             }
                         }
