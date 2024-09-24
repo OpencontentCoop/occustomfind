@@ -904,19 +904,43 @@
         };
 
         if (settings.searchInput){
-            let searchinputContainer = $('<div class="input-group mb-2"></div>')
-            let searchInput = $('<input type="text" class="form-control form-control-lg border-left border-start border-bottom border-top rounded-start rounded-left bg-white" placeholder="'+settings.i18n.search_placeholder+'" aria-label="'+settings.i18n.search_placeholder+'" aria-describedby="button-addon2">')
+            let searchinputContainer = $('<div class="mb-2" style="position:relative"></div>')
+            let resetButton = $('<button class="position-absolute" style="position:absolute; top:10px; right:50px;display:none" type="button" id="button-addon2"><i class="fa fa-close"></></button>')
+              .on('click', function (e){
+                  searchInput.val('')
+                  searchButton.trigger('click');
+                  e.preventDefault();
+              });
+            let searchInput = $('<input type="text" class="form-control form-control-lg border rounded bg-white" style="padding-right:50px" placeholder="'+settings.i18n.search_placeholder+'" aria-label="'+settings.i18n.search_placeholder+'" aria-describedby="button-addon2">')
               .appendTo(searchinputContainer)
               .on('keyup', function (e) {
+                  let query = $(this).val();
+                  if (query.length === 0){
+                      resetButton.hide()
+                  } else {
+                      resetButton.show()
+                  }
+                  if (e.key === "Escape") {
+                      resetButton.trigger('click');
+                      e.preventDefault();
+                  }
                   if (e.keyCode === 13) {
                       searchButton.trigger('click');
                       e.preventDefault();
                   }
               });
-            let searchButton = $('<button class="btn btn-xs border-right border-end border-bottom border-top  rounded-end rounded-right bg-white" type="button" id="button-addon2"><i class="fa fa-search"></></button>')
+            resetButton.appendTo(searchinputContainer)
+            let searchButton = $('<button class="position-absolute" style="position:absolute; top:10px; right:20px" type="button" id="button-addon2"><i class="fa fa-search"></></button>')
               .appendTo(searchinputContainer)
               .on('click', function (e){
-                  datasetContainer.trigger('dataset:changeQuery', searchInput.val());
+                  let query = searchInput.val();
+                  console.log(query.length)
+                  datasetContainer.trigger('dataset:changeQuery', query);
+                  if (query.length === 0){
+                      resetButton.hide()
+                  } else {
+                      resetButton.show()
+                  }
                   e.preventDefault();
               });
             form.append(searchinputContainer);
