@@ -32,6 +32,12 @@ class OpendataDatasetDefinition implements JsonSerializable
      * @var bool
      */
     private $isEnabledSearchInput = false;
+
+    /**
+     * @var ?string
+     */
+    private $openingView;
+
     /**
      * @var array
      */
@@ -389,6 +395,14 @@ class OpendataDatasetDefinition implements JsonSerializable
      */
     public function getViews()
     {
+        if ($this->openingView && in_array($this->openingView, $this->views)){
+            usort($this->views, function ($a, $b) {
+                if ($b !== $this->openingView){
+                    return -1;
+                }
+                return 1;
+            });
+        }
         return $this->views;
     }
 
@@ -483,6 +497,7 @@ class OpendataDatasetDefinition implements JsonSerializable
             'tableSettings' => $this->getTableSettings(),
             'chartSettings' => $this->getChartSettings(),
             'counterSettings' => $this->getCounterSettings(),
+            'openingView' => $this->getOpeningView(),
         ];
     }
 
@@ -665,5 +680,10 @@ class OpendataDatasetDefinition implements JsonSerializable
     public function isEnabledSearchInput(): bool
     {
         return $this->isEnabledSearchInput === 'true' || $this->isEnabledSearchInput === true;
+    }
+
+    public function getOpeningView(): ?string
+    {
+        return $this->openingView;
     }
 }

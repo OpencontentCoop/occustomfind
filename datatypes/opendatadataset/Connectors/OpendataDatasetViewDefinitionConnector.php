@@ -72,6 +72,7 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
         $data['facetsSettings'] = $this->datasetDefinition->getFacetsSettings();
         $data['counterSettings'] = $this->datasetDefinition->getCounterSettings();
         $data['isEnabledSearchInput'] = $this->datasetDefinition->isEnabledSearchInput();
+        $data['openingView'] = $this->datasetDefinition->getOpeningView();
         return $data;
     }
 
@@ -101,6 +102,11 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
                 'isEnabledSearchInput' => [
                     'title' => ezpI18n::tr('opendatadataset', 'Show search input'),
                     'type' => 'boolean',
+                ],
+                'openingView' => [
+                    'title' => ezpI18n::tr('opendatadataset', 'Opening view'),
+                    'type' => 'string',
+                    'enum' => array_keys($this->availableViews)
                 ],
                 'calendarSettings' => [
                     'title' => ezpI18n::tr('opendatadataset', 'Calendar settings'),
@@ -252,6 +258,9 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
                     'type' => 'checkbox',
                     'rightLabel' => ezpI18n::tr('opendatadataset', 'Show search input in text fields'),
                 ],
+                'openingView' => [
+                    'optionLabels' => array_values($this->availableViews),
+                ],
                 'calendarSettings' => [
                     'fields' => [
                         'default_view' => [
@@ -353,6 +362,9 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
 
     protected function submit()
     {
+        if (!isset($_POST['openingView'])){
+            $_POST['openingView'] = null;
+        }
         $definition = $this->datasetDefinition->merge($_POST);
         $this->attribute->setAttribute('data_text', json_encode($definition));
         $this->attribute->store();
@@ -376,7 +388,7 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
             [
                 'identifier' => 'views',
                 'name' => ezpI18n::tr('opendatadataset', 'Views'),
-                'identifiers' => ['views', 'facetsSettings', 'isEnabledSearchInput'],
+                'identifiers' => ['views', 'facetsSettings', 'isEnabledSearchInput', 'openingView'],
                 'canBeDisable' => false,
             ],
             [
