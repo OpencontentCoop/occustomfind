@@ -115,7 +115,7 @@
 
         function autoLink(data) {
             let text = String(data)
-            if (text && !text.startsWith("<ul>") && !text.startsWith("<p>")) {
+            if (text && !text.startsWith("<ul>") && !text.startsWith("<p>") && !text.startsWith("<a")) {
                 if (isEmail(text)) {
                     return '<a href="mailto:' + text + '">' + text + '</a>';
                 }

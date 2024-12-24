@@ -24,12 +24,14 @@ class OpendataDataset implements JsonSerializable
 
     public function __construct(array $data, $context, $definition)
     {
-        $this->data = $data;
+        $this->data = [];
         $this->context = $context;
         $this->definition = $definition;
         foreach ($this->definition->getFields() as $field){
-            if (!isset($this->data[$field['identifier']])){
+            if (!isset($data[$field['identifier']])){
                 $this->data[$field['identifier']] = null;
+            } else {
+                $this->data[$field['identifier']] = $data[$field['identifier']];
             }
         }
     }

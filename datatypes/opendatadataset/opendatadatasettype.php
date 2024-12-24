@@ -150,6 +150,34 @@ class OpendataDatasetType extends eZDataType
                 ],
             ],
             [
+                'label' => ezpI18n::tr('opendatadataset', 'URL with label (html a element with href)', "CSV Dataset"),
+                'identifier' => 'a_href',
+                'schema' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'url' => [
+                            'title' => 'Url',
+                            'type' => 'string',
+                            'format' => 'uri',
+                        ],
+                        'label' => [
+                            'title' => 'Label',
+                            'type' => 'string',
+                        ],
+                    ],
+                ],
+                'options' => [
+                    'fields' => [
+                        'url' => [
+                            'type' => 'url',
+                        ]
+                    ]
+                ],
+                'openapi_schema' => [
+                    'type' => 'string',
+                ],
+            ],
+            [
                 'label' => ezpI18n::tr('opendatadataset', 'Email', "CSV Dataset"),
                 'identifier' => 'email',
                 'schema' => [

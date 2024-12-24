@@ -605,6 +605,37 @@ class OpendataDatasetDefinition implements JsonSerializable
     }
 
     /**
+     * From csv string to array
+     * @param $definition array Geo field definition
+     * @param $data string Source string value
+     * @return array
+     */
+    public static function explodeUrlWithLabelValue(array $definition, $data)
+    {
+        $url = $label = null;
+        $aElement = simplexml_load_string($data);
+        if ($aElement instanceof SimpleXMLElement) {
+            $label = (string)$aElement;
+            $url = (string)$aElement['href'];
+        }
+        return [
+            'url' => $url,
+            'label' => $label,
+        ];
+    }
+
+    /**
+     * From array to csv string
+     * @param $definition array Geo field definition
+     * @param $data array Exploded value
+     * @return string
+     */
+    public static function implodeUrlWithLabelValue(array $definition, array $data)
+    {
+        return sprintf('<a href="%s">%s</a>', $data['url'], $data['label']);
+    }
+
+    /**
      * @param $data
      * @return float
      */
@@ -625,7 +656,7 @@ class OpendataDatasetDefinition implements JsonSerializable
                 $this->fields[$index]['js_label'] = str_replace(
                     ['"', "'"],
                     ["&quot;", "&apos;"],
-                    htmlspecialchars($this->fields[$index]['label'])
+                    htmlspecialchars($this->fields[$index]['label'] ?? $this->fields[$index]['identifier'])
                 );
             }
         }

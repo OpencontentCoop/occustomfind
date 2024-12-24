@@ -79,6 +79,12 @@ class OpendataDatasetConnector extends AbstractBaseConnector
                         $data[$definitionField['identifier']]
                     );
                 }
+                if ($definitionField['type'] === 'a_href' && isset($data[$definitionField['identifier']])){
+                    $data[$definitionField['identifier']] = OpendataDatasetDefinition::explodeUrlWithLabelValue(
+                        $definitionField,
+                        $data[$definitionField['identifier']]
+                    );
+                }
             }
 
             return $data;
@@ -217,6 +223,12 @@ class OpendataDatasetConnector extends AbstractBaseConnector
         foreach ($this->datasetDefinition->getFields() as $definitionField) {
             if ($definitionField['type'] === 'geo' && isset($data[$definitionField['identifier']])){
                 $data[$definitionField['identifier']] = OpendataDatasetDefinition::implodeGeoValue(
+                    $definitionField,
+                    $data[$definitionField['identifier']]
+                );
+            }
+            if ($definitionField['type'] === 'a_href' && isset($data[$definitionField['identifier']])){
+                $data[$definitionField['identifier']] = OpendataDatasetDefinition::implodeUrlWithLabelValue(
                     $definitionField,
                     $data[$definitionField['identifier']]
                 );
