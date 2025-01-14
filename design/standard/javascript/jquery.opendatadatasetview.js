@@ -114,7 +114,8 @@
         }
 
         function autoLink(data) {
-            let text = String(data)
+            let text = data ? String(data) : ''
+
             if (text && !text.startsWith("<ul>") && !text.startsWith("<p>") && !text.startsWith("<a")) {
                 if (isEmail(text)) {
                     return '<a href="mailto:' + text + '">' + text + '</a>';
@@ -123,8 +124,7 @@
                     return '<a href="' + url + '" title="' + url + '">' + textellipsis(url, 20) + '</a>';
                 });
             }
-
-            return text;
+            return text || '';
         }
 
         function checkPending() {

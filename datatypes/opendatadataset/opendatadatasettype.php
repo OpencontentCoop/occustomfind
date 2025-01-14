@@ -167,6 +167,7 @@ class OpendataDatasetType extends eZDataType
                     ],
                 ],
                 'options' => [
+                    'fieldClass' => 'border p-2 rounded border-light',
                     'fields' => [
                         'url' => [
                             'type' => 'url',
