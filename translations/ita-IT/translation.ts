@@ -459,5 +459,25 @@
       <source>Show search input in text fields</source>
       <translation>Mostra input per eseguire la ricerca nei campi di tipo testo</translation>
     </message>
+    <message>
+      <source>URL with label (html a element with href)</source>
+      <translation>URL con etichetta (elemento html a con href)</translation>
+    </message>
+    <message>
+      <source>Opening view</source>
+      <translation>Visualizzazione in apertura</translation>
+    </message>
+    <message>
+      <source>View</source>
+      <translation>Visualizzazione</translation>
+    </message>
+    <message>
+      <source>Default sorting method</source>
+      <translation>Ordinamento predefinito</translation>
+    </message>
+    <message>
+      <source>Search filters</source>
+      <translation>Filtri di ricerca</translation>
+    </message>
   </context>
 </TS>

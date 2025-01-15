@@ -313,8 +313,21 @@
                             })
                         }
                         refreshTabs(control.childrenByPropertyId["views"].getValue());
-                        control.childrenByPropertyId["views"].on("change", function() {
+                        var views = control.childrenByPropertyId["views"];
+                        var viewLabels = views.options.optionLabels
+                        var viewEnum = views.schema.enum
+                        views.on("change", function() {
                             refreshTabs(this.getValue());
+                        });
+                        var openingView = control.childrenByPropertyId["openingView"];
+
+                        openingView.subscribe(views, function(val) {
+                            var optionLabels = [];
+                            this.schema.enum = val;
+                            val.forEach((element) => optionLabels.push(viewLabels[viewEnum.indexOf(element)]));
+                            this.options.optionLabels = optionLabels
+                            this.refresh();
+                            this.refreshValidationState(true);
                         });
                     }
                 }

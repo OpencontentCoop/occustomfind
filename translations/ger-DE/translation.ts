@@ -459,5 +459,25 @@
       <source>Show search input in text fields</source>
       <translation type="unfinished"/>
     </message>
+    <message>
+      <source>URL with label (html a element with href)</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Opening view</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>View</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Default sorting method</source>
+      <translation type="unfinished"/>
+    </message>
+    <message>
+      <source>Search filters</source>
+      <translation type="unfinished"/>
+    </message>
   </context>
 </TS>

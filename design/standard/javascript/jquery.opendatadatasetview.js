@@ -71,7 +71,6 @@
         settings.datatable = datatableSettings;
         let datasetContainer = $(element);
         let tools = $.opendataTools;
-        tools.settings('endpoint', settings.endpoints);
         let form = $('<div class="my-3 opendatadataset_view_form">');
         let facetsContainer = $('<div class="row opendatadataset_view_facets"></div>')
         let fullscreenToggle = datasetContainer.find('.dataset-fullscreen')
@@ -829,8 +828,21 @@
             });
         });
 
+        let find = function (query, cb, context) {
+            $.ajax({
+                type: "GET",
+                url: settings.endpoints.search,
+                data: {q: query},
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data,textStatus,jqXHR) {
+                    cb.call(context, data);
+                }
+            });
+        };
+
         let loadFilters = function () {
-            tools.find(settings.mainQuery + ' limit 1', function (response) {
+            find(settings.mainQuery + ' limit 1', function (response) {
                 facetsContainer.html('');
                 $.each(response.facets, function (field, data) {
                     let labelText = field;
@@ -905,7 +917,7 @@
 
         if (settings.searchInput){
             let searchinputContainer = $('<div class="mb-2" style="position:relative"></div>')
-            let resetButton = $('<button class="position-absolute" style="position:absolute; top:10px; right:50px;display:none" type="button" id="button-addon2"><i class="fa fa-close"></></button>')
+            let resetButton = $('<button class="position-absolute" style="position:absolute; top:10px; right:50px;background: #fff;border: none;display:none" type="button" id="button-addon2"><i class="fa fa-close"></></button>')
               .on('click', function (e){
                   searchInput.val('')
                   searchButton.trigger('click');
@@ -930,11 +942,10 @@
                   }
               });
             resetButton.appendTo(searchinputContainer)
-            let searchButton = $('<button class="position-absolute" style="position:absolute; top:10px; right:20px" type="button" id="button-addon2"><i class="fa fa-search"></></button>')
+            let searchButton = $('<button class="position-absolute" style="position:absolute; top:10px; right:20px;background: #fff;border: none;" type="button" id="button-addon2"><i class="fa fa-search"></></button>')
               .appendTo(searchinputContainer)
               .on('click', function (e){
                   let query = searchInput.val();
-                  console.log(query.length)
                   datasetContainer.trigger('dataset:changeQuery', query);
                   if (query.length === 0){
                       resetButton.hide()

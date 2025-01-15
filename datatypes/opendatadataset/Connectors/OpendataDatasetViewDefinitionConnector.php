@@ -234,6 +234,7 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
                 'views' => [
                     'type' => 'checkbox',
                     'optionLabels' => array_values($this->availableViews),
+                    'sort' => false
                 ],
                 'apiEnabled' => [
                     'type' => 'checkbox',
@@ -260,6 +261,9 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
                 ],
                 'openingView' => [
                     'optionLabels' => array_values($this->availableViews),
+                    'helper' => ' ',
+                    'sort' => false,
+                    'noneLabel' => ezpI18n::tr('design/standard/content/datatype', 'Default'),
                 ],
                 'calendarSettings' => [
                     'fields' => [
@@ -317,8 +321,8 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
                             'type' => 'radio',
                             'hideNone' => true,
                             'optionLabels' => [
-                                ezpI18n::tr('design/standard/content/datatype', 'Ascending'),
-                                ezpI18n::tr('design/standard/content/datatype', 'Descending')
+                                ezpI18n::tr('design/standard/websitetoolbar/sort', 'Ascending'),
+                                ezpI18n::tr('design/standard/websitetoolbar/sort', 'Descending')
                             ],
                         ],
                     ],
@@ -388,7 +392,13 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
             [
                 'identifier' => 'views',
                 'name' => ezpI18n::tr('opendatadataset', 'Views'),
-                'identifiers' => ['views', 'facetsSettings', 'isEnabledSearchInput', 'openingView'],
+                'identifiers' => ['views', 'openingView'],
+                'canBeDisable' => false,
+            ],
+            [
+                'identifier' => 'filters',
+                'name' => ezpI18n::tr('opendatadataset', 'Search filters'),
+                'identifiers' => ['facetsSettings', 'isEnabledSearchInput'],
                 'canBeDisable' => false,
             ],
             [
@@ -398,9 +408,9 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
                 'canBeDisable' => false,
             ],
             [
-                'identifier' => 'table',
-                'name' => ezpI18n::tr('opendatadataset', 'Data table'),
-                'identifiers' => ['tableSettings'],
+                'identifier' => 'counter',
+                'name' => ezpI18n::tr('opendatadataset', 'Counter'),
+                'identifiers' => ['counterSettings'],
                 'canBeDisable' => true,
             ],
             [
@@ -416,30 +426,30 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
                 'canBeDisable' => true,
             ],
             [
-                'identifier' => 'counter',
-                'name' => ezpI18n::tr('opendatadataset', 'Counter'),
-                'identifiers' => ['counterSettings'],
+                'identifier' => 'table',
+                'name' => ezpI18n::tr('opendatadataset', 'Data table'),
+                'identifiers' => ['tableSettings'],
                 'canBeDisable' => true,
             ],
         ];
 
         $bindings = array();
-        $tabs = '<ul class="nav nav-tabs auto">';
-        $panels = '<div class="tab-content my-5">';
+        $tabs = '<div class="row"><div class="col-2"><ul class="nav nav-tabs nav-tabs-vertical">';
+        $panels = '<div class="col-10"><div class="tab-content m-3">';
         $i = 0;
 
         foreach ($categories as $category) {
             $activeClass = $i == 0 ? 'active' : '';
             $canBeDisableClass = $category['canBeDisable'] ? 'dataset-definition-group' : '';
-            $tabs .= '<li class="nav-item ' . $canBeDisableClass . '" id="dataset-definition-group-' . $category['identifier'] . '"><a class="nav-link ' . $activeClass . '" data-toggle="tab" data-bs-toggle="tab" href="#dataset-group-' . $category['identifier'] . '">' . $category['name'] . '</a></li>';
+            $tabs .= '<li class="nav-item ' . $canBeDisableClass . '" id="dataset-definition-group-' . $category['identifier'] . '"><a class="w-100 nav-link ps-0 ' . $activeClass . '" data-toggle="tab" data-bs-toggle="tab" href="#dataset-group-' . $category['identifier'] . '">' . $category['name'] . '</a></li>';
             $panels .= '<div class="tab-pane ' . $activeClass . '" id="dataset-group-' . $category['identifier'] . '"></div>';
             foreach ($category['identifiers'] as $field) {
                 $bindings[$field] = 'dataset-group-' . $category['identifier'];
             }
             $i++;
         }
-        $tabs .= '</ul>';
-        $panels .= '</div>';
+        $tabs .= '</ul></div>';
+        $panels .= '</div></div></div>';
 
         return array(
             'template' => '<div><legend class="alpaca-container-label">{{options.label}}</legend>' . $tabs . $panels . '</div>',
