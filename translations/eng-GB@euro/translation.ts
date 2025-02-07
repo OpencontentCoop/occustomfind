@@ -1,483 +1,487 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE TS>
-<TS version="2.0">
+<TS version="2.1" language="en">
   <context>
     <name>opendatadataset</name>
     <message>
       <source>Address</source>
-      <translation type="unfinished"/>
+      <translation>Address</translation>
     </message>
     <message>
       <source>API</source>
-      <translation type="unfinished"/>
+      <translation>API</translation>
     </message>
     <message>
       <source>API Doc</source>
-      <translation type="unfinished"/>
+      <translation>API documentation</translation>
     </message>
     <message>
       <source>Are you sure you are removing all data from the dataset?</source>
-      <translation type="unfinished"/>
+      <translation>Are you sure you want to remove all data for this resource?</translation>
     </message>
     <message>
       <source>Are you sure you want to delete the record?</source>
-      <translation type="unfinished"/>
+      <translation>Are you sure you want to delete the record?</translation>
     </message>
     <message>
       <source>Automatic import enabled</source>
-      <translation type="unfinished"/>
+      <translation>Automatic import enabled</translation>
     </message>
     <message>
       <source>Calendar</source>
-      <translation type="unfinished"/>
+      <translation>Calendar</translation>
     </message>
     <message>
       <source>Calendar settings</source>
-      <translation type="unfinished"/>
+      <translation>Calendar settings</translation>
     </message>
     <message>
       <source>Cancel operation</source>
-      <translation type="unfinished"/>
+      <translation>Cancel operation</translation>
     </message>
     <message>
       <source>Chart</source>
-      <translation type="unfinished"/>
+      <translation>Graph</translation>
     </message>
     <message>
       <source>Chart settings</source>
-      <translation type="unfinished"/>
+      <translation>Graph settings</translation>
     </message>
     <message>
       <source>Checkbox</source>
-      <translation type="unfinished"/>
+      <translation>Checkbox</translation>
     </message>
     <message>
       <source>counter</source>
-      <translation type="unfinished"/>
+      <translation>Counter</translation>
     </message>
     <message>
       <source>Counter</source>
-      <translation type="unfinished"/>
+      <translation>Counter</translation>
     </message>
     <message>
       <source>Create new %name</source>
-      <translation type="unfinished"/>
+      <translation>Add %name</translation>
     </message>
     <message>
       <source>CSV Dataset</source>
-      <translation type="unfinished"/>
+      <translation>CSV dataset</translation>
     </message>
     <message>
       <source>Daily</source>
-      <translation type="unfinished"/>
+      <translation>Daily</translation>
     </message>
     <message>
       <source>Data table</source>
-      <translation type="unfinished"/>
+      <translation>Table</translation>
     </message>
     <message>
       <source>Date</source>
-      <translation type="unfinished"/>
+      <translation>Date</translation>
     </message>
     <message>
       <source>Date and time</source>
-      <translation type="unfinished"/>
+      <translation>Date/time</translation>
     </message>
     <message>
       <source>Date format</source>
-      <translation type="unfinished"/>
+      <translation>Date format</translation>
     </message>
     <message>
       <source>Date time format</source>
-      <translation type="unfinished"/>
+      <translation>Date/time format</translation>
     </message>
     <message>
       <source>Day</source>
-      <translation type="unfinished"/>
+      <translation>Day</translation>
     </message>
     <message>
       <source>Default value</source>
-      <translation type="unfinished"/>
+      <translation>Default value</translation>
     </message>
     <message>
       <source>Default view</source>
-      <translation type="unfinished"/>
+      <translation>Default appearance</translation>
     </message>
     <message>
       <source>Delete</source>
-      <translation type="unfinished"/>
+      <translation>Delete</translation>
     </message>
     <message>
       <source>Delete data</source>
-      <translation type="unfinished"/>
+      <translation>Remove data</translation>
     </message>
     <message>
       <source>Disable</source>
-      <translation type="unfinished"/>
+      <translation>Disable</translation>
     </message>
     <message>
       <source>Download CSV</source>
-      <translation type="unfinished"/>
+      <translation>Download CSV</translation>
     </message>
     <message>
       <source>Edit fields definition</source>
-      <translation type="unfinished"/>
+      <translation>Change field definitions</translation>
     </message>
     <message>
       <source>Edit views settings</source>
-      <translation type="unfinished"/>
+      <translation>Change your display settings</translation>
     </message>
     <message>
       <source>Email</source>
-      <translation type="unfinished"/>
+      <translation>E-mail address</translation>
     </message>
     <message>
       <source>Enable automatic update</source>
-      <translation type="unfinished"/>
+      <translation>Enable auto update</translation>
     </message>
     <message>
       <source>Enable create/edit/remove single item?</source>
-      <translation type="unfinished"/>
+      <translation>Enable the creation/modification/removal of a single item?</translation>
     </message>
     <message>
       <source>End date field</source>
-      <translation type="unfinished"/>
+      <translation>Event end date field</translation>
     </message>
     <message>
       <source>Enum</source>
-      <translation type="unfinished"/>
+      <translation>List</translation>
     </message>
     <message>
       <source>Fields</source>
-      <translation type="unfinished"/>
+      <translation>Fields</translation>
     </message>
     <message>
       <source>Filter by</source>
-      <translation type="unfinished"/>
+      <translation>Filter by</translation>
     </message>
     <message>
       <source>Frequency</source>
-      <translation type="unfinished"/>
+      <translation>Frequency</translation>
     </message>
     <message>
       <source>Geo location (longitude and latitude)</source>
-      <translation type="unfinished"/>
+      <translation>Geographical location (longitude and latitude)</translation>
     </message>
     <message>
       <source>Geo location separator</source>
-      <translation type="unfinished"/>
+      <translation>Geolocation string separator</translation>
     </message>
     <message>
       <source>I understand the consequences, delete this dataset</source>
-      <translation type="unfinished"/>
+      <translation>OK, I understand. Delete all.</translation>
     </message>
     <message>
       <source>Identifier</source>
-      <translation type="unfinished"/>
+      <translation>Identifier</translation>
     </message>
     <message>
       <source>Import</source>
-      <translation type="unfinished"/>
+      <translation>Import</translation>
     </message>
     <message>
       <source>Import data from CSV</source>
-      <translation type="unfinished"/>
+      <translation>Import from CSV file</translation>
     </message>
     <message>
       <source>Import definitions from CSV</source>
-      <translation type="unfinished"/>
+      <translation>Import field definitions from CSV file</translation>
     </message>
     <message>
       <source>Import fields definition from csv</source>
-      <translation type="unfinished"/>
+      <translation>Import field definitions from CSV file</translation>
     </message>
     <message>
       <source>Import fields definition from Google Spreadsheet</source>
-      <translation type="unfinished"/>
+      <translation>Import field definitions from Google Spreadsheet</translation>
     </message>
     <message>
       <source>Import from CSV</source>
-      <translation type="unfinished"/>
+      <translation>Import data from CSV file</translation>
     </message>
     <message>
       <source>Import from Google Sheet</source>
-      <translation type="unfinished"/>
+      <translation>Import from Google Sheet</translation>
     </message>
     <message>
       <source>Include weekends?</source>
-      <translation type="unfinished"/>
+      <translation>View weekend?</translation>
     </message>
     <message>
       <source>Integer</source>
-      <translation type="unfinished"/>
+      <translation>Whole</translation>
     </message>
     <message>
       <source>Invalid spreadsheet url</source>
-      <translation type="unfinished"/>
+      <translation>Invalid Google Spreadsheet URL</translation>
     </message>
     <message>
       <source>Is required?</source>
-      <translation type="unfinished"/>
+      <translation>Required?</translation>
     </message>
     <message>
       <source>Item name</source>
-      <translation type="unfinished"/>
+      <translation>Name of element</translation>
     </message>
     <message>
       <source>Label</source>
-      <translation type="unfinished"/>
+      <translation>Label</translation>
     </message>
     <message>
       <source>Latitude</source>
-      <translation type="unfinished"/>
+      <translation>Latitude</translation>
     </message>
     <message>
       <source>Longitude</source>
-      <translation type="unfinished"/>
+      <translation>Longitude</translation>
     </message>
     <message>
       <source>map</source>
-      <translation type="unfinished"/>
+      <translation>Map</translation>
     </message>
     <message>
       <source>Map</source>
-      <translation type="unfinished"/>
+      <translation>Map</translation>
     </message>
     <message>
       <source>MomentJS date format (es: DD/MM/YYYY)</source>
-      <translation type="unfinished"/>
+      <translation>Date format according to the MomentJS standard (e.g.: DD/MM/YYYY)</translation>
     </message>
     <message>
       <source>MomentJS datetime format (es: DD/MM/YYYY HH:mm)</source>
-      <translation type="unfinished"/>
+      <translation>Date/time format according to the MomentJS standard (e.g.: DD/MM/YYYY HH:mm)</translation>
     </message>
     <message>
       <source>Month</source>
-      <translation type="unfinished"/>
+      <translation>Month</translation>
     </message>
     <message>
       <source>Monthly</source>
-      <translation type="unfinished"/>
+      <translation>Monthly</translation>
     </message>
     <message>
       <source>No results finding</source>
-      <translation type="unfinished"/>
+      <translation>No results</translation>
     </message>
     <message>
       <source>Number</source>
-      <translation type="unfinished"/>
+      <translation>Number</translation>
     </message>
     <message>
       <source>One item per line</source>
-      <translation type="unfinished"/>
+      <translation>One element per line</translation>
     </message>
     <message>
       <source>Please type %name to confirm.</source>
-      <translation type="unfinished"/>
+      <translation>Please type %name to confirm</translation>
     </message>
     <message>
       <source>Removing your existing data from the dataset</source>
-      <translation type="unfinished"/>
+      <translation>Delete all your existing data</translation>
     </message>
     <message>
       <source>Schedule</source>
-      <translation type="unfinished"/>
+      <translation>Schedule</translation>
     </message>
     <message>
       <source>Select</source>
-      <translation type="unfinished"/>
+      <translation>Select</translation>
     </message>
     <message>
       <source>Select Google Spreadsheet Uri</source>
-      <translation type="unfinished"/>
+      <translation>Select the URL of the Google Spreadsheet</translation>
     </message>
     <message>
       <source>Selects additional users who can edit elements of this dataset in addition to editors</source>
-      <translation type="unfinished"/>
+      <translation>Select users who can edit elements of this resource (in addition to editors)</translation>
     </message>
     <message>
       <source>Set fields definition</source>
-      <translation type="unfinished"/>
+      <translation>Set field definitions</translation>
     </message>
     <message>
       <source>Set views settings</source>
-      <translation type="unfinished"/>
+      <translation>Create your display settings</translation>
     </message>
     <message>
       <source>Show fields</source>
-      <translation type="unfinished"/>
+      <translation>Show fields</translation>
     </message>
     <message>
       <source>Show filters</source>
-      <translation type="unfinished"/>
+      <translation>Show filters</translation>
     </message>
     <message>
       <source>Show label</source>
-      <translation type="unfinished"/>
+      <translation>Show label</translation>
     </message>
     <message>
       <source>Start date and time</source>
-      <translation type="unfinished"/>
+      <translation>Start date and time</translation>
     </message>
     <message>
       <source>Start date field</source>
-      <translation type="unfinished"/>
+      <translation>Event start date field</translation>
     </message>
     <message>
       <source>String</source>
-      <translation type="unfinished"/>
+      <translation>String</translation>
     </message>
     <message>
       <source>Table settings</source>
-      <translation type="unfinished"/>
+      <translation>Table settings</translation>
     </message>
     <message>
       <source>Text event fields</source>
-      <translation type="unfinished"/>
+      <translation>Fields displayed in event text</translation>
     </message>
     <message>
       <source>Textarea</source>
-      <translation type="unfinished"/>
+      <translation>Text</translation>
     </message>
     <message>
       <source>The expected value is a string consisting of longitude + separator + latitude</source>
-      <translation type="unfinished"/>
+      <translation>The expected input is a string consisting of longitude, separator and latitude</translation>
     </message>
     <message>
       <source>There are data being updated</source>
-      <translation type="unfinished"/>
+      <translation>Updating data...</translation>
     </message>
     <message>
       <source>try to refine your search keywords</source>
-      <translation type="unfinished"/>
+      <translation>Try refining your search terms</translation>
     </message>
     <message>
       <source>Type</source>
-      <translation type="unfinished"/>
+      <translation>Type</translation>
     </message>
     <message>
       <source>URL</source>
-      <translation type="unfinished"/>
+      <translation>URL</translation>
     </message>
     <message>
       <source>Users who can enter or modify data</source>
-      <translation type="unfinished"/>
+      <translation>Users who can enter or edit data</translation>
     </message>
     <message>
       <source>Views</source>
-      <translation type="unfinished"/>
+      <translation>Views</translation>
     </message>
     <message>
       <source>Week</source>
-      <translation type="unfinished"/>
+      <translation>Week</translation>
     </message>
     <message>
       <source>Weekly</source>
-      <translation type="unfinished"/>
+      <translation>Weekly</translation>
     </message>
     <message>
       <source>Remove all data and settings</source>
-      <translation type="unfinished"/>
+      <translation>Remove all data and settings</translation>
     </message>
     <message>
       <source>Cancel</source>
-      <translation type="unfinished"/>
+      <translation>Undo</translation>
     </message>
     <message>
       <source>Go to source</source>
-      <translation type="unfinished"/>
+      <translation>Go to data source</translation>
     </message>
     <message>
       <source>The latitude and longitude format: you can use %latitude and %longitude placeholders, the %latitude and %longitude expecetd values must be float values (with dot as decimal separator, e.g. 43.1234)</source>
-      <translation type="unfinished"/>
+      <translation>Specify the latitude and longitude format: you can use the %latitude and %longitude placeholders. The expected data input is in decimal format (with the decimal point as a separator, e.g. 43.1234)</translation>
     </message>
     <message>
       <source>Are you sure you are removing all data and settings?</source>
-      <translation type="unfinished"/>
+      <translation>Are you sure you want to remove all data and settings for this resource?</translation>
     </message>
     <message>
       <source>Counter settings</source>
-      <translation type="unfinished"/>
+      <translation>Counter settings</translation>
     </message>
     <message>
       <source>Minimun</source>
-      <translation type="unfinished"/>
+      <translation>Minimum</translation>
     </message>
     <message>
       <source>Maximun</source>
-      <translation type="unfinished"/>
+      <translation>Maximum</translation>
     </message>
     <message>
       <source>Count</source>
-      <translation type="unfinished"/>
+      <translation>Total elements</translation>
     </message>
     <message>
       <source>Missing values</source>
-      <translation type="unfinished"/>
+      <translation>Unpopulated elements</translation>
     </message>
     <message>
       <source>Sum</source>
-      <translation type="unfinished"/>
+      <translation>Sum</translation>
     </message>
     <message>
       <source>Mean</source>
-      <translation type="unfinished"/>
+      <translation>Average</translation>
     </message>
     <message>
       <source>Perform calculation on a single field</source>
-      <translation type="unfinished"/>
+      <translation>Calculate on a single field</translation>
     </message>
     <message>
       <source>Event limit</source>
-      <translation type="unfinished"/>
+      <translation>Number of displayed events</translation>
     </message>
     <message>
       <source>Counter label</source>
-      <translation type="unfinished"/>
+      <translation>Label</translation>
     </message>
     <message>
       <source>Counter image full url</source>
-      <translation type="unfinished"/>
+      <translation>Image (insert full URL)</translation>
     </message>
     <message>
       <source>Field</source>
-      <translation type="unfinished"/>
+      <translation>Field</translation>
     </message>
     <message>
       <source>Select field</source>
-      <translation type="unfinished"/>
+      <translation>Select field</translation>
     </message>
     <message>
       <source>Select calculation</source>
-      <translation type="unfinished"/>
+      <translation>Please select calculation</translation>
     </message>
     <message>
       <source>Show search input</source>
-      <translation type="unfinished"/>
+      <translation>Show search engine</translation>
     </message>
     <message>
       <source>Show search input in text fields</source>
-      <translation type="unfinished"/>
+      <translation>Show input to search text fields</translation>
     </message>
     <message>
       <source>URL with label (html a element with href)</source>
-      <translation type="unfinished"/>
+      <translation>URL with label (html a element with href)</translation>
     </message>
     <message>
       <source>Opening view</source>
-      <translation type="unfinished"/>
+      <translation>Opening view</translation>
     </message>
     <message>
       <source>View</source>
-      <translation type="unfinished"/>
+      <translation>View</translation>
     </message>
     <message>
       <source>Default sorting method</source>
-      <translation type="unfinished"/>
+      <translation>Default sorting method</translation>
+    </message>
+    <message>
+      <source>Search and filters</source>
+      <translation>Search and filters</translation>
     </message>
     <message>
       <source>Search filters</source>
-      <translation type="unfinished"/>
+      <translation>Search filters</translation>
     </message>
   </context>
 </TS>
