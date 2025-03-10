@@ -41,11 +41,11 @@
     </message>
     <message>
       <source>Chart</source>
-      <translation>Graph</translation>
+      <translation>Chart</translation>
     </message>
     <message>
       <source>Chart settings</source>
-      <translation>Graph settings</translation>
+      <translation>Chart settings</translation>
     </message>
     <message>
       <source>Checkbox</source>
@@ -65,7 +65,7 @@
     </message>
     <message>
       <source>CSV Dataset</source>
-      <translation>CSV dataset</translation>
+      <translation>CSV Dataset</translation>
     </message>
     <message>
       <source>Daily</source>
@@ -125,11 +125,11 @@
     </message>
     <message>
       <source>Edit views settings</source>
-      <translation>Change your display settings</translation>
+      <translation>Change display settings</translation>
     </message>
     <message>
       <source>Email</source>
-      <translation>E-mail address</translation>
+      <translation>Email</translation>
     </message>
     <message>
       <source>Enable automatic update</source>
@@ -161,7 +161,7 @@
     </message>
     <message>
       <source>Geo location (longitude and latitude)</source>
-      <translation>Geographical location (longitude and latitude)</translation>
+      <translation>Geolocation (longitude and latitude)</translation>
     </message>
     <message>
       <source>Geo location separator</source>
@@ -173,7 +173,7 @@
     </message>
     <message>
       <source>Identifier</source>
-      <translation>Identifier</translation>
+      <translation>ID</translation>
     </message>
     <message>
       <source>Import</source>
@@ -209,7 +209,7 @@
     </message>
     <message>
       <source>Integer</source>
-      <translation>Whole</translation>
+      <translation>Integer</translation>
     </message>
     <message>
       <source>Invalid spreadsheet url</source>
@@ -221,7 +221,7 @@
     </message>
     <message>
       <source>Item name</source>
-      <translation>Name of element</translation>
+      <translation>Item name</translation>
     </message>
     <message>
       <source>Label</source>
@@ -269,7 +269,7 @@
     </message>
     <message>
       <source>One item per line</source>
-      <translation>One element per line</translation>
+      <translation>One item per line</translation>
     </message>
     <message>
       <source>Please type %name to confirm.</source>
@@ -293,7 +293,7 @@
     </message>
     <message>
       <source>Selects additional users who can edit elements of this dataset in addition to editors</source>
-      <translation>Select users who can edit elements of this resource (in addition to editors)</translation>
+      <translation>Select users who can edit items of this resource (in addition to editors)</translation>
     </message>
     <message>
       <source>Set fields definition</source>
@@ -301,7 +301,7 @@
     </message>
     <message>
       <source>Set views settings</source>
-      <translation>Create your display settings</translation>
+      <translation>Create display settings</translation>
     </message>
     <message>
       <source>Show fields</source>
@@ -377,11 +377,11 @@
     </message>
     <message>
       <source>Remove all data and settings</source>
-      <translation>Remove all data and settings</translation>
+      <translation>Remove all data and configurations</translation>
     </message>
     <message>
       <source>Cancel</source>
-      <translation>Undo</translation>
+      <translation>Cancel</translation>
     </message>
     <message>
       <source>Go to source</source>
@@ -393,7 +393,7 @@
     </message>
     <message>
       <source>Are you sure you are removing all data and settings?</source>
-      <translation>Are you sure you want to remove all data and settings for this resource?</translation>
+      <translation>Are you sure you want to remove all data and configurations for this resource?</translation>
     </message>
     <message>
       <source>Counter settings</source>
@@ -409,11 +409,11 @@
     </message>
     <message>
       <source>Count</source>
-      <translation>Total elements</translation>
+      <translation>Total items</translation>
     </message>
     <message>
       <source>Missing values</source>
-      <translation>Unpopulated elements</translation>
+      <translation>Unpopulated items</translation>
     </message>
     <message>
       <source>Sum</source>
