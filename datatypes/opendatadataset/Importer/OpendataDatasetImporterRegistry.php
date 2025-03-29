@@ -35,7 +35,7 @@ class OpendataDatasetImporterRegistry
     public static function fetchScheduledImport($attributeId)
     {
         $handler = self::SCHEDULED_HANDLER;
-        $optionsLike = 's:12:"attribute_id";s:' . strlen($attributeId) . ':"' . $attributeId . '";';
+        $optionsLike = 's:12:"attribute_id";s:' . strlen($attributeId) . ':"' . intval($attributeId) . '";';
         $data = eZDB::instance()->arrayQuery("SELECT * FROM sqliimport_scheduled WHERE handler = '$handler' AND options_serialized LIKE '%$optionsLike%'");
 
         if (!empty($data)) {
@@ -134,6 +134,7 @@ class OpendataDatasetImporterRegistry
         $actionPending = self::PENDING_ACTION_IMPORT_FROM_CSV;
         $andWhere = '';
         if ($attributeId) {
+            $attributeId = (int)$attributeId;
             $andWhere = "AND param LIKE '%\"attribute_id\":\"{$attributeId}\"%'";
         }
         $entries = $db->arrayQuery(
@@ -174,7 +175,7 @@ class OpendataDatasetImporterRegistry
                                 $db->query("DELETE FROM ezpending_actions WHERE id = $entryId");
                             } catch (Exception $e) {
                                 $params['error'] = $e->getMessage();
-                                $newParams = json_encode($params);
+                                $newParams = eZDB::instance()->escapeString(json_encode($params));
                                 $db->query("UPDATE ezpending_actions SET action = '{$actionFailed}', param = '{$newParams}' WHERE id = $entryId");
                             }
                         }
