@@ -21,6 +21,8 @@ class OpendataDatasetViewDefinitionConnector extends OpendataDatasetConnector
 
     public function runService($serviceIdentifier)
     {
+        $this->tableViews['default'] = ezpI18n::tr('opendatadataset', 'Data table');
+        $this->tableViews['description-list'] = ezpI18n::tr('opendatadataset', 'Enum');
         $this->load();
         foreach ($this->datasetDefinition->getFields() as $field) {
             $this->fields[$field['identifier']] = $field['label'];
