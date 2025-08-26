@@ -965,7 +965,7 @@
             });
         }
 
-        datasetContainer.find('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        datasetContainer.find('a[data-toggle="tab"]').on('click', function (e) {
             setActiveView($(this).data('active_view'));
         });
 
