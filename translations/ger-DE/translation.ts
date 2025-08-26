@@ -29,7 +29,7 @@
     </message>
     <message>
       <source>Calendar</source>
-      <translation></translation>
+      <translation>Kalender</translation>
     </message>
     <message>
       <source>Calendar settings</source>
