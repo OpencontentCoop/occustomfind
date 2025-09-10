@@ -47,7 +47,7 @@ class OpendataDatasetFactoryProvider extends ContentClassAttributePropertyFactor
                                     ],
                                     'type' => [
                                         'type' => 'string',
-                                        'enum' => $defaultTypes,
+                                        'enum' => array_values($defaultTypes),
                                         'description' => ezpI18n::tr('opendatadataset', 'Type'),
                                         'default' => 'string',
                                     ],
@@ -197,6 +197,7 @@ class OpendataDatasetFactoryProvider extends ContentClassAttributePropertyFactor
                             ],
                             'id' => [
                                 'type' => 'integer',
+                                'format' => 'int32',
                                 'description' => 'Id',
                             ],
                         ],

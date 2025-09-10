@@ -104,10 +104,10 @@ class OpendataDatasetSearchOperationFactory extends OperationFactory\SearchOpera
     {
         $parameters = [
             new OA\Parameter('limit', OA\Parameter::IN_QUERY, 'Limit to restrict the number of entries on a page', [
-                'schema' => $this->generateSchemaProperty(['type' => 'integer', 'minimum' => 1, 'maximum' => static::MAX_LIMIT, 'default' => static::DEFAULT_LIMIT, 'nullable' => true]),
+                'schema' => $this->generateSchemaProperty(['type' => 'integer', 'format' => 'int32', 'minimum' => 1, 'maximum' => static::MAX_LIMIT, 'default' => static::DEFAULT_LIMIT, 'nullable' => true]),
             ]),
             new OA\Parameter('offset', OA\Parameter::IN_QUERY, 'Numeric offset of the first element provided on a page representing a collection request', [
-                'schema' => $this->generateSchemaProperty(['type' => 'integer']),
+                'schema' => $this->generateSchemaProperty(['type' => 'integer', 'format' => 'int32']),
             ]),
         ];
         /** @var OpendataDatasetSchemaFactory $schemaFactory */

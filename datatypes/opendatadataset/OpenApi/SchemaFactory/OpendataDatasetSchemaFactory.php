@@ -33,7 +33,7 @@ class OpendataDatasetSchemaFactory extends SchemaFactory
         $schema->properties['guid'] = $this->generateSchemaProperty(['type' => 'string', 'description' => 'Item unique identifier', "readOnly" => true]);
         $schema->properties['createdAt'] = $this->generateSchemaProperty(['type' => 'string', "format" => "date-time", 'description' => 'Item creation date', "readOnly" => true]);
         $schema->properties['modifiedAt'] = $this->generateSchemaProperty(['type' => 'string', "format" => "date-time", 'description' => 'Item last modification date', "readOnly" => true]);
-        $schema->properties['creator'] = $this->generateSchemaProperty(['type' => 'integer', 'title' => 'Item creator id', "readOnly" => true]);
+        $schema->properties['creator'] = $this->generateSchemaProperty(['type' => 'integer', 'format' => 'int32', 'title' => 'Item creator id', "readOnly" => true]);
 
         foreach ($this->definition->getFields() as $field){
             $schema->properties[$field['identifier']] = $this->generateSchemaProperty($this->getOpenApiSchemaForField($field));
@@ -41,7 +41,9 @@ class OpendataDatasetSchemaFactory extends SchemaFactory
                 $required[] = $field['identifier'];
             }
         }
-        $schema->required = $required;
+        if (!empty($required)) {
+            $schema->required = $required;
+        }
 
         return $schema;
     }

@@ -21,7 +21,7 @@ abstract class OpendataDatasetAbstractImporter
             }
         }
         if (!$atLeastOne) {
-            throw new Exception('Invalid csv headers');
+            throw new Exception('Invalid csv headers or empty data');
         }
     }
 
