@@ -165,6 +165,7 @@ class OpendataDatasetImporterRegistry
             if ($object instanceof eZContentObject) {
                 foreach ($object->dataMap() as $attribute) {
                     if ($attribute->attribute('id') == (int)$params['attribute_id']) {
+                        $attributeId = (int)$params['attribute_id'];
                         $datasetDefinition = $attribute->content();
                         if ($datasetDefinition instanceof OpendataDatasetDefinition) {
                             try {
@@ -173,6 +174,7 @@ class OpendataDatasetImporterRegistry
                                 $importer->import($datasetDefinition, $attribute);
                                 $importer->cleanup();
                                 $db->query("DELETE FROM ezpending_actions WHERE id = $entryId");
+                                $db->query("DELETE FROM ezpending_actions WHERE action IN ('{$actionFailed}') AND param LIKE '%\"attribute_id\":\"{$attributeId}\"%'");
                             } catch (Exception $e) {
                                 $params['error'] = $e->getMessage();
                                 $newParams = eZDB::instance()->escapeString(json_encode($params));
@@ -192,7 +194,11 @@ class OpendataDatasetImporterRegistry
         }
 
         if (isset($params['spreadsheet_id'], $params['spreadsheet_title'])) {
-            return new OpendataDatasetGoogleSpreadsheetImporter($params['spreadsheet_id'], $params['spreadsheet_title']);
+            return new OpendataDatasetGoogleSpreadsheetImporter(
+                $params['spreadsheet_id'],
+                $params['spreadsheet_title'],
+                $params['delete_before'] ?? false
+            );
         }
 
         throw new Exception('Invalid params');

@@ -479,5 +479,9 @@
       <source>Search filters</source>
       <translation>Filtri di ricerca</translation>
     </message>
+    <message>
+      <source>Remove existing data before each update</source>
+      <translation type="unfinished"/>
+    </message>
   </context>
 </TS>

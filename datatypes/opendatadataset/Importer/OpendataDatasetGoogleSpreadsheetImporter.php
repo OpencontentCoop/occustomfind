@@ -10,12 +10,18 @@ class OpendataDatasetGoogleSpreadsheetImporter extends OpendataDatasetAbstractIm
 
     private $spreadsheet;
 
-    public function __construct($spreadsheetId, $sheetTitle)
+    /**
+     * @var false
+     */
+    private $deleteExistingData;
+
+    public function __construct($spreadsheetId, $sheetTitle, $deleteExistingData = false)
     {
         $this->spreadsheetId = $spreadsheetId;
         $this->sheetTitle = $sheetTitle;
 
         $this->spreadsheet = new GoogleSheet($this->spreadsheetId);
+        $this->deleteExistingData = $deleteExistingData;
     }
 
     public function cleanup()
@@ -40,7 +46,21 @@ class OpendataDatasetGoogleSpreadsheetImporter extends OpendataDatasetAbstractIm
             'spreadsheet_id' => $this->spreadsheetId,
             'spreadsheet_title' => $this->sheetTitle,
             'user' => eZUser::currentUserID(),
+            'delete_before' => $this->deleteExistingData,
         ]);
     }
+
+    public function import(OpendataDatasetDefinition $definition, $context)
+    {
+        if ($this->deleteExistingData) {
+            try {
+                $definition->truncate($context);
+            } catch (Exception $e) {
+                eZDebug::writeError($e->getMessage(), __METHOD__);
+            }
+        }
+        parent::import($definition, $context);
+    }
+
 
 }

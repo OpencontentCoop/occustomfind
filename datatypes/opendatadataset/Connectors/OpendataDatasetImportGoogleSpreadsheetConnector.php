@@ -49,6 +49,9 @@ class OpendataDatasetImportGoogleSpreadsheetConnector extends OpendataDatasetCon
                     'enum' => $this->googleSpreadsheet->getSheetTitleList(),
                     'required' => true,
                 ],
+                'delete' => [
+                    'type' => 'boolean',
+                ],
                 'activate_importer' => [
                     'title' => ezpI18n::tr('opendatadataset', 'Enable automatic update'),
                 ],
@@ -68,10 +71,10 @@ class OpendataDatasetImportGoogleSpreadsheetConnector extends OpendataDatasetCon
                             "default" => date('d/m/Y H:i'),
                             'required' => true,
                         ],
+                        'delete_before' => [
+                            'type' => 'boolean',
+                        ],
                     ],
-                ],
-                'delete' => [
-                    'type' => 'boolean',
                 ],
             ],
             'dependencies' => ['schedule_importer' => 'activate_importer'],
@@ -115,6 +118,10 @@ class OpendataDatasetImportGoogleSpreadsheetConnector extends OpendataDatasetCon
                     ],
                     "locale" => "it",
                 ],
+                'delete_before' => [
+                    'type' => 'checkbox',
+                    'rightLabel' => ezpI18n::tr('opendatadataset', 'Remove existing data before each update'),
+                ],
             ],
         ];
 
@@ -125,7 +132,9 @@ class OpendataDatasetImportGoogleSpreadsheetConnector extends OpendataDatasetCon
     {
         $data = $_POST;
         $sheetTitle = $data['sheet'];
-        $importer = new OpendataDatasetGoogleSpreadsheetImporter($this->googleSpreadsheetId, $sheetTitle);
+        $deleteExistingData = isset($data['schedule_importer']['delete_before'])
+            && $data['schedule_importer']['delete_before'] == 'true';
+        $importer = new OpendataDatasetGoogleSpreadsheetImporter($this->googleSpreadsheetId, $sheetTitle, $deleteExistingData);
         $importer->checkHeaders($this->datasetDefinition);
         if ($data['delete'] === 'true') {
             try {
@@ -145,15 +154,20 @@ class OpendataDatasetImportGoogleSpreadsheetConnector extends OpendataDatasetCon
             $activateImporter = $data['activate_importer'] == 'true';
             if ($activateImporter) {
                 OpendataDatasetImporterRegistry::addScheduledImport(
-                    $this->attribute->attribute('id'), [
-                    'attribute_id' => $this->attribute->attribute('id'),
-                    'object_id' => $this->attribute->attribute('contentobject_id'),
-                    'spreadsheet_id' => $this->googleSpreadsheetId,
-                    'spreadsheet_title' => $sheetTitle,
-                    'user' => eZUser::currentUserID(),
-                ],
+                    $this->attribute->attribute('id'),
+                    [
+                        'attribute_id' => $this->attribute->attribute('id'),
+                        'object_id' => $this->attribute->attribute('contentobject_id'),
+                        'spreadsheet_id' => $this->googleSpreadsheetId,
+                        'spreadsheet_title' => $sheetTitle,
+                        'user' => eZUser::currentUserID(),
+                        'delete_before' => $deleteExistingData,
+                    ],
                     isset($data['schedule_importer']) ? $data['schedule_importer']['frequency'] : false,
-                    isset($data['schedule_importer']['date']) ? \DateTime::createFromFormat('d/m/Y H:i', $data['schedule_importer']['date']) : null
+                    isset($data['schedule_importer']['date']) ? \DateTime::createFromFormat(
+                        'd/m/Y H:i',
+                        $data['schedule_importer']['date']
+                    ) : null
                 );
             }
         }

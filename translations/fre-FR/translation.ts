@@ -483,5 +483,9 @@
       <source>Search filters</source>
       <translation>Filtres de recherche</translation>
     </message>
+    <message>
+      <source>Remove existing data before each update</source>
+      <translation type="unfinished"/>
+    </message>
   </context>
 </TS>
