@@ -283,7 +283,7 @@ class OpendataDatasetType extends eZDataType
         $dataset = new OpendataDatasetDefinition(json_decode($contentObjectAttribute->attribute("data_text"), true));
         $dataset->setCanEdit($this->canEdit($contentObjectAttribute));
         $dataset->setCanRead($contentObjectAttribute->attribute('object')->canRead());
-        $dataset->setCanTruncate($contentObjectAttribute->attribute('object')->canEdit());
+        $dataset->setCanTruncate($this->canEdit($contentObjectAttribute));
 
         return $dataset;
     }
