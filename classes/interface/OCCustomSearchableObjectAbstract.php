@@ -52,7 +52,7 @@ abstract class OCCustomSearchableObjectAbstract implements OCCustomSearchableObj
 
     public static function fromArray($array)
     {
-        return new static($array);
+        return new static($array); // @phpstan-ignore new.static
     }
 
 
