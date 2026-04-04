@@ -430,7 +430,7 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
                 $queryPart['missing'] = 'true';
             }
 
-            if (!empty($queryPart)) {
+            if (count($queryPart) > 0) {
                 foreach ($queryPart as $key => $value) {
                     // check for fully prepared parameter names, like the per field options
                     if ($key !== 'field' && !empty($queryParamList['facet.' . $key]) && isset($queryPart['field'])) {
