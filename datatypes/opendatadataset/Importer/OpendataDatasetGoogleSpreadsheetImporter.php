@@ -62,5 +62,9 @@ class OpendataDatasetGoogleSpreadsheetImporter extends OpendataDatasetAbstractIm
         parent::import($definition, $context);
     }
 
+    protected function isFullReplaceImport()
+    {
+        return $this->deleteExistingData;
+    }
 
 }
