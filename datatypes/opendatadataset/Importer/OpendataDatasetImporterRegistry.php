@@ -190,7 +190,7 @@ class OpendataDatasetImporterRegistry
     private static function createImporterFromPendingParams($params)
     {
         if (isset($params['file'])) {
-            return new OpendataDatasetCsvImporter($params['file']);
+            return new OpendataDatasetCsvImporter($params['file'], $params['delete_before'] ?? false);
         }
 
         if (isset($params['spreadsheet_id'], $params['spreadsheet_title'])) {
