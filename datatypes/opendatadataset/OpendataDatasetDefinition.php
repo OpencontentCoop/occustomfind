@@ -172,13 +172,13 @@ class OpendataDatasetDefinition implements JsonSerializable
         return $role;
     }
 
-    public function createDataset(OpendataDataset $dataset)
+    public function createDataset(OpendataDataset $dataset, $occurrence = null)
     {
         if (!$this->canEdit()) {
             throw new ForbiddenException($this->getItemName(), 'edit');
         }
 
-        $dataset->setGuid($this->generateDatasetGuid($dataset));
+        $dataset->setGuid($this->generateDatasetGuid($dataset, $occurrence));
         $now = time();
         $dataset->setCreatedAt($now);
         $dataset->setModifiedAt($now);
@@ -192,7 +192,7 @@ class OpendataDatasetDefinition implements JsonSerializable
         return $this->getStorage()->createDataset($dataset);
     }
 
-    public function generateDatasetGuid(OpendataDataset $dataset)
+    public function generateDatasetGuid(OpendataDataset $dataset, $occurrence = null)
     {
         $fieldName = null;
         foreach ($dataset->getDefinition()->getFields() as $field) {
@@ -200,7 +200,14 @@ class OpendataDatasetDefinition implements JsonSerializable
                 $fieldName = $field['identifier'];
             }
         }
-        $key = $fieldName ? md5($dataset->getData($fieldName)) : md5(json_encode($dataset->getData()));
+        if ($fieldName) {
+            $key = md5($dataset->getData($fieldName));
+        } else {
+            $key = md5(json_encode($dataset->getData()));
+            if ($occurrence !== null) {
+                $key .= '_' . $occurrence;
+            }
+        }
 
         return $dataset->getContext()->attribute('contentclassattribute_id')
             . '_' . $dataset->getContext()->attribute('contentobject_id')

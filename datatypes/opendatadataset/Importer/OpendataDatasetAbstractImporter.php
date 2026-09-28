@@ -95,6 +95,7 @@ abstract class OpendataDatasetAbstractImporter
             $identifierAndLabels[$field['identifier']] = $field['label'];
         }
 
+        $occurrenceByHash = [];
         foreach ($this->values as $row) {
             $item = [];
             foreach ($row as $key => $value) {
@@ -107,7 +108,15 @@ abstract class OpendataDatasetAbstractImporter
                 }
             }
             $dataset = $definition->create($item, $context);
-            $definition->createDataset($dataset);
+
+            $occurrence = null;
+            if ($this->isFullReplaceImport()) {
+                $hash = md5(json_encode($dataset->getData()));
+                $occurrenceByHash[$hash] = ($occurrenceByHash[$hash] ?? 0) + 1;
+                $occurrence = $occurrenceByHash[$hash];
+            }
+
+            $definition->createDataset($dataset, $occurrence);
         }
     }
 
@@ -115,6 +124,16 @@ abstract class OpendataDatasetAbstractImporter
     {
         $this->parse();
         return count($this->values);
+    }
+
+    /**
+     * Se true, l'import corrente svuota il dataset prima di reimportare (es. delete_before):
+     * solo in questo caso e' sicuro distinguere righe identiche con un contatore di occorrenza,
+     * perche' non c'e' nessun GUID salvato da un import precedente con cui confondersi.
+     */
+    protected function isFullReplaceImport()
+    {
+        return false;
     }
 
     abstract public function cleanup();
