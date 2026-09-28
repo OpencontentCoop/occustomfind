@@ -7,12 +7,23 @@ class OpendataDatasetCsvImporter extends OpendataDatasetAbstractImporter
 
     private $fileHandler;
 
-    public function __construct($file)
+    /**
+     * @var bool
+     */
+    private $deleteExistingData;
+
+    public function __construct($file, $deleteExistingData = false)
     {
         $this->fileHandler = eZClusterFileHandler::instance($file);
         $this->fileHandler->fetch();
 
         $this->file = $file;
+        $this->deleteExistingData = $deleteExistingData;
+    }
+
+    protected function isFullReplaceImport()
+    {
+        return $this->deleteExistingData;
     }
 
     public function cleanup()
@@ -54,6 +65,7 @@ class OpendataDatasetCsvImporter extends OpendataDatasetAbstractImporter
             'object_id' => $attribute->attribute('contentobject_id'),
             'file' => $this->file,
             'user' => eZUser::currentUserID(),
+            'delete_before' => $this->deleteExistingData,
         ]);
     }
 }
