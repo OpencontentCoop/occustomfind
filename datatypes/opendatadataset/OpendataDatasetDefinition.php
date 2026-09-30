@@ -308,6 +308,16 @@ class OpendataDatasetDefinition implements JsonSerializable
         return $this->getStorage()->truncate($context);
     }
 
+    /**
+     * True se il dataset non ha ancora nessuna riga salvata per questo context.
+     * Bypassa volutamente lo storage chain (solr incluso): la sorgente di
+     * verita' sul conteggio righe e' il DB, non serve interrogare altro.
+     */
+    public function isEmpty($context)
+    {
+        return (new OpendataDatasetDBStorage())->count($context) === 0;
+    }
+
     public function truncateByCreator($creatorId, $context)
     {
         if (!$this->canEdit()) {

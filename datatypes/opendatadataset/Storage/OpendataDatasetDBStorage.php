@@ -32,6 +32,11 @@ class OpendataDatasetDBStorage implements OpendataDatasetStorageInterface
         return 'dataset-' . $attribute->attribute('contentclass_attribute_identifier') . '-' . $attribute->attribute('contentobject_id');
     }
 
+    public function count(eZContentObjectAttribute $context)
+    {
+        return (int)OcOpendataDataset::count(OcOpendataDataset::definition(), ['repository' => $this->getRepositoryIdentifier($context)]);
+    }
+
     public function deleteDataset(OpendataDataset $dataset)
     {
         $row = OcOpendataDataset::fetchObject(OcOpendataDataset::definition(), null, ['repository' => $this->getRepositoryIdentifier($dataset->getContext()), 'guid' => $dataset->getGuid()], true);
