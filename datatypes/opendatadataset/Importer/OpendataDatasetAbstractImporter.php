@@ -95,6 +95,12 @@ abstract class OpendataDatasetAbstractImporter
             $identifierAndLabels[$field['identifier']] = $field['label'];
         }
 
+        // Il contatore di occorrenza e' sicuro quando l'import sostituisce
+        // integralmente il dataset (richiesto esplicitamente) O quando non
+        // c'e' proprio nulla di preesistente con cui rischiare di confondersi
+        // (es. primo import su un dataset appena creato).
+        $enableOccurrenceCounter = $this->isFullReplaceImport() || $definition->isEmpty($context);
+
         $occurrenceByHash = [];
         foreach ($this->values as $row) {
             $item = [];
@@ -110,7 +116,7 @@ abstract class OpendataDatasetAbstractImporter
             $dataset = $definition->create($item, $context);
 
             $occurrence = null;
-            if ($this->isFullReplaceImport()) {
+            if ($enableOccurrenceCounter) {
                 $hash = md5(json_encode($dataset->getData()));
                 $occurrenceByHash[$hash] = ($occurrenceByHash[$hash] ?? 0) + 1;
                 $occurrence = $occurrenceByHash[$hash];
