@@ -79,7 +79,7 @@ try {
     }
 
     $data = array(
-        'draw' => isset($_GET['draw']) ? ++$_GET['draw'] : 0,
+        'draw' => $http->hasVariable('draw') ? (int)$http->variable('draw') + 1 : 0,
         'recordsTotal' => (int)$searchResults['totalCount'],
         'recordsFiltered' => (int)$searchResults['totalCount'],
         'data' => $searchResults['searchHits'],
