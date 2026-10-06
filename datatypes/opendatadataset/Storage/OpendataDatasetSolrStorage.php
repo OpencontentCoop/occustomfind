@@ -48,17 +48,41 @@ class OpendataDatasetSolrStorage implements OpendataDatasetStorageInterface
 
     public function deleteByCreator($creatorId, eZContentObjectAttribute $context)
     {
-        $repository = new OpendataDatasetSearchableRepository($context);
-        $parameters = OCCustomSearchParameters::instance();
-        $parameters->addFilter('_creator', (int)$creatorId);
-        $rows = $repository->find($parameters);
-
-        foreach ($rows['searchHits'] as $hit){
-            if ($hit instanceof OpendataDatasetSearchableObject) {
-                $this->deleteDataset($hit->getDataset());
-            }
+        // Prima si leggono tutte le righe e poi si cancella: cancellare mentre si
+        // pagina sposterebbe gli offset. La find() restituisce di default solo 10 righe.
+        foreach ($this->findAllByCreator($creatorId, $context) as $hit) {
+            $this->deleteDataset($hit->getDataset());
         }
 
         return true;
+    }
+
+    /**
+     * @param int $creatorId
+     * @param eZContentObjectAttribute $context
+     * @return OpendataDatasetSearchableObject[]
+     */
+    public function findAllByCreator($creatorId, eZContentObjectAttribute $context)
+    {
+        $repository = new OpendataDatasetSearchableRepository($context);
+        $pageSize = 500;
+        $offset = 0;
+        $found = [];
+        do {
+            $parameters = OCCustomSearchParameters::instance();
+            $parameters->addFilter('_creator', (int)$creatorId);
+            $parameters->setLimit($pageSize);
+            $parameters->setOffset($offset);
+            $rows = $repository->find($parameters);
+            $hits = $rows['searchHits'];
+            foreach ($hits as $hit) {
+                if ($hit instanceof OpendataDatasetSearchableObject) {
+                    $found[] = $hit;
+                }
+            }
+            $offset += $pageSize;
+        } while (count($hits) === $pageSize);
+
+        return $found;
     }
 }
