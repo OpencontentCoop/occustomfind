@@ -90,9 +90,13 @@ abstract class OpendataDatasetAbstractImporter
     public function import(OpendataDatasetDefinition $definition, $context)
     {
         $this->parse();
-        $identifierAndLabels = [];
-        foreach ($definition->getFields() as $field) {
-            $identifierAndLabels[$field['identifier']] = $field['label'];
+        $fields = $definition->getFields();
+
+        $recognizedHeaders = array_filter($this->getHeaders(), function ($header) use ($fields) {
+            return $this->resolveFieldIdentifier($header, $fields) !== null;
+        });
+        if (count($recognizedHeaders) === 0) {
+            throw new Exception('Invalid csv headers or empty data');
         }
 
         // Il contatore di occorrenza e' sicuro quando l'import sostituisce
@@ -105,13 +109,13 @@ abstract class OpendataDatasetAbstractImporter
         foreach ($this->values as $row) {
             $item = [];
             foreach ($row as $key => $value) {
-                if (in_array($key, $identifierAndLabels)) {
-                    foreach ($identifierAndLabels as $identifier => $label) {
-                        if ($label == $key) {
-                            $item[$identifier] = $value;
-                        }
-                    }
+                $identifier = $this->resolveFieldIdentifier($key, $fields);
+                if ($identifier !== null) {
+                    $item[$identifier] = $value;
                 }
+            }
+            if ($this->isEmptyItem($item)) {
+                continue;
             }
             $dataset = $definition->create($item, $context);
 
@@ -124,6 +128,44 @@ abstract class OpendataDatasetAbstractImporter
 
             $definition->createDataset($dataset, $occurrence);
         }
+    }
+
+    /**
+     * Risolve l'header della sorgente nell'identificatore del campo: prima per label, poi per identificatore
+     * (coerente con checkHeaders, che accetta entrambi).
+     *
+     * @param string|int $header
+     * @param array $fields
+     * @return string|null
+     */
+    private function resolveFieldIdentifier($header, array $fields)
+    {
+        foreach ($fields as $field) {
+            if ((string)$field['label'] === (string)$header) {
+                return $field['identifier'];
+            }
+        }
+        foreach ($fields as $field) {
+            if ((string)$field['identifier'] === (string)$header) {
+                return $field['identifier'];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Una riga e' vuota se nessun campo riconosciuto ha un valore (es. righe predisposte ma non compilate nel foglio).
+     */
+    private function isEmptyItem(array $item)
+    {
+        foreach ($item as $value) {
+            if (is_array($value) ? !empty($value) : trim((string)$value) !== '') {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function countValues()
