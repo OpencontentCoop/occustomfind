@@ -83,6 +83,7 @@ class OpendataDatasetDefinition implements JsonSerializable
                 }
             }
             $this->normalizeFields();
+            $this->removeStaleFieldReferences();
         }
     }
 
@@ -691,6 +692,53 @@ class OpendataDatasetDefinition implements JsonSerializable
                     htmlspecialchars($this->fields[$index]['label'] ?? $this->fields[$index]['identifier'])
                 );
             }
+        }
+    }
+
+    /**
+     * Le impostazioni di visualizzazione (filtri, tabella, calendario, contatore) puntano ai campi per identificatore:
+     * se la definizione dei campi cambia, i riferimenti a campi che non esistono più restano orfani, la tabella non ha
+     * colonne e il form delle impostazioni non è validabile (il valore salvato non è tra le opzioni).
+     * Li rimuove; se la tabella resta senza campi da mostrare ripiega su tutti i campi.
+     */
+    private function removeStaleFieldReferences()
+    {
+        if (!is_array($this->fields) || empty($this->fields)) {
+            return;
+        }
+
+        $identifiers = array_column($this->fields, 'identifier');
+        $onlyExisting = function ($values) use ($identifiers) {
+            return array_values(array_intersect((array)$values, $identifiers));
+        };
+
+        if (is_array($this->facetsSettings)) {
+            $this->facetsSettings = $onlyExisting($this->facetsSettings);
+        }
+
+        if (is_array($this->tableSettings) && isset($this->tableSettings['show_fields'])) {
+            $showFields = $onlyExisting($this->tableSettings['show_fields']);
+            $this->tableSettings['show_fields'] = empty($showFields) ? array_values($identifiers) : $showFields;
+        }
+
+        if (is_array($this->calendarSettings)) {
+            foreach (['start_date_field', 'end_date_field'] as $key) {
+                if (isset($this->calendarSettings[$key]) && !in_array($this->calendarSettings[$key], $identifiers)) {
+                    unset($this->calendarSettings[$key]);
+                }
+            }
+            foreach (['text_fields', 'text_labels'] as $key) {
+                if (isset($this->calendarSettings[$key])) {
+                    $this->calendarSettings[$key] = $onlyExisting($this->calendarSettings[$key]);
+                }
+            }
+        }
+
+        if (is_array($this->counterSettings)
+            && isset($this->counterSettings['select_field'])
+            && !in_array($this->counterSettings['select_field'], $identifiers)
+        ) {
+            unset($this->counterSettings['select_field']);
         }
     }
 
