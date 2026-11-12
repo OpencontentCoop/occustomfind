@@ -82,6 +82,27 @@ class OpendataDatasetSearchableRepository extends OCCustomSearchableRepositoryAb
         return new OpendataDatasetSearchableObject($dataset);
     }
 
+    /**
+     * Campi che il datatable deve mostrare con simbolo (euro, %): identificatore => tipo.
+     * Il simbolo e' solo di visualizzazione, nel dato salvato non c'e'.
+     *
+     * @return array
+     */
+    public function getFieldFormats()
+    {
+        /** @var OpendataDatasetDefinition $definition */
+        $definition = $this->attribute->content();
+
+        $formats = [];
+        foreach ($definition->getFields() as $field) {
+            if (OpendataDatasetNumberNormalizer::supports($field['type'])) {
+                $formats[$field['identifier']] = $field['type'];
+            }
+        }
+
+        return $formats;
+    }
+
     public function getFields()
     {
         /** @var OpendataDatasetDefinition $definition */
@@ -117,6 +138,8 @@ class OpendataDatasetSearchableRepository extends OCCustomSearchableRepositoryAb
                 return 'int';
 
             case 'number':
+            case 'amount':
+            case 'percentage':
                 return 'double';
 
             case 'textarea':

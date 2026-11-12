@@ -53,6 +53,9 @@ class OpendataDatasetSchemaFactory extends SchemaFactory
         $data = [
             'description' => $field['label']
         ];
+        if (!empty($field['description'])) {
+            $data['description'] = $field['label'] . ': ' . trim(strip_tags($field['description']));
+        }
         if (!empty($field['enum'])) {
             $data['enum'] = OpendataDatasetDefinition::parseEnumConfiguration($field['enum']);
         }

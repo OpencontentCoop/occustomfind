@@ -367,3 +367,62 @@ php extension/occustomfind/bin/php/truncate.php -sbackend
 ### Classi Dummy
 In occustomfind.ini ci sono due repository di esempio che indicizzano 10 contentuti per tipo.
 Per provarli occorre abilitarli
+
+### Dataset (tipo di attributo `opendatadataset`)
+
+#### Descrizione dei campi
+Nell'editor delle definizioni dei campi ogni campo ha una *Descrizione*: un suggerimento in solo testo (i tag HTML
+vengono tolti) che il redattore vede sotto il campo nel form di inserimento. Compare anche nella documentazione
+OpenAPI. La definizione è per lingua, quindi nella traduzione di un dataset il suggerimento si può tradurre.
+
+#### Tipi di campo `amount` (Importo) e `percentage` (Percentuale)
+Il valore salvato è una stringa in formato italiano, **senza simboli**: `€` e `%` si aggiungono solo nella tabella
+del dataset.
+
+| Tipo | Salvato | Esempi di input accettati |
+|---|---|---|
+| `amount` | formato ANAC `n.nnn,dd` (sempre 2 decimali) | `1550`, `1550,33`, `1.550,33`, `1.550`, `1550.33`, `1,550.33`, `€ 1.550,33` |
+| `percentage` | numero con virgola, senza migliaia né zeri finali, max 4 decimali, **non negativo** | `12`, `12,5`, `12.5`, `12,5%`, `12,5 %` |
+
+Un valore non interpretabile in modo univoco (`100.000.00`, `1,550`, `abc`, più di 2 decimali per l'importo) viene
+rifiutato con un messaggio che indica il campo. L'importo tollera il segno meno (rettifiche, storni), la percentuale
+no. Un solo punto seguito da 3 cifre è sempre il separatore delle
+migliaia (`2.304` = 2304), come nei campi prezzo di eZ con locale `ita-IT`; per la percentuale un solo separatore è
+sempre il decimale.
+
+La normalizzazione è in `OpendataDatasetNumberNormalizer` ed è applicata da `OpendataDatasetDefinition::create()`,
+quindi vale per form, API REST e import. I due tipi sono indicizzati come `double` (ordinamento e filtri numerici);
+la ricerca testuale libera della tabella non trova i numeri. Test: `php tests/test_number_normalizer.php`.
+
+#### Import CSV e Google Sheet
+L'import è tutto-o-niente: prima si validano tutte le righe, e se anche una sola è errata non si importa nulla; il
+messaggio elenca le righe da correggere (riga 1 = intestazione, massimo 20 errori riportati). La validazione avviene
+**prima** della cancellazione richiesta con «Elimina tutti i tuoi dati esistenti»: un file errato non fa perdere i dati
+già presenti. Vale anche per l'import in differita (oltre 200 righe) e per Google Sheet: l'errore arriva subito.
+
+#### Convertire un campo di un dataset esistente in importo o percentuale
+Lo script `bin/php/convert_dataset_field_type.php` converte un campo già esistente (per esempio `importo` di «Dati sui
+pagamenti», che oggi è una stringa) nel tipo `amount` o `percentage`. **È un dry-run di default**: senza `--apply` non
+scrive nulla.
+
+```bash
+# dry-run: elenca quali righe verrebbero accettate e quali rifiutate (con --report anche un CSV)
+php extension/occustomfind/bin/php/convert_dataset_field_type.php -sbackend --object=<id oggetto> --field=importo --type=amount --report=/tmp/importo.csv
+# conversione (solo se non ci sono righe rifiutate)
+php extension/occustomfind/bin/php/convert_dataset_field_type.php -sbackend --object=<id oggetto> --field=importo --type=amount --apply
+# ripristino dal backup creato dall'apply
+php extension/occustomfind/bin/php/convert_dataset_field_type.php -sbackend --restore=<file di backup>
+```
+
+Il dry-run riporta, per ogni riga rifiutata, l'id della riga, il valore, i campi che la identificano
+(`--identify=anno,trimestre,beneficiario`) e il motivo; per gli importi segnala anche le righe che vengono accettate ma con
+un valore diverso da quello che l'export ANAC storico pubblicava (per esempio `1.000`, letto come `1,00`) e che cosa
+pubblicherebbe oggi l'export per le righe rifiutate (`n.d.` diventa `0,00`). Codici di uscita: 0 ok, 2 se ci sono righe da
+correggere, 1 errore.
+
+`--apply`: si rifiuta se resta anche una sola riga rifiutata (nessuna modifica); `--empty-values="n.d.,nd,-"` trasforma in
+campo vuoto i testi indicati (mai in automatico). Salva un backup JSON (`var/<vardir>/dataset_conversion_backup/`, o
+`--backup-dir`), cambia il tipo del campo nella definizione di **ogni lingua** (versione corrente), riscrive le righe in
+un'unica transazione mantenendo data di creazione, data di modifica e autore, svuota le cache, reindicizza e verifica il
+risultato. Si converte solo da campi di testo o numerici. Su 5.000 righe il dry-run impiega meno di un secondo e
+l'apply, reindicizzazione compresa, circa 8 secondi. Test della logica: `php tests/test_field_converter.php`.

@@ -86,6 +86,12 @@ try {
         'facets' => $facets,
         'params' => $parameters
     );
+    if (method_exists($repository, 'getFieldFormats')) {
+        $fieldFormats = $repository->getFieldFormats();
+        if (!empty($fieldFormats)) {
+            $data['fieldFormats'] = $fieldFormats;
+        }
+    }
     if ($http->hasVariable('q')) {
         $data['query'] = $query;
     }

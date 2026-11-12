@@ -2,6 +2,11 @@
 
 abstract class OpendataDatasetAbstractImporter
 {
+    /**
+     * Numero massimo di righe errate riportate nel messaggio di un import annullato.
+     */
+    const MAX_REPORTED_ERRORS = 20;
+
     protected $isParsed = false;
 
     protected $headers = [];
@@ -87,6 +92,44 @@ abstract class OpendataDatasetAbstractImporter
         return $this->values;
     }
 
+    /**
+     * Valida tutte le righe senza scrivere nulla. Va chiamato PRIMA di qualunque cancellazione dei dati esistenti:
+     * se anche una sola riga e' errata lancia un'eccezione con i numeri di riga e i dati restano intatti.
+     *
+     * @param OpendataDatasetDefinition $definition
+     * @param eZContentObjectAttribute $context
+     * @throws Exception
+     */
+    public function validate(OpendataDatasetDefinition $definition, $context)
+    {
+        $this->parse();
+        $fields = $definition->getFields();
+
+        $errors = [];
+        $line = 1; // la riga 1 e' l'intestazione, come nel foglio di calcolo
+        foreach ($this->values as $row) {
+            $line++;
+            $item = $this->mapRowToItem($row, $fields);
+            if ($this->isEmptyItem($item)) {
+                continue;
+            }
+            try {
+                $definition->create($item, $context);
+            } catch (Exception $e) {
+                $errors[] = 'Riga ' . $line . ': ' . $e->getMessage();
+                if (count($errors) >= self::MAX_REPORTED_ERRORS) {
+                    break;
+                }
+            }
+        }
+        if (!empty($errors)) {
+            throw new Exception(
+                'Importazione annullata, nessuna riga è stata importata e i dati esistenti non sono stati toccati. '
+                . implode(' | ', $errors)
+            );
+        }
+    }
+
     public function import(OpendataDatasetDefinition $definition, $context)
     {
         $this->parse();
@@ -105,15 +148,13 @@ abstract class OpendataDatasetAbstractImporter
         // (es. primo import su un dataset appena creato).
         $enableOccurrenceCounter = $this->isFullReplaceImport() || $definition->isEmpty($context);
 
+        // Prima passata: se anche una sola riga e' errata l'import si ferma prima di inserire, cosi' non restano
+        // importazioni a meta' e il redattore vede quali righe correggere.
+        $this->validate($definition, $context);
+
         $occurrenceByHash = [];
         foreach ($this->values as $row) {
-            $item = [];
-            foreach ($row as $key => $value) {
-                $identifier = $this->resolveFieldIdentifier($key, $fields);
-                if ($identifier !== null) {
-                    $item[$identifier] = $value;
-                }
-            }
+            $item = $this->mapRowToItem($row, $fields);
             if ($this->isEmptyItem($item)) {
                 continue;
             }
@@ -128,6 +169,24 @@ abstract class OpendataDatasetAbstractImporter
 
             $definition->createDataset($dataset, $occurrence);
         }
+    }
+
+    /**
+     * @param array $row riga grezza della sorgente (intestazione => valore)
+     * @param array $fields campi della definizione
+     * @return array identificatore di campo => valore
+     */
+    private function mapRowToItem($row, array $fields)
+    {
+        $item = [];
+        foreach ($row as $key => $value) {
+            $identifier = $this->resolveFieldIdentifier($key, $fields);
+            if ($identifier !== null) {
+                $item[$identifier] = $value;
+            }
+        }
+
+        return $item;
     }
 
     /**

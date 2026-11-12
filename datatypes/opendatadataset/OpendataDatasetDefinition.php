@@ -564,6 +564,19 @@ class OpendataDatasetDefinition implements JsonSerializable
             if ($field['type'] == 'checkbox' && !empty($data[$field['identifier']])) {
                 $data[$field['identifier']] = explode(",", $data[$field['identifier']]);
             }
+            if (OpendataDatasetNumberNormalizer::supports($field['type'])
+                && isset($data[$field['identifier']])
+                && trim((string)$data[$field['identifier']]) !== '') {
+                try {
+                    $data[$field['identifier']] = OpendataDatasetNumberNormalizer::normalize(
+                        $field['type'],
+                        $data[$field['identifier']]
+                    );
+                } catch (InvalidArgumentException $e) {
+                    $label = !empty($field['label']) ? $field['label'] : $field['identifier'];
+                    throw new InvalidArgumentException("$label: " . $e->getMessage(), 0, $e);
+                }
+            }
             if (!empty($field['enum'])) {
                 $enum = OpendataDatasetDefinition::parseEnumConfiguration($field['enum']);
                 if (!empty(array_diff($data[$field['identifier']], $enum))) {

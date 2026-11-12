@@ -483,5 +483,21 @@
       <source>Remove existing data before each update</source>
       <translation type="unfinished"/>
     </message>
+    <message>
+      <source>Amount</source>
+      <translation>Importo</translation>
+    </message>
+    <message>
+      <source>Description</source>
+      <translation>Descrizione</translation>
+    </message>
+    <message>
+      <source>Hint shown to the editor under the field (plain text)</source>
+      <translation>Suggerimento mostrato al redattore sotto il campo (solo testo)</translation>
+    </message>
+    <message>
+      <source>Percentage</source>
+      <translation>Percentuale</translation>
+    </message>
   </context>
 </TS>

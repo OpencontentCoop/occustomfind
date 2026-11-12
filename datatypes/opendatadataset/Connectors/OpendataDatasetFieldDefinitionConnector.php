@@ -62,6 +62,10 @@ class OpendataDatasetFieldDefinitionConnector extends OpendataDatasetConnector
                                 'title' => ezpI18n::tr('opendatadataset', 'Label'),
                                 //'required' => true,
                             ],
+                            'description' => [
+                                'type' => 'string',
+                                'title' => ezpI18n::tr('opendatadataset', 'Description'),
+                            ],
                             'type' => [
                                 'type' => 'string',
                                 'enum' => array_column($this->availableTypes, 'identifier'),
@@ -138,6 +142,11 @@ class OpendataDatasetFieldDefinitionConnector extends OpendataDatasetConnector
 //                    'type' => 'table',
                     'items' => [
                         'fields' => [
+                            'description' => [
+                                'type' => 'textarea',
+                                'rows' => 2,
+                                'helper' => ezpI18n::tr('opendatadataset', 'Hint shown to the editor under the field (plain text)'),
+                            ],
                             'type' => [
                                 'optionLabels' => array_column($this->availableTypes, 'label'),
                             ],
