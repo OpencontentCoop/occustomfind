@@ -40,6 +40,10 @@ class OpendataDatasetSearchableObject implements OCCustomSearchableObjectInterfa
         foreach ($definition->getFields() as $definitionField) {
             if ($definitionField['identifier'] == $field->getName()) {
                 $fieldData = $this->dataset->getData($field->getName());
+                if (OpendataDatasetNumberNormalizer::supports($definitionField['type'])) {
+                    // prima del controllo empty(): "0" e' un valore valido (0%), non un campo vuoto
+                    return OpendataDatasetNumberNormalizer::toFloat($definitionField['type'], $fieldData);
+                }
                 if (empty($fieldData)){
                     return null;
                 }

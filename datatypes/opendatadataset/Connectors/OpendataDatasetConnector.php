@@ -152,6 +152,9 @@ class OpendataDatasetConnector extends AbstractBaseConnector
             if (!empty($options)) {
                 $options['fields'][$field['identifier']] = $option;
             }
+            if (!empty($field['description'])) {
+                $options['fields'][$field['identifier']]['helper'] = trim(strip_tags($field['description']));
+            }
             if (!empty($field['date_format'])) {
                 $options['fields'][$field['identifier']]['dateFormat'] = $field['date_format'];
                 $options['fields'][$field['identifier']]['picker']['format'] = $field['date_format'];

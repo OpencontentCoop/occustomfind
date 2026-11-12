@@ -449,7 +449,28 @@
                 });
                 order = [[1, settings.datatable.defaultOrder]];
             }
-            let renderValue = function (data){
+            // identificatore campo => 'amount'|'percentage', arriva con ogni risposta del datatable
+            let fieldFormats = {};
+            let formatNumberField = function (type, value) {
+                if (value === null || value === undefined || value === '') {
+                    return null;
+                }
+                value = String(value);
+                if (type === 'amount' && /^-?\d{1,3}(\.\d{3})*,\d{2}$/.test(value)) {
+                    return value.charAt(0) === '-' ? '-&euro;&nbsp;' + value.slice(1) : '&euro;&nbsp;' + value;
+                }
+                if (type === 'percentage' && /^\d+(,\d+)?$/.test(value)) {
+                    return value + '%';
+                }
+                return null;
+            };
+            let renderValue = function (data, fieldName){
+                if (fieldName && fieldFormats[fieldName]) {
+                    let formatted = formatNumberField(fieldFormats[fieldName], data);
+                    if (formatted !== null) {
+                        return formatted;
+                    }
+                }
                 if ($.isArray(data)) {
                     return data.join(', ');
                 }
@@ -468,7 +489,7 @@
                 let dl = '<dl class="row">';
                 settings.datatable.originalColumns.forEach(function (column){
                     dl += '<dt class="col-sm-3 mb-1">'+column.title+'</dt>';
-                    dl += '<dd class="col-sm-9 mb-1">'+renderValue(row[column.data] || '')+'</dd>';
+                    dl += '<dd class="col-sm-9 mb-1">'+renderValue(row[column.data] || '', column.data)+'</dd>';
                 })
                 dl += '<dl>';
                 return dl;
@@ -476,7 +497,7 @@
             let renderCustomTpl = function (row){
                 return $.templates(settings.datatable.customTpl).render({row:row})
             }
-            let renderAll = function (data, type, row) {
+            let renderAll = function (data, type, row, meta) {
                 if (row._guid === data && settings.canEdit) {
                     if (row._canEdit) {
                         return '<span class="text-nowrap"><a data-action="edit" class="btn btn-xs btn-primary px-2 py-1 mx-1" href="#" data-guid="' + data + '">'
@@ -493,13 +514,21 @@
                 } else if (settings.datatable.viewAsDescriptionList){
                     return renderDescriptionList(row);
                 }
-                return renderValue(data);
+                let fieldName = null;
+                if (meta && meta.settings && meta.settings.aoColumns && meta.settings.aoColumns[meta.col]) {
+                    fieldName = meta.settings.aoColumns[meta.col].mData;
+                }
+                // il simbolo e' solo di visualizzazione: ordinamento, filtro e rilevamento tipo restano come prima
+                return renderValue(data, type === 'display' ? fieldName : null);
             };
             let headers;
             let tokenNode = document.getElementById('ezxform_token_js');
             if (tokenNode) {
                 headers = {'X-CSRF-TOKEN': tokenNode.getAttribute('title')};
             }
+            table.on('xhr.dt', function (e, dtSettings, json) {
+                fieldFormats = (json && json.fieldFormats) ? json.fieldFormats : {};
+            });
             datatable = table.opendataDataTable({
                 'table': {
                     'template': settings.datatable.template
@@ -522,13 +551,13 @@
                     'columns': settings.datatable.columns,
                     'columnDefs': [{
                         'className': 'dtr-control',
-                        'render': function (data, type, row) {
-                            return renderAll(data, type, row);
+                        'render': function (data, type, row, meta) {
+                            return renderAll(data, type, row, meta);
                         },
                         'targets': 0
                     }, {
-                        'render': function (data, type, row) {
-                            return renderAll(data, type, row);
+                        'render': function (data, type, row, meta) {
+                            return renderAll(data, type, row, meta);
                         },
                         'targets': '_all'
                     }]

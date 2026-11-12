@@ -52,6 +52,8 @@ class OpendataDatasetGoogleSpreadsheetImporter extends OpendataDatasetAbstractIm
 
     public function import(OpendataDatasetDefinition $definition, $context)
     {
+        // valida prima di cancellare: con righe errate i dati esistenti restano intatti
+        $this->validate($definition, $context);
         if ($this->deleteExistingData) {
             try {
                 $definition->truncate($context);

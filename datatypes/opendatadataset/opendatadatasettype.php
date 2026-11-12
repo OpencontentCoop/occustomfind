@@ -57,6 +57,34 @@ class OpendataDatasetType extends eZDataType
                 ],
             ],
             [
+                'label' => ezpI18n::tr('opendatadataset', 'Amount', "CSV Dataset"),
+                'identifier' => 'amount',
+                'schema' => [
+                    'type' => 'string',
+                ],
+                'options' => [
+                    'placeholder' => '1.550,33',
+                ],
+                'openapi_schema' => [
+                    'type' => 'string',
+                    'example' => '1.550,33',
+                ],
+            ],
+            [
+                'label' => ezpI18n::tr('opendatadataset', 'Percentage', "CSV Dataset"),
+                'identifier' => 'percentage',
+                'schema' => [
+                    'type' => 'string',
+                ],
+                'options' => [
+                    'placeholder' => '12,5%',
+                ],
+                'openapi_schema' => [
+                    'type' => 'string',
+                    'example' => '12,5',
+                ],
+            ],
+            [
                 'label' => ezpI18n::tr('opendatadataset', 'Textarea', "CSV Dataset"),
                 'identifier' => 'textarea',
                 'schema' => [

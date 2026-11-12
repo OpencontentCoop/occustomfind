@@ -136,6 +136,8 @@ class OpendataDatasetImportGoogleSpreadsheetConnector extends OpendataDatasetCon
             && $data['schedule_importer']['delete_before'] == 'true';
         $importer = new OpendataDatasetGoogleSpreadsheetImporter($this->googleSpreadsheetId, $sheetTitle, $deleteExistingData);
         $importer->checkHeaders($this->datasetDefinition);
+        // valida prima di cancellare: un foglio con righe errate non deve far perdere i dati esistenti
+        $importer->validate($this->datasetDefinition, $this->attribute);
         if ($data['delete'] === 'true') {
             try {
                 $this->datasetDefinition->truncateByCreator(eZUser::currentUserID(), $this->attribute);

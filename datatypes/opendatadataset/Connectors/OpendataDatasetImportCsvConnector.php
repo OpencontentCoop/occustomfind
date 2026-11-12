@@ -61,6 +61,8 @@ class OpendataDatasetImportCsvConnector extends OpendataDatasetConnector
             $file = $this->getUploadDir() . $data['file'][0]['name'];
             $importer = new OpendataDatasetCsvImporter($file, $data['delete'] === 'true');
             $importer->checkHeaders($this->datasetDefinition);
+            // valida prima di cancellare: un file con righe errate non deve far perdere i dati esistenti
+            $importer->validate($this->datasetDefinition, $this->attribute);
             if ($data['delete'] === 'true') {
                 try {
                     $this->datasetDefinition->truncateByCreator(eZUser::currentUserID(), $this->attribute);
