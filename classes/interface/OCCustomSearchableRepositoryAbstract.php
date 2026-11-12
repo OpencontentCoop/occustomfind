@@ -56,8 +56,7 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
         $debugDom->loadXML($doc->docToXML());
         eZDebugSetting::writeDebug('occustomfind', $debugDom->saveXML(), __METHOD__);
 
-        $languageCode = eZLocale::currentLocaleCode();
-        $docList[$languageCode] = $doc;
+        $docList[] = $doc;
 
         $softCommit = false;
         if (eZINI::instance('ezfind.ini')->hasVariable('IndexOptions', 'EnableSoftCommits')
@@ -81,7 +80,7 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
             $optimize = true;
         }
 
-        $solr = new eZSolrBase();
+        $solr = OCCustomSearchableSolrResolver::solr();
 
         return $solr->addDocs($docList, $commit, $optimize, $commitWithin, $softCommit);
     }
@@ -101,17 +100,16 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
             $commitWithin = eZINI::instance('ezfind.ini')->variable('IndexOptions', 'CommitWithin');
         }
 
-        $languageCode = eZLocale::currentLocaleCode();
-        $docList[$languageCode] = $object->getGuid();
+        $docList[] = $object->getGuid();
 
-        $solr = new eZSolrBase();
+        $solr = OCCustomSearchableSolrResolver::solr();
 
         return $solr->deleteDocs($docList, false, true, $optimize, $commitWithin);
     }
 
     public function truncate()
     {
-        $solr = new eZSolrBase();
+        $solr = OCCustomSearchableSolrResolver::solr();
         $query = self::META_REPOSITORY_PREFIX . ':' . $this->getIdentifier();
 
         return $solr->deleteDocs(array(), $query, true);
@@ -126,7 +124,7 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
 
         eZDebug::createAccumulator('Engine time', 'eZ Find');
         eZDebug::accumulatorStart('Engine time');
-        $solr = new eZSolrBase();
+        $solr = OCCustomSearchableSolrResolver::solr();
         $resultArray = $solr->rawSearch($queryParams);
         eZDebug::accumulatorStop('Engine time');
         $result = new OCCustomSearchResult($this);
@@ -146,7 +144,7 @@ abstract class OCCustomSearchableRepositoryAbstract implements OCCustomSearchabl
 
         eZDebug::createAccumulator('Engine time', 'eZ Find');
         eZDebug::accumulatorStart('Engine time');
-        $solr = new eZSolrBase();
+        $solr = OCCustomSearchableSolrResolver::solr();
         $resultArray = $solr->rawSearch($queryParams);
         eZDebug::accumulatorStop('Engine time');
 
