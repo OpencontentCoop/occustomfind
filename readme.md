@@ -399,3 +399,30 @@ L'import è tutto-o-niente: prima si validano tutte le righe, e se anche una sol
 messaggio elenca le righe da correggere (riga 1 = intestazione, massimo 20 errori riportati). La validazione avviene
 **prima** della cancellazione richiesta con «Elimina tutti i tuoi dati esistenti»: un file errato non fa perdere i dati
 già presenti. Vale anche per l'import in differita (oltre 200 righe) e per Google Sheet: l'errore arriva subito.
+
+#### Convertire un campo di un dataset esistente in importo o percentuale
+Lo script `bin/php/convert_dataset_field_type.php` converte un campo già esistente (per esempio `importo` di «Dati sui
+pagamenti», che oggi è una stringa) nel tipo `amount` o `percentage`. **È un dry-run di default**: senza `--apply` non
+scrive nulla.
+
+```bash
+# dry-run: elenca quali righe verrebbero accettate e quali rifiutate (con --report anche un CSV)
+php extension/occustomfind/bin/php/convert_dataset_field_type.php -sbackend --object=<id oggetto> --field=importo --type=amount --report=/tmp/importo.csv
+# conversione (solo se non ci sono righe rifiutate)
+php extension/occustomfind/bin/php/convert_dataset_field_type.php -sbackend --object=<id oggetto> --field=importo --type=amount --apply
+# ripristino dal backup creato dall'apply
+php extension/occustomfind/bin/php/convert_dataset_field_type.php -sbackend --restore=<file di backup>
+```
+
+Il dry-run riporta, per ogni riga rifiutata, l'id della riga, il valore, i campi che la identificano
+(`--identify=anno,trimestre,beneficiario`) e il motivo; per gli importi segnala anche le righe che vengono accettate ma con
+un valore diverso da quello che l'export ANAC storico pubblicava (per esempio `1.000`, letto come `1,00`) e che cosa
+pubblicherebbe oggi l'export per le righe rifiutate (`n.d.` diventa `0,00`). Codici di uscita: 0 ok, 2 se ci sono righe da
+correggere, 1 errore.
+
+`--apply`: si rifiuta se resta anche una sola riga rifiutata (nessuna modifica); `--empty-values="n.d.,nd,-"` trasforma in
+campo vuoto i testi indicati (mai in automatico). Salva un backup JSON (`var/<vardir>/dataset_conversion_backup/`, o
+`--backup-dir`), cambia il tipo del campo nella definizione di **ogni lingua** (versione corrente), riscrive le righe in
+un'unica transazione mantenendo data di creazione, data di modifica e autore, svuota le cache, reindicizza e verifica il
+risultato. Si converte solo da campi di testo o numerici. Su 5.000 righe il dry-run impiega meno di un secondo e
+l'apply, reindicizzazione compresa, circa 8 secondi. Test della logica: `php tests/test_field_converter.php`.
