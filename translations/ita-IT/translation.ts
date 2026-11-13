@@ -499,5 +499,21 @@
       <source>Percentage</source>
       <translation>Percentuale</translation>
     </message>
+    <message>
+      <source>Not a valid amount: comma for decimals (max 2), dot only for thousands, for example 1550, 1550,33 or 1.550,33</source>
+      <translation>Importo non valido: virgola per i decimali (massimo 2), punto solo per le migliaia, per esempio 1550, 1550,33 o 1.550,33</translation>
+    </message>
+    <message>
+      <source>Not a valid percentage: comma for decimals (max 4), no other dots, for example 12, 12,5 or 12,5%</source>
+      <translation>Percentuale non valida: virgola per i decimali (massimo 4), senza altri punti, per esempio 12, 12,5 o 12,5%</translation>
+    </message>
+    <message>
+      <source>Format: 1.550,33 (comma for decimals, dot only for thousands)</source>
+      <translation>Formato: 1.550,33 (virgola per i decimali, punto solo per le migliaia)</translation>
+    </message>
+    <message>
+      <source>Format: 12,5 or 12,5% (comma for decimals)</source>
+      <translation>Formato: 12,5 oppure 12,5% (virgola per i decimali)</translation>
+    </message>
   </context>
 </TS>

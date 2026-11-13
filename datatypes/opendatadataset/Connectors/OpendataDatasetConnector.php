@@ -117,6 +117,10 @@ class OpendataDatasetConnector extends AbstractBaseConnector
                 }
             }
             $property = array_merge($property, $this->getBaseSchemaForType($field['type']));
+            if ($this->view !== 'display' && OpendataDatasetNumberNormalizer::supports($field['type'])) {
+                // controllo mentre si digita; quello vero e' lato server (OpendataDatasetDefinition::create)
+                $property['pattern'] = OpendataDatasetNumberNormalizer::formPattern($field['type']);
+            }
             $schema['properties'][$field['identifier']] = $property;
         }
 
@@ -152,8 +156,16 @@ class OpendataDatasetConnector extends AbstractBaseConnector
             if (!empty($options)) {
                 $options['fields'][$field['identifier']] = $option;
             }
+            $helpers = [];
             if (!empty($field['description'])) {
-                $options['fields'][$field['identifier']]['helper'] = trim(strip_tags($field['description']));
+                $helpers[] = trim(strip_tags($field['description']));
+            }
+            if (OpendataDatasetNumberNormalizer::supports($field['type'])) {
+                // formato accettato sempre visibile, senza aspettare l'errore
+                $helpers[] = $this->getNumberFieldHint($field['type']);
+            }
+            if (!empty($helpers)) {
+                $options['fields'][$field['identifier']]['helpers'] = $helpers;
             }
             if (!empty($field['date_format'])) {
                 $options['fields'][$field['identifier']]['dateFormat'] = $field['date_format'];
@@ -188,10 +200,46 @@ class OpendataDatasetConnector extends AbstractBaseConnector
         if ($this->view === 'display'){
             $parent = 'bootstrap-display';
         }
-        return [
+        $view = [
             'parent' => $parent,
             'locale' => $this->getAlpacaLocale()
         ];
+
+        if ($this->view !== 'display') {
+            $locale = $view['locale'] ?: 'en_US';
+            foreach ($this->datasetDefinition->getFields() as $field) {
+                if (OpendataDatasetNumberNormalizer::supports($field['type'])) {
+                    $view['fields']['/' . $field['identifier']]['messages'][$locale]['invalidPattern'] =
+                        $this->getNumberFieldMessage($field['type']);
+                }
+            }
+        }
+
+        return $view;
+    }
+
+    private function getNumberFieldHint($type)
+    {
+        if ($type === OpendataDatasetNumberNormalizer::TYPE_AMOUNT) {
+            return ezpI18n::tr('opendatadataset', 'Format: 1.550,33 (comma for decimals, dot only for thousands)');
+        }
+
+        return ezpI18n::tr('opendatadataset', 'Format: 12,5 or 12,5% (comma for decimals)');
+    }
+
+    private function getNumberFieldMessage($type)
+    {
+        if ($type === OpendataDatasetNumberNormalizer::TYPE_AMOUNT) {
+            return ezpI18n::tr(
+                'opendatadataset',
+                'Not a valid amount: comma for decimals (max 2), dot only for thousands, for example 1550, 1550,33 or 1.550,33'
+            );
+        }
+
+        return ezpI18n::tr(
+            'opendatadataset',
+            'Not a valid percentage: comma for decimals (max 4), no other dots, for example 12, 12,5 or 12,5%'
+        );
     }
 
     protected function getAlpacaLocale()

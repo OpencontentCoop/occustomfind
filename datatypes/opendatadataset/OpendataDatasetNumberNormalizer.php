@@ -14,11 +14,11 @@
  * amount (dopo aver tolto euro e spazi, segno meno opzionale):
  *   1550   1550,33   1.550,33          italiano
  *   1.550  1.000.000                   solo migliaia (punto + gruppi di 3 cifre: "2.304" = 2304, come eZ con ita-IT)
- *   1550.33   1,550.33                 inglese, 1-2 decimali
+ *   Non e' ammesso il formato inglese ("1550.33", "1,550.33"): il formato e' sempre 100,00.
  *   Non ammessi: 3+ decimali, gruppi sbagliati ("100.000.00"), un solo "1,550", testo, vuoto.
  *
- * percentage (il % finale e' opzionale, i negativi non sono ammessi; l'importo invece tollera il segno meno):
- *   12   12,5   12.5   12,5%   12,5 %   un solo separatore e' sempre il decimale ("1.234" = 1,234)
+ * percentage (il % finale e' opzionale, segno meno opzionale, anche U+2212; "-0" diventa "0"):
+ *   12   12,5   12.5   12,5%   12,5 %   -5,5%   un solo separatore e' sempre il decimale ("1.234" = 1,234)
  *   1.234,5   1,234.5                  migliaia ammesse solo con parte decimale
  *   Non ammessi: piu' di 4 decimali, %% o % non finale, testo, vuoto.
  *
@@ -28,6 +28,30 @@ class OpendataDatasetNumberNormalizer
 {
     const TYPE_AMOUNT = 'amount';
     const TYPE_PERCENTAGE = 'percentage';
+
+    /**
+     * Espressioni (sintassi JavaScript, usate come "pattern" dello schema del form) che accettano al piu' quello che
+     * normalize() accetta: servono solo per segnalare l'errore mentre si digita, il controllo vero resta sempre
+     * normalize() lato server.
+     */
+    const FORM_PATTERN_AMOUNT = '^[\\s€]*-?[\\s€]*(?:\\d+|\\d{1,3}(?:[.\\s]\\d{3})+|(?:\\d+|\\d{1,3}(?:[.\\s]\\d{3})+),\\d{1,2})[\\s€]*$';
+    const FORM_PATTERN_PERCENTAGE = '^\\s*[-\\u2212]?\\s*(?:\\d+|\\d+[.,]\\d{1,4}|\\d{1,3}(?:\\.\\d{3})+,\\d{1,4}|\\d{1,3}(?:,\\d{3})+\\.\\d{1,4})\\s*%?\\s*$';
+
+    /**
+     * @param string $type amount|percentage
+     * @return string|null
+     */
+    public static function formPattern($type)
+    {
+        switch ($type) {
+            case self::TYPE_AMOUNT:
+                return self::FORM_PATTERN_AMOUNT;
+            case self::TYPE_PERCENTAGE:
+                return self::FORM_PATTERN_PERCENTAGE;
+        }
+
+        return null;
+    }
 
     /**
      * @param string $type
@@ -83,15 +107,12 @@ class OpendataDatasetNumberNormalizer
         } elseif (preg_match('/^(\d+|\d{1,3}(\.\d{3})+),(\d{1,2})$/', $value, $m)) {
             $int = str_replace('.', '', $m[1]);
             $dec = $m[3];
-        } elseif (preg_match('/^(\d+|\d{1,3}(,\d{3})+)\.(\d{1,2})$/', $value, $m)) {
-            $int = str_replace(',', '', $m[1]);
-            $dec = $m[3];
         }
 
         if ($int === null) {
             throw new InvalidArgumentException(
-                "'" . (string)$raw . "' non è un importo valido (massimo 2 decimali, "
-                . "per esempio 1550, 1550,33 o 1.550,33)"
+                "'" . (string)$raw . "' non è un importo valido: virgola per i decimali (massimo 2), "
+                . "punto solo per le migliaia, per esempio 1550, 1550,33 o 1.550,33"
             );
         }
 
@@ -119,11 +140,10 @@ class OpendataDatasetNumberNormalizer
             $value = rtrim(substr($value, 0, -1));
         }
 
-        if (preg_match('/^\s*[-\x{2212}]/u', $value)) {
-            throw new InvalidArgumentException(
-                "'" . (string)$raw . "' non è una percentuale valida: non può essere negativa "
-                . "(per esempio 12, 12,5 o 12,5%)"
-            );
+        $negative = false;
+        if (preg_match('/^[-\x{2212}]\s*(.*)$/us', $value, $m)) {
+            $negative = true;
+            $value = $m[1];
         }
 
         $int = null;
@@ -143,8 +163,8 @@ class OpendataDatasetNumberNormalizer
 
         if ($int === null) {
             throw new InvalidArgumentException(
-                "'" . (string)$raw . "' non è una percentuale valida (massimo 4 decimali, "
-                . "per esempio 12, 12,5 o 12,5%)"
+                "'" . (string)$raw . "' non è una percentuale valida: virgola per i decimali (massimo 4), "
+                . "senza altri punti, per esempio 12, 12,5 o 12,5%"
             );
         }
 
@@ -153,8 +173,11 @@ class OpendataDatasetNumberNormalizer
             $int = '0';
         }
         $dec = rtrim($dec, '0');
+        if ($int === '0' && $dec === '') {
+            $negative = false;
+        }
 
-        return $int . ($dec !== '' ? ',' . $dec : '');
+        return ($negative ? '-' : '') . $int . ($dec !== '' ? ',' . $dec : '');
     }
 
     /**

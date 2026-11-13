@@ -503,5 +503,21 @@
       <source>Percentage</source>
       <translation>Prozentsatz</translation>
     </message>
+    <message>
+      <source>Not a valid amount: comma for decimals (max 2), dot only for thousands, for example 1550, 1550,33 or 1.550,33</source>
+      <translation>Ungültiger Betrag: Komma für Dezimalstellen (höchstens 2), Punkt nur für Tausender, zum Beispiel 1550, 1550,33 oder 1.550,33</translation>
+    </message>
+    <message>
+      <source>Not a valid percentage: comma for decimals (max 4), no other dots, for example 12, 12,5 or 12,5%</source>
+      <translation>Ungültiger Prozentsatz: Komma für Dezimalstellen (höchstens 4), keine weiteren Punkte, zum Beispiel 12, 12,5 oder 12,5%</translation>
+    </message>
+    <message>
+      <source>Format: 1.550,33 (comma for decimals, dot only for thousands)</source>
+      <translation>Format: 1.550,33 (Komma für Dezimalstellen, Punkt nur für Tausender)</translation>
+    </message>
+    <message>
+      <source>Format: 12,5 or 12,5% (comma for decimals)</source>
+      <translation>Format: 12,5 oder 12,5% (Komma für Dezimalstellen)</translation>
+    </message>
   </context>
 </TS>

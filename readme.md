@@ -381,8 +381,8 @@ del dataset.
 
 | Tipo | Salvato | Esempi di input accettati |
 |---|---|---|
-| `amount` | formato ANAC `n.nnn,dd` (sempre 2 decimali) | `1550`, `1550,33`, `1.550,33`, `1.550`, `1550.33`, `1,550.33`, `€ 1.550,33` |
-| `percentage` | numero con virgola, senza migliaia né zeri finali, max 4 decimali, **non negativo** | `12`, `12,5`, `12.5`, `12,5%`, `12,5 %` |
+| `amount` | formato ANAC `n.nnn,dd` (sempre 2 decimali) | `1550`, `1550,33`, `1.550,33`, `1.550` (= 1550), `€ 1.550,33`; il formato inglese (`1550.33`) è rifiutato |
+| `percentage` | numero con virgola, senza migliaia né zeri finali, max 4 decimali, segno meno ammesso | `12`, `12,5`, `12.5`, `12,5%`, `12,5 %`, `-5,5%` |
 
 Un valore non interpretabile in modo univoco (`100.000.00`, `1,550`, `abc`, più di 2 decimali per l'importo) viene
 rifiutato con un messaggio che indica il campo. L'importo tollera il segno meno (rettifiche, storni), la percentuale
