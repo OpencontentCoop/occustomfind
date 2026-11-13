@@ -110,8 +110,7 @@ $ap = OpendataDatasetFieldConverter::analyze(rows(['12,5 %', '10%', '-20', '0', 
 $mp = byGuid($ap);
 check('perc: "12,5 %"', '12,5', $mp['g0']['new']);
 check('perc: "10%"', '10', $mp['g1']['new']);
-check('perc: -20 rifiutato (negativa)', 'rejected', $mp['g2']['status']);
-check('perc: -20 motivo parla di negativa', true, strpos($mp['g2']['reason'], 'negativ') !== false);
+check('perc: -20 accettata (negativa ammessa)', 'already', $mp['g2']['status']);
 check('perc: "0"', 'already', $mp['g3']['status']);
 check('perc: n.d. rifiutato', 'rejected', $mp['g4']['status']);
 check('perc: 150 gia\' ok', 'already', $mp['g5']['status']);
@@ -147,8 +146,8 @@ $vals = [];
 for ($i = 0; $i < 3000; $i++) {
     $int = (string)mt_rand(0, 99999999);
     $cents = str_pad((string)mt_rand(0, 99), 2, '0', STR_PAD_LEFT);
-    $forms = [$int . ',' . $cents, '€ ' . preg_replace('/\B(?=(\d{3})+(?!\d))/', '.', $int) . ',' . $cents, $int . '.' . $cents];
-    $vals[] = $forms[mt_rand(0, 2)];
+    $forms = [$int . ',' . $cents, '€ ' . preg_replace('/\B(?=(\d{3})+(?!\d))/', '.', $int) . ',' . $cents];
+    $vals[] = $forms[mt_rand(0, 1)];
 }
 $big = OpendataDatasetFieldConverter::analyze(rows($vals), 'importo', 'amount');
 check('3000 righe: nessuna rifiutata', 0, $big['summary']['rejected']);

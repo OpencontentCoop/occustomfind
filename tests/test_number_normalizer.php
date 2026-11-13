@@ -34,8 +34,9 @@ $amount = [
     '1.550,33' => '1.550,33', '24.400,00' => '24.400,00', '1.234.567,89' => '1.234.567,89', '0,00' => '0,00',
     '1.000' => '1.000,00', '2.304' => '2.304,00', '100.000' => '100.000,00',
     '100.000.000' => '100.000.000,00', '1.000.000' => '1.000.000,00',
-    '1550.33' => '1.550,33', '10000.20' => '10.000,20', '2.30' => '2,30', '1.5' => '1,50',
-    '1,550.33' => '1.550,33', '1,234,567.89' => '1.234.567,89',
+    // formato inglese non ammesso: il formato e' sempre 100,00
+    '1550.33' => 'EXC', '10000.20' => 'EXC', '2.30' => 'EXC', '1.5' => 'EXC', '100.00' => 'EXC',
+    '1,550.33' => 'EXC', '1,234,567.89' => 'EXC',
     '€ 12.688,40' => '12.688,40', '€ 1.464,00' => '1.464,00', '1.464,00 €' => '1.464,00', '€1464' => '1.464,00',
     '10 000,50' => '10.000,50', "10\xc2\xa0000,50" => '10.000,50', '  500  ' => '500,00',
     '-500,5' => '-500,50', '-€ 1.000,00' => '-1.000,00', '-0,00' => '0,00',
@@ -60,8 +61,10 @@ $percentage = [
     "12\xc2\xa0%" => '12', ' 12 ' => '12', '  12,5  %  ' => '12,5',
     // zero, oltre 100, negativi
     '0' => '0', '0%' => '0', '0,0' => '0', '100' => '100', '150%' => '150', '1000,5%' => '1000,5',
-    // i negativi non sono ammessi (l'importo invece tollera il segno meno)
-    '-5,5%' => 'EXC', '-5' => 'EXC', '-0%' => 'EXC', '-0,0' => 'EXC', '-12,5 %' => 'EXC', '- 5' => 'EXC',
+    // negativi ammessi (anche segno U+2212); "-0" diventa "0"
+    '-5,5%' => '-5,5', '-5' => '-5', '-0%' => '0', '-0,0' => '0', '-12,5 %' => '-12,5', '- 5' => '-5',
+    "\xe2\x88\x925,5" => '-5,5', '-1.234,5%' => '-1234,5', '-1,234.5' => '-1234,5', '-33.33' => '-33,33',
+    '--5' => 'EXC', '-' => 'EXC', '-%' => 'EXC', '5-' => 'EXC', '-5%%' => 'EXC', '-abc' => 'EXC', '+5' => 'EXC', '-12,12345' => 'EXC',
     // zeri finali tolti, fino a 4 decimali
     '12,50' => '12,5', '12,500' => '12,5', '12,0' => '12', '0,0001' => '0,0001', '12,1234' => '12,1234', '12,10%' => '12,1',
     // un solo separatore e' sempre il decimale
@@ -97,7 +100,7 @@ $floats = [
 foreach ($floats as $f) {
     check("toFloat {$f[0]} '{$f[1]}'", $f[2], OpendataDatasetNumberNormalizer::toFloat($f[0], $f[1]));
 }
-check('toFloat percentuale negativa (dato legacy): non indicizzata', null, OpendataDatasetNumberNormalizer::toFloat('percentage', '-5,5'));
+check('toFloat percentuale negativa: indicizzata', -5.5, OpendataDatasetNumberNormalizer::toFloat('percentage', '-5,5'));
 check('toFloat importo negativo: indicizzato', -500.5, OpendataDatasetNumberNormalizer::toFloat('amount', '-500,50'));
 check('toFloat vuoto', null, OpendataDatasetNumberNormalizer::toFloat('amount', ''));
 check('toFloat null', null, OpendataDatasetNumberNormalizer::toFloat('percentage', null));
@@ -115,7 +118,11 @@ for ($i = 0; $i < 3000; $i++) {
     $anac = preg_replace('/\B(?=(\d{3})+(?!\d))/', '.', $int) . ',' . $dec;
     $it = preg_replace('/\B(?=(\d{3})+(?!\d))/', '.', $int);
     $en = preg_replace('/\B(?=(\d{3})+(?!\d))/', ',', $int);
-    $variants = [$int . ',' . $dec, $int . '.' . $dec, $it . ',' . $dec, $en . '.' . $dec, '€ ' . $it . ',' . $dec, $it . ',' . $dec . ' €'];
+    $variants = [$int . ',' . $dec, $it . ',' . $dec, '€ ' . $it . ',' . $dec, $it . ',' . $dec . ' €'];
+    // formato inglese sempre rifiutato
+    foreach ([$int . '.' . $dec, $en . '.' . $dec] as $english) {
+        run('amount', $english) === 'EXC' ? $passed++ : check("amount inglese rifiutato '" . $english . "'", 'EXC', run('amount', $english));
+    }
     if ($cents === 0) {
         $variants[] = $int;
         $variants[] = $it;
@@ -153,19 +160,54 @@ try {
     check('amount: messaggio contiene un esempio', true, strpos($e->getMessage(), '1.550,33') !== false);
 }
 try {
-    OpendataDatasetNumberNormalizer::normalize('percentage', '-5,5%');
-    check('eccezione attesa (percentuale negativa)', true, false);
-} catch (InvalidArgumentException $e) {
-    check('percentuale negativa: messaggio dice che non puo\' essere negativa', true, strpos($e->getMessage(), 'negativ') !== false);
-    check('percentuale negativa: messaggio contiene il valore', true, strpos($e->getMessage(), '-5,5%') !== false);
-    check('percentuale negativa: messaggio contiene un esempio', true, strpos($e->getMessage(), '12,5') !== false);
-}
-try {
     OpendataDatasetNumberNormalizer::normalize('percentage', 'abc');
     check('eccezione attesa (percentage)', true, false);
 } catch (InvalidArgumentException $e) {
     check('percentage: messaggio contiene il valore', true, strpos($e->getMessage(), 'abc') !== false);
     check('percentage: messaggio contiene un esempio', true, strpos($e->getMessage(), '12,5') !== false);
+}
+
+// ================================================================ PATTERN DEL FORM (controllo mentre si digita)
+// Il pattern e' JavaScript; qui si traduce l'unica sequenza diversa (\u2212) per provarlo con PCRE.
+// Regola: il pattern non deve mai accettare cio' che normalize() rifiuta, e deve accettare tutto cio' che
+// normalize() restituisce e ogni forma documentata.
+$toPcre = function ($type) {
+    return '/' . str_replace('/', '\\/', str_replace('\\u2212', '\\x{2212}', OpendataDatasetNumberNormalizer::formPattern($type))) . '/u';
+};
+mt_srand(11);
+$alphabet = ['0', '1', '2', '5', '9', '.', ',', '-', ' ', '%', "\xe2\x82\xac", "\xe2\x88\x92", 'a', '+'];
+foreach (['amount', 'percentage'] as $type) {
+    $re = $toPcre($type);
+    $tooLoose = 0;
+    $tooStrictOnDocumented = 0;
+    for ($i = 0; $i < 20000; $i++) {
+        $s = '';
+        for ($j = mt_rand(0, 9); $j > 0; $j--) {
+            $s .= $alphabet[mt_rand(0, count($alphabet) - 1)];
+        }
+        if (preg_match($re, $s) && run($type, $s) !== 'EXC') {
+            continue;
+        }
+        if (preg_match($re, $s)) {
+            $tooLoose++;
+        }
+    }
+    check("pattern $type: mai piu' largo del server", 0, $tooLoose);
+}
+$documented = [
+    'amount' => ['1550', '1550,33', '1.550,33', '1.550', '€ 1.550,33', '-500,50', '-€ 500,50', '€ -500,50', '10 000,50', "1\xc2\xa0550", ' 12 ', '0', '0,5'],
+    'percentage' => ['12', '12,5', '12.5', '12,5%', '12,5 %', '-5,5%', "\xe2\x88\x925", '1.234,5', '1,234.5', '0', '-0', ' 12 % '],
+];
+foreach ($documented as $type => $values) {
+    foreach ($values as $v) {
+        check("pattern $type accetta '$v'", 1, preg_match($toPcre($type), $v));
+        check("normalize $type accetta '$v'", true, run($type, $v) !== 'EXC');
+    }
+}
+foreach (['amount' => ['', 'abc', '100.00', '1550.33', '1,550.33', '100.000.00', '1,550', '12,345', '--5', '5-', '€', '1,2,3', '12%'], 'percentage' => ['', 'abc', '12,12345', '12%%', '%12', '--5', '5-', '1.2.3', '12,5,5', '€12']] as $type => $values) {
+    foreach ($values as $v) {
+        check("pattern $type rifiuta '$v'", 0, preg_match($toPcre($type), $v));
+    }
 }
 
 echo "\n$passed controlli ok, $failed falliti\n";

@@ -207,6 +207,18 @@
             });
         };
 
+        // Importo e percentuale: Alpaca segnala il formato errato solo all'uscita dal campo; qui lo si fa mentre si digita
+        // (il pattern arriva dallo schema del form, il controllo vero resta lato server)
+        datasetContainer.on('input', '.dataset-form .alpaca-field-text input', function () {
+            let alpacaField = window.Alpaca && Alpaca.fieldInstances
+                ? Alpaca.fieldInstances[$(this).closest('.alpaca-field').data('alpacaFieldId')]
+                : null;
+            if (alpacaField && alpacaField.schema && alpacaField.schema.pattern
+                && typeof alpacaField.refreshValidationState === 'function') {
+                alpacaField.refreshValidationState(false);
+            }
+        });
+
         let editItem = function (guid) {
             datasetContainer.find('.dataset-form').opendataForm({
                 'id': settings.id,
@@ -459,7 +471,7 @@
                 if (type === 'amount' && /^-?\d{1,3}(\.\d{3})*,\d{2}$/.test(value)) {
                     return value.charAt(0) === '-' ? '-&euro;&nbsp;' + value.slice(1) : '&euro;&nbsp;' + value;
                 }
-                if (type === 'percentage' && /^\d+(,\d+)?$/.test(value)) {
+                if (type === 'percentage' && /^-?\d+(,\d+)?$/.test(value)) {
                     return value + '%';
                 }
                 return null;
