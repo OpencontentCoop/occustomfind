@@ -9,7 +9,7 @@ if ($import instanceof SQLIScheduledImport) {
     $options = $import->getOptions();
     $objectId = (int)$options->object_id;
     $object = eZContentObject::fetch($objectId);
-    if ($object instanceof eZContentObject && $object->canEdit()) {
+    if ($object instanceof eZContentObject && OpendataDatasetEditPolicy::canEditObject($object)) {
         OpendataDatasetImporterRegistry::removeScheduledImport($id);
         $Module->redirectTo('/openpa/object/' . $objectId);
         return;

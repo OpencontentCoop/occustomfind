@@ -318,25 +318,7 @@ class OpendataDatasetType extends eZDataType
 
     private function canEdit($contentObjectAttribute)
     {
-        if ($contentObjectAttribute->attribute('object')->canEdit()) {
-            return true;
-        }
-
-        $datasetNodeId = (int)$contentObjectAttribute->object()->mainNodeID();
-        if ($datasetNodeId) {
-            $role = OpendataDatasetDefinition::getRole();
-            $userID = eZUser::currentUserID();
-            $node = eZContentObjectTreeNode::fetch($datasetNodeId, false, false);
-            $limitIdent = 'Subtree';
-            $limitValue = $node['path_string'];
-            $query = "SELECT * FROM ezuser_role WHERE role_id='$role->ID' AND contentobject_id='$userID' AND limit_identifier='$limitIdent' AND limit_value='$limitValue'";
-            $rows = eZDB::instance()->arrayQuery($query);
-            if (count($rows) > 0) {
-                return true;
-            }
-        }
-
-        return false;
+        return OpendataDatasetEditPolicy::canEditObject($contentObjectAttribute->attribute('object'));
     }
 
     function toString($contentObjectAttribute)
