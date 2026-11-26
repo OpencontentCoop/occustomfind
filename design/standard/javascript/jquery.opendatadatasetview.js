@@ -543,6 +543,17 @@
             });
             datatable = table.opendataDataTable({
                 'table': {
+                    // id univoco per istanza (settings.id = id dell'attributo
+                    // csv_resource, globalmente unico in eZ) - senza questo,
+                    // il default del plugin ('exemple', mai parametrizzato)
+                    // collide quando piu' di un dataset e' visualizzato nella
+                    // stessa pagina (es. due blocchi "Singolo" per due
+                    // dataset diversi), producendo id DOM duplicati e
+                    // controlli DataTables sdoppiati/sbagliati - trovato il
+                    // 2026-11-26 sulla pagina "Bilanci" (art.29, cms#556),
+                    // primo caso in questo prodotto con due dataset nella
+                    // stessa pagina.
+                    'id': 'opendatadataset-table-' + settings.id,
                     'template': settings.datatable.template
                 },
                 'builder': {
@@ -893,7 +904,11 @@
                         }
                     });
                     let isMultiple = $.inArray(field, settings.filterAllowMultipleValue) > -1 ? 'multiple' : false;
-                    let select = $('<select '+isMultiple+' data-placeholder="' + settings.i18n.filter_by + ' ' + labelText + '" id="' + field + '" data-field="' + field + '"">');
+                    // id univoco per istanza+campo (vedi nota sopra su
+                    // 'opendatadataset-table-' + settings.id) - 'field' resta
+                    // nel solo data-field, usato dalla query, non come id DOM.
+                    let fieldDomId = 'opendatadataset-facet-' + settings.id + '-' + field;
+                    let select = $('<select '+isMultiple+' data-placeholder="' + settings.i18n.filter_by + ' ' + labelText + '" id="' + fieldDomId + '" data-field="' + field + '"">');
                     if (isMultiple === false) {
                         select.append($('<option value=""></option>'));
                     }
@@ -914,7 +929,7 @@
                         }
                         select.append(option);
                     });
-                    let label = $('<label class="sr-only" for="' + field + '">' + labelText + '</label>');
+                    let label = $('<label class="sr-only" for="' + fieldDomId + '">' + labelText + '</label>');
                     let selectContainer = $('<div class="col my-1"></div>');
                     selectContainer.append(label).append(select);
                     facetsContainer.append(selectContainer);
@@ -957,14 +972,21 @@
         };
 
         if (settings.searchInput){
+            // id univoci per istanza (vedi nota su 'opendatadataset-table-' +
+            // settings.id sopra): resetButton e searchButton condividevano lo
+            // stesso id letterale 'button-addon2' tra loro (HTML invalido
+            // anche con un solo dataset in pagina) e collidevano ulteriormente
+            // tra istanze diverse con piu' di un dataset nella stessa pagina.
+            let resetButtonDomId = 'opendatadataset-reset-' + settings.id;
+            let searchButtonDomId = 'opendatadataset-search-' + settings.id;
             let searchinputContainer = $('<div class="mb-2" style="position:relative"></div>')
-            let resetButton = $('<button class="position-absolute" style="position:absolute; top:10px; right:50px;background: #fff;border: none;display:none" type="button" id="button-addon2"><i class="fa fa-close"></></button>')
+            let resetButton = $('<button class="position-absolute" style="position:absolute; top:10px; right:50px;background: #fff;border: none;display:none" type="button" id="' + resetButtonDomId + '"><i class="fa fa-close"></></button>')
               .on('click', function (e){
                   searchInput.val('')
                   searchButton.trigger('click');
                   e.preventDefault();
               });
-            let searchInput = $('<input type="text" class="form-control form-control-lg border rounded bg-white" style="padding-right:50px" placeholder="'+settings.i18n.search_placeholder+'" aria-label="'+settings.i18n.search_placeholder+'" aria-describedby="button-addon2">')
+            let searchInput = $('<input type="text" class="form-control form-control-lg border rounded bg-white" style="padding-right:50px" placeholder="'+settings.i18n.search_placeholder+'" aria-label="'+settings.i18n.search_placeholder+'" aria-describedby="' + searchButtonDomId + '">')
               .appendTo(searchinputContainer)
               .on('keyup', function (e) {
                   let query = $(this).val();
@@ -983,7 +1005,7 @@
                   }
               });
             resetButton.appendTo(searchinputContainer)
-            let searchButton = $('<button class="position-absolute" style="position:absolute; top:10px; right:20px;background: #fff;border: none;" type="button" id="button-addon2"><i class="fa fa-search"></></button>')
+            let searchButton = $('<button class="position-absolute" style="position:absolute; top:10px; right:20px;background: #fff;border: none;" type="button" id="' + searchButtonDomId + '"><i class="fa fa-search"></></button>')
               .appendTo(searchinputContainer)
               .on('click', function (e){
                   let query = searchInput.val();
