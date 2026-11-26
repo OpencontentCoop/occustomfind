@@ -77,7 +77,7 @@
 ))}
 {def $custom_repository = concat('dataset-', $attribute.contentclass_attribute_identifier, '-',$attribute.contentobject_id)}
 
-<div id="dataset-{$attribute.id}" class="my-5 w-100">
+<div id="dataset-{$attribute.id}" class="my-5{if and(is_set($hide_download), $hide_download)} mt-0{/if} w-100">
     <div class="data_actions_and_alerts">
         <div class="data_actions">
             <a href="{concat('/customexport/',$custom_repository)|ezurl(no)}" data-href="{concat('/customexport/',$custom_repository)|ezurl(no)}" data-action="export" class="btn btn-primary btn-xs mb-1 mr-1"><i class="fa fa-download"></i> {'Download CSV'|i18n('opendatadataset')}</a>
